@@ -1,0 +1,20 @@
+Classification Report — Random Forest (Primary Model)
+============================================================
+                            precision    recall  f1-score   support
+
+                    BENIGN       1.00      1.00      1.00    367053
+             DoS GoldenEye       0.00      0.00      0.00         0
+                  DoS Hulk       0.00      0.00      0.00         0
+          DoS Slowhttptest       0.00      0.00      0.00         0
+             DoS slowloris       0.00      0.00      0.00         0
+               FTP-Patator       0.00      0.00      0.00         0
+                Heartbleed       0.00      0.00      0.00         0
+              Infiltration       0.00      0.00      0.00         0
+               SSH-Patator       0.00      0.00      0.00         0
+  Web Attack � Brute Force       0.00      0.00      0.00         0
+Web Attack � Sql Injection       0.00      0.00      0.00         0
+          Web Attack � XSS       0.00      0.00      0.00         0
+
+                  accuracy                           1.00    367053
+                 macro avg       0.08      0.08      0.08    367053
+              weighted avg       1.00      1.00      1.00    367053

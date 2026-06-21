@@ -1,0 +1,61 @@
+model,class,precision,recall,f1,support
+random_forest_research,BENIGN,0.9961,0.968,0.9818,10000
+random_forest_research,Bot,0.7992,0.9924,0.8854,393
+random_forest_research,DDoS,0.9998,0.999,0.9994,10000
+random_forest_research,DoS GoldenEye,0.9961,0.9985,0.9973,2059
+random_forest_research,DoS Hulk,0.9924,0.9982,0.9953,10000
+random_forest_research,DoS Slowhttptest,0.9919,0.9964,0.9941,1100
+random_forest_research,DoS slowloris,0.9974,0.9922,0.9948,1159
+random_forest_research,FTP-Patator,0.9994,1.0,0.9997,1588
+random_forest_research,Heartbleed,1.0,1.0,1.0,2
+random_forest_research,Infiltration,0.4167,0.7143,0.5263,7
+random_forest_research,PortScan,1.0,0.999,0.9995,10000
+random_forest_research,SSH-Patator,0.9432,1.0,0.9708,1180
+random_forest_research,Web Attack � Brute Force,0.7536,0.5265,0.6199,302
+random_forest_research,Web Attack � Sql Injection,0.2105,1.0,0.3478,4
+random_forest_research,Web Attack � XSS,0.3971,0.8308,0.5373,130
+xgboost_research,BENIGN,0.9987,0.9979,0.9983,10000
+xgboost_research,Bot,0.9725,0.9898,0.9811,393
+xgboost_research,DDoS,0.9996,1.0,0.9998,10000
+xgboost_research,DoS GoldenEye,0.9966,0.9995,0.9981,2059
+xgboost_research,DoS Hulk,0.9993,0.9993,0.9993,10000
+xgboost_research,DoS Slowhttptest,0.9955,0.9945,0.995,1100
+xgboost_research,DoS slowloris,0.9965,0.9948,0.9957,1159
+xgboost_research,FTP-Patator,1.0,1.0,1.0,1588
+xgboost_research,Heartbleed,1.0,1.0,1.0,2
+xgboost_research,Infiltration,1.0,0.8571,0.9231,7
+xgboost_research,PortScan,0.9999,0.9996,0.9997,10000
+xgboost_research,SSH-Patator,1.0,0.9992,0.9996,1180
+xgboost_research,Web Attack � Brute Force,0.7532,0.7682,0.7607,302
+xgboost_research,Web Attack � Sql Injection,0.75,0.75,0.75,4
+xgboost_research,Web Attack � XSS,0.4553,0.4308,0.4427,130
+cnn_research,BENIGN,0.9946,0.7939,0.883,10000
+cnn_research,Bot,0.449,0.9975,0.6193,393
+cnn_research,DDoS,0.9931,0.9988,0.996,10000
+cnn_research,DoS GoldenEye,0.9656,0.9543,0.9599,2059
+cnn_research,DoS Hulk,0.9579,0.9938,0.9755,10000
+cnn_research,DoS Slowhttptest,0.9419,0.9873,0.964,1100
+cnn_research,DoS slowloris,0.9279,0.9767,0.9517,1159
+cnn_research,FTP-Patator,0.9675,0.9924,0.9798,1588
+cnn_research,Heartbleed,0.125,1.0,0.2222,2
+cnn_research,Infiltration,0.0146,0.7143,0.0286,7
+cnn_research,PortScan,0.9953,0.9937,0.9945,10000
+cnn_research,SSH-Patator,0.7719,0.9839,0.8651,1180
+cnn_research,Web Attack � Brute Force,0.4146,0.0563,0.0991,302
+cnn_research,Web Attack � Sql Injection,0.0042,0.25,0.0083,4
+cnn_research,Web Attack � XSS,0.2674,0.9769,0.4198,130
+lstm_research,BENIGN,0.988,0.708,0.8249,10000
+lstm_research,Bot,0.4441,0.9593,0.6071,393
+lstm_research,DDoS,0.9941,0.9983,0.9962,10000
+lstm_research,DoS GoldenEye,0.954,0.8868,0.9192,2059
+lstm_research,DoS Hulk,0.9438,0.9902,0.9664,10000
+lstm_research,DoS Slowhttptest,0.8903,0.9664,0.9268,1100
+lstm_research,DoS slowloris,0.924,0.912,0.9179,1159
+lstm_research,FTP-Patator,0.8479,0.9969,0.9164,1588
+lstm_research,Heartbleed,0.0156,1.0,0.0308,2
+lstm_research,Infiltration,0.016,0.7143,0.0313,7
+lstm_research,PortScan,0.9904,0.9916,0.991,10000
+lstm_research,SSH-Patator,0.6734,0.989,0.8012,1180
+lstm_research,Web Attack � Brute Force,0.0995,0.0629,0.0771,302
+lstm_research,Web Attack � Sql Injection,0.0022,0.25,0.0044,4
+lstm_research,Web Attack � XSS,0.2894,0.9615,0.4448,130

@@ -1,0 +1,5 @@
+model,train_time_s,pred_time_s,pred_time_ms,realtime_ok
+random_forest_research,15.061,0.430215,430.215,False
+xgboost_research,103.482,0.760808,760.808,False
+cnn_research,458.408,5.888226,5888.226,False
+lstm_research,260.019,7.160677,7160.677,False

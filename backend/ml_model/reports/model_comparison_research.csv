@@ -1,0 +1,5 @@
+model_name,split_mode,accuracy,balanced_accuracy,precision,recall,f1_score,macro_precision,macro_recall,macro_f1,attack_detection_rate,false_positive_rate,false_negative_rate,roc_auc,train_time_s,pred_time_s
+xgboost_research,temporal,0.9959,0.9187,0.9959,0.9959,0.9959,0.9278,0.9187,0.9229,0.9131,0.0021,0.0003,0.9998,103.482,0.760808
+random_forest_research,temporal,0.9886,0.9344,0.9907,0.9886,0.9892,0.8329,0.9344,0.8566,0.9319,0.032,0.001,0.9997,15.061,0.430215
+cnn_research,temporal,0.9445,0.8447,0.966,0.9445,0.9501,0.6527,0.8447,0.6645,0.8483,0.2061,0.0011,0.9975,458.408,5.888226
+lstm_research,temporal,0.9203,0.8258,0.9507,0.9203,0.9282,0.6048,0.8258,0.6304,0.8342,0.292,0.0023,0.9958,260.019,7.160677

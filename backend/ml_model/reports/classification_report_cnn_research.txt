@@ -1,0 +1,24 @@
+Classification Report — CNN_RESEARCH
+Split mode: temporal
+============================================================
+                            precision    recall  f1-score   support
+
+                    BENIGN       0.99      0.79      0.88     10000
+                       Bot       0.45      1.00      0.62       393
+                      DDoS       0.99      1.00      1.00     10000
+             DoS GoldenEye       0.97      0.95      0.96      2059
+                  DoS Hulk       0.96      0.99      0.98     10000
+          DoS Slowhttptest       0.94      0.99      0.96      1100
+             DoS slowloris       0.93      0.98      0.95      1159
+               FTP-Patator       0.97      0.99      0.98      1588
+                Heartbleed       0.12      1.00      0.22         2
+              Infiltration       0.01      0.71      0.03         7
+                  PortScan       1.00      0.99      0.99     10000
+               SSH-Patator       0.77      0.98      0.87      1180
+  Web Attack � Brute Force       0.41      0.06      0.10       302
+Web Attack � Sql Injection       0.00      0.25      0.01         4
+          Web Attack � XSS       0.27      0.98      0.42       130
+
+                  accuracy                           0.94     47924
+                 macro avg       0.65      0.84      0.66     47924
+              weighted avg       0.97      0.94      0.95     47924
