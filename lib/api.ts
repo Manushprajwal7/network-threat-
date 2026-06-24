@@ -117,6 +117,8 @@ export interface CaptureStatus {
   events_analyzed: number;
   packets_failed: number;
   raw_packets_seen: number;
+  active_flows?: number;
+  batch_interval_s?: number;
   tshark_available: boolean;
   tshark_path: string | null;
   tshark_error: string | null;
@@ -130,7 +132,9 @@ export interface HealthStatus {
   backend: string;
   models_loaded: boolean;
   available_models: string[];
+  ensemble_models?: string[];
   primary_model: string | null;
+  dataset?: string;
   tshark_available: boolean;
   tshark_info: string;
   timestamp: string;
@@ -178,6 +182,14 @@ export interface TopologyNode {
   protocols: string[];
   actions: string[];
   is_local: boolean;
+  // Extended (topology-aware) fields
+  packets_sent?: number;
+  packets_received?: number;
+  attacks?: string[];
+  status?: string;          // active | restricted | alerted | quarantined | blocked
+  degree?: number;
+  fanout?: number;
+  risk_reasons?: string[];
 }
 
 export interface TopologyEdge {
@@ -187,12 +199,37 @@ export interface TopologyEdge {
   protocols: string[];
   bytes: number;
   has_threat: boolean;
+  flow_count?: number;
+  attacks?: string[];
+  risk_level?: string;
 }
 
 export interface TopologyData {
   nodes: TopologyNode[];
   edges: TopologyEdge[];
   total_events: number;
+  timestamp?: string;
+}
+
+export interface RiskyNode {
+  id: string;
+  risk_level: string;
+  risk_rank: number;
+  threat_count: number;
+  trust_score: number;
+  packets_sent: number;
+  packets_received: number;
+  fanout: number;
+  degree: number;
+  attacks: string[];
+  status: string;
+  reasons: string[];
+  is_local: boolean;
+}
+
+export interface RiskyNodesData {
+  risky_nodes: RiskyNode[];
+  count: number;
   timestamp?: string;
 }
 
@@ -254,6 +291,36 @@ export const getModelComparison = () =>
 
 export const getTopology = () =>
   apiFetch<TopologyData>('/api/topology');
+
+export const getRiskyNodes = () =>
+  apiFetch<RiskyNodesData>('/api/topology/risky-nodes');
+
+// ── Network Configuration ────────────────────────────────────────────────────
+
+export interface NetworkInfo {
+  id: string;
+  name: string;
+  subnet: string;
+  description: string;
+  type: string;
+}
+
+export interface NetworksData {
+  networks: NetworkInfo[];
+  timestamp?: string;
+}
+
+export interface NetworkTopologyData extends TopologyData {
+  network_id: string;
+  network_name: string;
+  subnet: string;
+}
+
+export const getNetworks = () =>
+  apiFetch<NetworksData>('/api/networks');
+
+export const getNetworkTopology = (networkId: string) =>
+  apiFetch<NetworkTopologyData>(`/api/topology/network/${networkId}`);
 
 // ── Evaluation / Research types ───────────────────────────────────────────────
 
@@ -599,6 +666,29 @@ export const getResearchConfusionMatrixList = () =>
   apiFetch<{ matrices: Array<{ model: string; display_name: string; available: boolean; size_bytes: number }> }>(
     '/api/research/confusion-matrix-list'
   );
+
+export interface FeatureImportanceEntry {
+  rank: number;
+  name: string;
+  importance: number;
+  pct: number;
+}
+
+export interface FeatureImportanceModel {
+  model: string;
+  display_name: string;
+  top20: FeatureImportanceEntry[];
+  total_features: number;
+}
+
+export interface FeatureImportance {
+  models: FeatureImportanceModel[];
+  count: number;
+  timestamp: string;
+}
+
+export const getResearchFeatureImportance = () =>
+  apiFetch<FeatureImportance>('/api/research/feature-importance');
 
 export const researchExportUrls = {
   modelComparisonCsv: () => `${BASE}/api/research/export/model-comparison-csv`,

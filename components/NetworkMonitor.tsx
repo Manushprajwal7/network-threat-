@@ -1,14 +1,14 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { getNetworkFlows, getCaptureStatus, type NetworkFlow } from '../lib/api';
 
 const STATUS_CFG: Record<string, { color: string; bg: string; dot: string; label: string }> = {
-  allowed:    { color: 'var(--green)',  bg: 'rgba(0,255,157,0.07)',  dot: 'pulse-green',  label: 'ALLOWED' },
-  blocked:    { color: 'var(--red)',    bg: 'rgba(255,45,85,0.07)',  dot: 'pulse-red',    label: 'BLOCKED' },
-  alerted:    { color: 'var(--amber)',  bg: 'rgba(255,176,32,0.07)', dot: 'pulse-amber',  label: 'ALERTED' },
-  quarantined:{ color: '#ff8c42',       bg: 'rgba(255,140,66,0.07)', dot: 'pulse-amber',  label: 'QUARANTINE' },
-  restricted: { color: 'var(--cyan)',   bg: 'rgba(0,212,255,0.07)',  dot: 'pulse-cyan',   label: 'RESTRICTED' },
+  allowed:    { color: 'var(--green)',  bg: 'rgba(5,150,105,0.08)',  dot: 'pulse-green',  label: 'ALLOWED' },
+  blocked:    { color: 'var(--red)',    bg: 'rgba(220,38,38,0.08)',  dot: 'pulse-red',    label: 'BLOCKED' },
+  alerted:    { color: 'var(--amber)',  bg: 'rgba(217,119,6,0.08)',  dot: 'pulse-amber',  label: 'ALERTED' },
+  quarantined:{ color: '#ea6c1a',       bg: 'rgba(234,108,26,0.08)', dot: 'pulse-amber',  label: 'QUARANTINE' },
+  restricted: { color: 'var(--cyan)',   bg: 'rgba(2,132,199,0.08)',  dot: 'pulse-cyan',   label: 'RESTRICTED' },
 };
 
 export default function NetworkMonitor() {
@@ -64,11 +64,11 @@ export default function NetworkMonitor() {
 
   return (
     <div className="rounded-xl overflow-hidden bracket-all"
-      style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+      style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
 
       {/* Header */}
       <div className="flex flex-wrap items-center gap-4 px-4 py-3"
-        style={{ borderBottom: '1px solid var(--border-dim)', background: 'rgba(0,5,12,0.5)' }}>
+        style={{ borderBottom: '1px solid var(--border-dim)', background: 'rgba(0,0,0,0.05)' }}>
         <div className="flex items-center gap-2">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2">
             <circle cx="12" cy="12" r="2"/>
@@ -88,7 +88,7 @@ export default function NetworkMonitor() {
             </div>
           ))}
           <div className={`live-indicator ${backendError ? '' : ''}`}
-            style={backendError ? { color: 'var(--red)', borderColor: 'rgba(255,45,85,0.3)' } : undefined}>
+            style={backendError ? { color: 'var(--red)', background: 'rgba(220,38,38,0.07)', borderColor: 'rgba(220,38,38,0.28)' } : undefined}>
             <span className={`pulse-dot ${backendError ? 'pulse-red' : 'pulse-green'}`} style={{ width: 5, height: 5 }} />
             {backendError ? 'OFFLINE' : flows.length > 0 ? 'CAPTURE' : 'WAITING'}
           </div>
@@ -109,7 +109,7 @@ export default function NetworkMonitor() {
       ) : (
         <div style={{ maxHeight: 380, overflowY: 'auto', overflowX: 'auto' }}>
           <table className="w-full data-table" style={{ minWidth: 800 }}>
-            <thead style={{ position: 'sticky', top: 0, background: 'rgba(0,5,14,0.98)', zIndex: 2 }}>
+            <thead style={{ position: 'sticky', top: 0, background: 'rgba(0,0,0,0.08)', zIndex: 2 }}>
               <tr>
                 {['Flow ID', 'Source IP', 'Dest IP', 'Protocol', 'Bytes', 'Attack Type', 'Status'].map(h => (
                   <th key={h} className="text-left">{h}</th>
@@ -124,7 +124,7 @@ export default function NetworkMonitor() {
                   <tr key={flow.id}
                     style={{
                       animation: isNew ? 'data-in 0.3s ease both' : 'none',
-                      background: isNew ? 'rgba(0,212,255,0.03)' : 'transparent',
+                      background: isNew ? 'rgba(2,132,199,0.06)' : 'transparent',
                       transition: 'background 0.5s',
                       opacity: i > 18 ? Math.max(0.25, 1 - (i - 18) * 0.06) : 1,
                     }}>
@@ -142,7 +142,7 @@ export default function NetworkMonitor() {
                     </td>
                     <td style={{ color: 'var(--text-mid)' }}>{flow.dstIP}</td>
                     <td>
-                      <span className="tag" style={{ background: 'rgba(255,255,255,0.04)', color: 'var(--text-lo)', border: '1px solid rgba(255,255,255,0.06)', padding: '2px 6px', fontSize: 9 }}>
+                      <span className="tag" style={{ background: 'rgba(0,0,0,0.12)', color: 'var(--text-lo)', border: '1px solid rgba(0,0,0,0.20)', padding: '2px 6px', fontSize: 9 }}>
                         {flow.protocol}
                       </span>
                     </td>
@@ -169,7 +169,7 @@ export default function NetworkMonitor() {
         </div>
       )}
 
-      <div className="flex justify-between px-4 py-2" style={{ borderTop: '1px solid var(--border-dim)', background: 'rgba(0,5,12,0.4)' }}>
+      <div className="flex justify-between px-4 py-2" style={{ borderTop: '1px solid var(--border-dim)', background: 'rgba(0,0,0,0.03)' }}>
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)' }}>
           {flows.length} flows · 3s refresh · live inference
         </span>

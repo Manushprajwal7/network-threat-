@@ -1,7 +1,7 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { getTopology, getCaptureStatus, type TopologyNode, type TopologyEdge } from '../../../lib/api';
+import { getTopology, getNetworks, getNetworkTopology, getRiskyNodes, getCaptureStatus, type TopologyNode, type TopologyEdge, type RiskyNode, type NetworkInfo } from '../../../lib/api';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -13,11 +13,11 @@ interface PhysNode extends TopologyNode {
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const RISK_COL: Record<string, string> = {
-  Low: '#00ff9d', Medium: '#ffb020', High: '#ff2d55', Critical: '#bf5fff',
+  Low: '#059669', Medium: '#d97706', High: '#dc2626', Critical: '#7c3aed',
 };
 const PROTO_COL: Record<string, string> = {
-  HTTPS: '#00d4ff', HTTP: '#ffb020', DNS: '#00ff9d',
-  TCP: '#8888cc', UDP: '#9966cc', ICMP: '#ff8c42', UNKNOWN: '#555577',
+  HTTPS: '#0284c7', HTTP: '#d97706', DNS: '#059669',
+  TCP: '#8888cc', UDP: '#9966cc', ICMP: '#ea6c1a', UNKNOWN: '#555577',
 };
 function protoColor(protocols: string[]) {
   for (const p of protocols) if (PROTO_COL[p]) return PROTO_COL[p];
@@ -74,35 +74,45 @@ function mergeNodes(prev: PhysNode[], fresh: TopologyNode[], W: number, H: numbe
 
 // ── SVG-only tooltip (avoids foreignObject issues) ────────────────────────────
 
+const LABEL_COL = 'rgba(168,194,222,0.80)';   // light label text for the dark canvas
+
 function NodeTooltip({ node, W, H }: { node: PhysNode; W: number; H: number }) {
-  const col = RISK_COL[node.risk_level] ?? '#00ff9d';
+  const col = RISK_COL[node.risk_level] ?? '#059669';
   const r = nodeR(node);
-  const tipW = 220, lineH = 16, lines = 5 + node.protocols.length;
-  const tipH = 20 + lines * lineH;
-  const tx = node.x + r + 10 + tipW > W ? node.x - r - 10 - tipW : node.x + r + 10;
-  const ty = Math.max(8, Math.min(H - tipH - 8, node.y - tipH / 2));
+
+  const sent = node.packets_sent ?? 0;
+  const recv = node.packets_received ?? node.packet_count;
+  const topAttack = node.attacks && node.attacks.length > 0 ? node.attacks[0] : null;
 
   const rows: Array<{ label: string; value: string; color: string }> = [
-    { label: 'IP', value: node.id, color: col },
-    { label: node.is_local ? 'LOCAL' : 'EXTERNAL', value: '', color: 'rgba(255,255,255,0.35)' },
-    { label: 'Packets', value: node.packet_count.toLocaleString(), color: '#00d4ff' },
-    { label: 'Threats', value: node.threat_count.toString(), color: node.threat_count > 0 ? '#ff2d55' : 'rgba(255,255,255,0.3)' },
-    { label: 'Trust', value: `${node.trust_score}%`, color: node.trust_score >= 80 ? '#00ff9d' : '#ffb020' },
+    { label: 'IP', value: shortIp(node.id), color: col },
+    { label: 'Scope', value: node.is_local ? 'LOCAL' : 'EXTERNAL', color: node.is_local ? '#0284c7' : '#9966cc' },
+    { label: 'Sent', value: sent.toLocaleString(), color: '#0284c7' },
+    { label: 'Received', value: recv.toLocaleString(), color: '#0284c7' },
+    { label: 'Threats', value: node.threat_count.toString(), color: node.threat_count > 0 ? '#ff5577' : LABEL_COL },
+    { label: 'Trust', value: `${node.trust_score}%`, color: node.trust_score >= 80 ? '#22c79b' : node.trust_score >= 50 ? '#f0a73a' : '#ff5577' },
     { label: 'Risk', value: node.risk_level, color: col },
-    ...node.protocols.slice(0, 3).map(p => ({ label: 'Proto', value: p, color: PROTO_COL[p] ?? '#888' })),
+    { label: 'Status', value: (node.status ?? 'active').toUpperCase(), color: statusColor(node.status) },
   ];
+  if (topAttack) rows.push({ label: 'Attack', value: topAttack, color: '#ff8c42' });
+  node.protocols.slice(0, 2).forEach(p => rows.push({ label: 'Proto', value: p, color: PROTO_COL[p] ?? '#aab' }));
+
+  const tipW = 232, lineH = 16, padTop = 14;
+  const tipH = padTop + rows.length * lineH + 6;
+  const tx = node.x + r + 10 + tipW > W ? node.x - r - 10 - tipW : node.x + r + 10;
+  const ty = Math.max(8, Math.min(H - tipH - 8, node.y - tipH / 2));
 
   return (
     <g style={{ pointerEvents: 'none' }}>
       <rect x={tx} y={ty} width={tipW} height={tipH} rx={8}
-        fill="rgba(0,4,14,0.97)" stroke={`${col}40`} strokeWidth={1}/>
+        fill="rgba(2,8,20,0.97)" stroke={`${col}66`} strokeWidth={1}/>
       {rows.map((row, i) => (
         <g key={i}>
-          <text x={tx + 10} y={ty + 16 + i * lineH}
-            style={{ fill: 'rgba(255,255,255,0.35)', fontFamily: 'monospace', fontSize: 9 }}>
+          <text x={tx + 11} y={ty + padTop + 2 + i * lineH}
+            style={{ fill: LABEL_COL, fontFamily: 'monospace', fontSize: 9 }}>
             {row.label}
           </text>
-          <text x={tx + tipW - 10} y={ty + 16 + i * lineH}
+          <text x={tx + tipW - 11} y={ty + padTop + 2 + i * lineH}
             textAnchor="end"
             style={{ fill: row.color, fontFamily: 'monospace', fontSize: 9, fontWeight: 700 }}>
             {row.value}
@@ -111,6 +121,19 @@ function NodeTooltip({ node, W, H }: { node: PhysNode; W: number; H: number }) {
       ))}
     </g>
   );
+}
+
+function shortIp(ip: string) {
+  return ip.length > 24 ? ip.slice(0, 11) + '…' + ip.slice(-9) : ip;
+}
+function statusColor(status?: string) {
+  switch (status) {
+    case 'blocked':      return '#ff5577';
+    case 'quarantined':  return '#bf5fff';
+    case 'alerted':      return '#f0a73a';
+    case 'restricted':   return '#f0a73a';
+    default:             return '#22c79b';
+  }
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -168,15 +191,33 @@ export default function TopologyPage() {
   const [lastUpdate,   setLastUpdate]   = useState('—');
   const [fetchError,   setFetchError]   = useState<string | null>(null);
   const [loading,      setLoading]      = useState(true);
+  const [riskyNodes,   setRiskyNodes]   = useState<RiskyNode[]>([]);
+  const [networks,     setNetworks]     = useState<NetworkInfo[]>([]);
+  const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
+
+  // Fetch networks on mount
+  useEffect(() => {
+    getNetworks().then(data => {
+      setNetworks(data.networks);
+      if (data.networks.length > 0) setSelectedNetwork(data.networks[0].id);
+    }).catch(() => {
+      setNetworks([]);
+      setSelectedNetwork(null);
+    });
+  }, []);
 
   // stable — no state/dims deps, reads dims via ref
   const fetchData = useCallback(async () => {
     try {
-      const [topo, status] = await Promise.all([getTopology(), getCaptureStatus()]);
+      const topoPromise = selectedNetwork ? getNetworkTopology(selectedNetwork) : getTopology();
+      const [topo, status, risky] = await Promise.all([
+        topoPromise, getCaptureStatus(), getRiskyNodes().catch(() => null),
+      ]);
       setFetchError(null);
       setCapturing(status.is_running);
       setTotalEvents(topo.total_events);
       setLastUpdate(new Date().toLocaleTimeString());
+      if (risky) setRiskyNodes(risky.risky_nodes);
       const { W, H } = dimsRef.current;
       const merged = mergeNodes(nodesRef.current, topo.nodes, W, H);
       nodesRef.current = merged;
@@ -188,7 +229,7 @@ export default function TopologyPage() {
     } finally {
       setLoading(false);
     }
-  }, []); // stable — empty deps
+  }, [selectedNetwork]); // stable — empty deps
 
   useEffect(() => {
     fetchData();
@@ -239,9 +280,9 @@ export default function TopologyPage() {
         </div>
         <div className="flex items-center gap-2">
           <div className="tag" style={{
-            background: capturing ? 'rgba(0,255,157,0.07)' : 'rgba(255,255,255,0.03)',
+            background: capturing ? 'rgba(5,150,105,0.09)' : 'rgba(0,0,0,0.10)',
             color: capturing ? 'var(--green)' : 'var(--text-lo)',
-            border: `1px solid ${capturing ? 'rgba(0,255,157,0.25)' : 'rgba(255,255,255,0.08)'}`,
+            border: `1px solid ${capturing ? 'rgba(5,150,105,0.28)' : 'rgba(0,0,0,0.25)'}`,
             fontFamily: 'var(--font-display)', fontSize: 9, letterSpacing: '0.1em', padding: '5px 10px',
           }}>
             <span className={`pulse-dot ${capturing ? 'pulse-green' : 'pulse-amber'}`} style={{ width: 4, height: 4 }} />
@@ -249,17 +290,50 @@ export default function TopologyPage() {
           </div>
           <button onClick={() => { setLoading(true); fetchData(); }}
             style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--cyan)',
-              background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.2)',
+              background: 'rgba(2,132,199,0.08)', border: '1px solid rgba(2,132,199,0.22)',
               borderRadius: 6, padding: '5px 10px', cursor: 'pointer', letterSpacing: '0.1em' }}>
             ↻ REFRESH
           </button>
         </div>
       </div>
 
+      {/* Network selector */}
+      {networks.length > 0 && (
+        <div className="mb-4">
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', letterSpacing: '0.1em', marginBottom: 8 }}>
+            SELECT NETWORK
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {networks.map(net => (
+              <button
+                key={net.id}
+                onClick={() => {
+                  setSelectedNetwork(net.id);
+                  setLoading(true);
+                }}
+                style={{
+                  fontFamily: 'var(--font-ui)', fontSize: 11,
+                  padding: '8px 14px', borderRadius: 8, cursor: 'pointer',
+                  background: selectedNetwork === net.id ? 'rgba(2,132,199,0.15)' : 'rgba(0,0,0,0.10)',
+                  border: `1px solid ${selectedNetwork === net.id ? 'rgba(2,132,199,0.40)' : 'var(--border-dim)'}`,
+                  color: selectedNetwork === net.id ? 'var(--cyan)' : 'var(--text-mid)',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <div style={{ fontWeight: 600 }}>{net.name}</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, opacity: 0.7 }}>
+                  {net.subnet}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Error banner */}
       {fetchError && (
         <div className="rounded-xl px-4 py-3 mb-4"
-          style={{ background: 'rgba(255,45,85,0.06)', border: '1px solid rgba(255,45,85,0.25)' }}>
+          style={{ background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.28)' }}>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--red)' }}>
             ⚠ {fetchError}
           </span>
@@ -281,7 +355,7 @@ export default function TopologyPage() {
           { l: 'Threat Nodes',   v: threatNodes,         c: threatNodes > 0 ? 'var(--red)' : 'var(--text-lo)' },
         ].map(s => (
           <div key={s.l} className="rounded-xl px-4 py-3 bracket-all"
-            style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(12px)' }}>
+            style={{ background: '#ffffff', border: '1px solid #000000', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', backdropFilter: 'blur(12px)' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)',
               letterSpacing: '0.1em', marginBottom: 3 }}>{s.l}</div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 800,
@@ -300,7 +374,7 @@ export default function TopologyPage() {
             <button key={r} onClick={() => setFilterRisk(r)} style={{
               fontFamily: 'var(--font-display)', fontSize: 9, letterSpacing: '0.08em',
               padding: '4px 10px', borderRadius: 6, cursor: 'pointer', transition: 'all 0.15s',
-              background: active ? `${col}18` : 'rgba(255,255,255,0.03)',
+              background: active ? `${col}18` : 'rgba(0,0,0,0.10)',
               color: active ? col : 'var(--text-lo)',
               border: `1px solid ${active ? `${col}50` : 'var(--border-dim)'}`,
             }}>{r === 'all' ? 'ALL' : r.toUpperCase()}</button>
@@ -310,9 +384,9 @@ export default function TopologyPage() {
         <button onClick={() => setShowExternal(v => !v)} style={{
           fontFamily: 'var(--font-display)', fontSize: 9, letterSpacing: '0.08em',
           padding: '4px 10px', borderRadius: 6, cursor: 'pointer', transition: 'all 0.15s',
-          background: showExternal ? 'rgba(191,95,255,0.08)' : 'rgba(255,255,255,0.03)',
+          background: showExternal ? 'rgba(124,58,237,0.10)' : 'rgba(0,0,0,0.10)',
           color: showExternal ? 'var(--purple)' : 'var(--text-lo)',
-          border: `1px solid ${showExternal ? 'rgba(191,95,255,0.3)' : 'var(--border-dim)'}`,
+          border: `1px solid ${showExternal ? 'rgba(124,58,237,0.32)' : 'var(--border-dim)'}`,
         }}>{showExternal ? '◎ HIDE EXTERNAL' : '◎ SHOW EXTERNAL'}</button>
         <span className="ml-auto" style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)' }}>
           {lastUpdate !== '—' ? `Updated ${lastUpdate} · ${totalEvents.toLocaleString()} events` : 'Fetching…'}
@@ -328,7 +402,7 @@ export default function TopologyPage() {
           className="flex-1 rounded-xl relative"
           style={{
             background: 'rgba(0,4,12,0.97)',
-            border: '1px solid var(--border-dim)',
+            border: '1px solid #000000',
             minHeight: 560,
             overflow: 'hidden',
           }}>
@@ -336,8 +410,8 @@ export default function TopologyPage() {
           {/* Grid background */}
           <div className="absolute inset-0 pointer-events-none" style={{
             backgroundImage:
-              'linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px),' +
-              'linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px)',
+              'linear-gradient(rgba(2,132,199,0.05) 1px, transparent 1px),' +
+              'linear-gradient(90deg, rgba(2,132,199,0.05) 1px, transparent 1px)',
             backgroundSize: '40px 40px',
           }} />
 
@@ -352,7 +426,7 @@ export default function TopologyPage() {
               ) : (
                 <>
                   <svg width="44" height="44" viewBox="0 0 24 24" fill="none"
-                    stroke="rgba(0,212,255,0.25)" strokeWidth="1">
+                    stroke="rgba(2,132,199,0.28)" strokeWidth="1">
                     <circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/>
                     <circle cx="19" cy="19" r="3"/>
                     <line x1="12" y1="8" x2="7" y2="16"/>
@@ -384,25 +458,42 @@ export default function TopologyPage() {
                   <feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>
               ))}
+              {/* Directional arrowheads (src → dst) */}
+              <marker id="arrow-normal" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="rgba(140,160,210,0.85)" />
+              </marker>
+              <marker id="arrow-threat" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="rgba(220,38,38,0.95)" />
+              </marker>
             </defs>
 
-            {/* Edges */}
+            {/* Edges (directed src → dst, arrowhead stops at target node edge) */}
             {visibleEdges.map((e, i) => {
               const sn = displayNodes.find(n => n.id === e.source);
               const tn = displayNodes.find(n => n.id === e.target);
               if (!sn || !tn) return null;
               const lit = selected === e.source || selected === e.target
                        || hovered === e.source || hovered === e.target;
-              const col = e.has_threat ? 'rgba(255,45,85,0.7)' : protoColor(e.protocols);
-              const sw  = Math.max(0.5, Math.min(3.5, Math.log10(e.count + 1) * 1.5));
+              const col = e.has_threat ? 'rgba(220,38,38,0.75)' : protoColor(e.protocols);
+              const sw  = Math.max(0.6, Math.min(3.5, Math.log10(e.count + 1) * 1.5));
+              // Pull the line endpoints back to each node's rim so the arrow is visible
+              const dx = tn.x - sn.x, dy = tn.y - sn.y;
+              const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+              const ux = dx / dist, uy = dy / dist;
+              const sr = nodeR(sn) + 2, tr = nodeR(tn) + 7;
+              const x1 = sn.x + ux * sr, y1 = sn.y + uy * sr;
+              const x2 = tn.x - ux * tr, y2 = tn.y - uy * tr;
               return (
                 <line key={i}
-                  x1={sn.x} y1={sn.y} x2={tn.x} y2={tn.y}
+                  x1={x1} y1={y1} x2={x2} y2={y2}
                   stroke={col}
                   strokeWidth={lit ? sw + 1.5 : sw}
-                  strokeOpacity={lit ? 1 : 0.3}
+                  strokeOpacity={lit ? 1 : 0.32}
                   strokeDasharray={e.has_threat ? '5 4' : '4 9'}
                   strokeDashoffset={dashOffset}
+                  markerEnd={`url(#${e.has_threat ? 'arrow-threat' : 'arrow-normal'})`}
                 />
               );
             })}
@@ -410,7 +501,7 @@ export default function TopologyPage() {
             {/* Nodes */}
             {visibleNodes.map(node => {
               const r   = nodeR(node);
-              const col = RISK_COL[node.risk_level] ?? '#00ff9d';
+              const col = RISK_COL[node.risk_level] ?? '#059669';
               const isH = hovered === node.id;
               const isS = selected === node.id;
               const lit = isH || isS;
@@ -426,6 +517,16 @@ export default function TopologyPage() {
                     <circle cx={node.x} cy={node.y} r={r + 8}
                       fill="none" stroke={col} strokeWidth={1.5}
                       strokeOpacity={0.6} strokeDasharray="4 3"/>
+                  )}
+
+                  {/* Enforcement-status ring (blocked / quarantined) */}
+                  {(node.status === 'blocked' || node.status === 'quarantined') && (
+                    <circle cx={node.x} cy={node.y} r={r + 5}
+                      fill="none"
+                      stroke={node.status === 'blocked' ? '#dc2626' : '#7c3aed'}
+                      strokeWidth={2}
+                      strokeDasharray={node.status === 'quarantined' ? '3 3' : undefined}
+                      strokeOpacity={0.95}/>
                   )}
 
                   {/* Glow halo */}
@@ -451,7 +552,7 @@ export default function TopologyPage() {
                   {node.threat_count > 0 && (
                     <g>
                       <circle cx={node.x + r * 0.68} cy={node.y - r * 0.68} r={5.5}
-                        fill="#ff2d55" stroke="rgba(0,4,12,0.9)" strokeWidth={1.5}/>
+                        fill="#dc2626" stroke="rgba(0,4,12,0.9)" strokeWidth={1.5}/>
                       <text x={node.x + r * 0.68} y={node.y - r * 0.68 + 4}
                         textAnchor="middle"
                         style={{ fill: '#fff', fontFamily: 'monospace', fontSize: 7, fontWeight: 700,
@@ -466,9 +567,13 @@ export default function TopologyPage() {
                     <text x={node.x} y={node.y + r + 13}
                       textAnchor="middle"
                       style={{
-                        fill: lit ? col : 'rgba(255,255,255,0.35)',
+                        fill: lit ? col : 'rgba(186,206,230,0.78)',
                         fontFamily: 'monospace',
                         fontSize: lit ? 10 : 8,
+                        fontWeight: lit ? 700 : 400,
+                        paintOrder: 'stroke',
+                        stroke: 'rgba(0,4,12,0.85)',
+                        strokeWidth: 2.4,
                         pointerEvents: 'none',
                       }}>
                       {node.id.length > 20
@@ -489,7 +594,7 @@ export default function TopologyPage() {
           {/* Watermark */}
           <div className="absolute bottom-2 left-3" style={{
             fontFamily: 'monospace', fontSize: 8,
-            color: 'rgba(0,212,255,0.15)', pointerEvents: 'none', letterSpacing: '0.1em',
+            color: 'rgba(2,132,199,0.18)', pointerEvents: 'none', letterSpacing: '0.1em',
           }}>
             NETSHIELD · FORCE GRAPH
           </div>
@@ -501,7 +606,7 @@ export default function TopologyPage() {
           {/* Selected node */}
           {selectedNode ? (
             <div className="rounded-xl p-4 bracket-all"
-              style={{ background: 'rgba(3,10,22,0.95)',
+              style={{ background: 'rgba(255,255,255,0.96)',
                 border: `1px solid ${RISK_COL[selectedNode.risk_level] ?? 'var(--border-mid)'}35`,
                 backdropFilter: 'blur(16px)' }}>
               <div className="flex items-center justify-between mb-3">
@@ -514,16 +619,19 @@ export default function TopologyPage() {
                     color: 'var(--text-lo)', fontFamily: 'var(--font-mono)', fontSize: 11 }}>✕</button>
               </div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10,
-                color: RISK_COL[selectedNode.risk_level] ?? '#00ff9d',
+                color: RISK_COL[selectedNode.risk_level] ?? '#059669',
                 wordBreak: 'break-all', lineHeight: 1.5, marginBottom: 10, fontWeight: 700 }}>
                 {selectedNode.id}
               </div>
               <div className="space-y-2">
                 {[
-                  { l: 'Packets',  v: selectedNode.packet_count.toLocaleString(), c: 'var(--cyan)' },
+                  { l: 'Pkts Sent',  v: (selectedNode.packets_sent ?? 0).toLocaleString(), c: 'var(--cyan)' },
+                  { l: 'Pkts Recv',  v: (selectedNode.packets_received ?? selectedNode.packet_count).toLocaleString(), c: 'var(--cyan)' },
                   { l: 'Threats',  v: selectedNode.threat_count.toString(),        c: selectedNode.threat_count > 0 ? 'var(--red)' : 'var(--text-lo)' },
-                  { l: 'Trust',    v: `${selectedNode.trust_score}%`,             c: selectedNode.trust_score >= 80 ? 'var(--green)' : 'var(--amber)' },
+                  { l: 'Trust',    v: `${selectedNode.trust_score}%`,             c: selectedNode.trust_score >= 80 ? 'var(--green)' : selectedNode.trust_score >= 50 ? 'var(--amber)' : 'var(--red)' },
                   { l: 'Risk',     v: selectedNode.risk_level,                    c: RISK_COL[selectedNode.risk_level] },
+                  { l: 'Status',   v: (selectedNode.status ?? 'active').toUpperCase(), c: statusColor(selectedNode.status) },
+                  ...(selectedNode.fanout ? [{ l: 'Fan-out', v: `${selectedNode.fanout} hosts`, c: selectedNode.fanout >= 15 ? 'var(--red)' : 'var(--text-mid)' }] : []),
                 ].map(m => (
                   <div key={m.l} className="flex justify-between items-center">
                     <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)' }}>{m.l}</span>
@@ -531,6 +639,39 @@ export default function TopologyPage() {
                   </div>
                 ))}
               </div>
+
+              {/* Risk reasons (topology-aware) */}
+              {selectedNode.risk_reasons && selectedNode.risk_reasons.length > 0 && (
+                <div className="mt-3 px-2 py-2 rounded"
+                  style={{ background: `${RISK_COL[selectedNode.risk_level] ?? '#dc2626'}0e`,
+                    border: `1px solid ${RISK_COL[selectedNode.risk_level] ?? '#dc2626'}30` }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)',
+                    letterSpacing: '0.1em', marginBottom: 3 }}>RISK REASONS</div>
+                  {selectedNode.risk_reasons.map((rr, i) => (
+                    <div key={i} style={{ fontFamily: 'var(--font-mono)', fontSize: 9,
+                      color: RISK_COL[selectedNode.risk_level] ?? 'var(--red)', lineHeight: 1.5 }}>
+                      • {rr}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Detected attacks */}
+              {selectedNode.attacks && selectedNode.attacks.length > 0 && (
+                <div className="mt-3">
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)',
+                    letterSpacing: '0.1em', marginBottom: 4 }}>DETECTED ATTACKS</div>
+                  <div className="flex flex-wrap gap-1">
+                    {selectedNode.attacks.map(a => (
+                      <span key={a} style={{
+                        fontFamily: 'var(--font-mono)', fontSize: 8, borderRadius: 4, padding: '2px 5px',
+                        background: 'rgba(220,38,38,0.10)', color: '#dc2626',
+                        border: '1px solid rgba(220,38,38,0.30)',
+                      }}>{a}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
               {selectedNode.protocols.length > 0 && (
                 <div className="mt-3">
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)',
@@ -579,7 +720,7 @@ export default function TopologyPage() {
             </div>
           ) : (
             <div className="rounded-xl p-4 bracket-all"
-              style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)' }}>
+              style={{ background: '#ffffff', border: '1px solid #000000', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)',
                 letterSpacing: '0.1em', marginBottom: 6 }}>// CLICK A NODE</div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-lo)', lineHeight: 1.6 }}>
@@ -590,7 +731,7 @@ export default function TopologyPage() {
 
           {/* Legend */}
           <div className="rounded-xl p-4 bracket-all"
-            style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)' }}>
+            style={{ background: '#ffffff', border: '1px solid #000000', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)',
               letterSpacing: '0.1em', marginBottom: 8 }}>// RISK LEVEL</div>
             <div className="space-y-2 mb-4">
@@ -620,7 +761,7 @@ export default function TopologyPage() {
                 </div>
               ))}
               <div className="flex items-center gap-2">
-                <div style={{ width: 14, height: 2, background: 'rgba(255,45,85,0.8)', borderRadius: 1 }} />
+                <div style={{ width: 14, height: 2, background: 'rgba(220,38,38,0.80)', borderRadius: 1 }} />
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--red)' }}>THREAT</span>
               </div>
             </div>
@@ -632,16 +773,69 @@ export default function TopologyPage() {
               </div>
               <div className="flex items-center gap-2">
                 <div style={{ width: 8, height: 8, borderRadius: '50%',
-                  background: 'rgba(0,212,255,0.35)', border: '1px solid rgba(0,212,255,0.5)' }} />
+                  background: 'rgba(2,132,199,0.38)', border: '1px solid rgba(2,132,199,0.50)' }} />
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-mid)' }}>◎ External</span>
               </div>
             </div>
           </div>
 
+          {/* Risky nodes — topology-aware intelligence */}
+          {riskyNodes.length > 0 && (
+            <div className="rounded-xl p-4 bracket-all"
+              style={{ background: '#ffffff', border: '1px solid #000000', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
+              <div className="flex items-center justify-between mb-2">
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', letterSpacing: '0.1em' }}>
+                  // RISKY NODES
+                </div>
+                <span style={{ fontFamily: 'var(--font-display)', fontSize: 11, color: 'var(--red)', fontWeight: 700 }}>
+                  {riskyNodes.length}
+                </span>
+              </div>
+              <div className="space-y-2" style={{ maxHeight: 240, overflowY: 'auto' }}>
+                {riskyNodes.slice(0, 12).map(n => (
+                  <div key={n.id} className="rounded-lg p-2 cursor-pointer"
+                    onClick={() => setSelected(p => p === n.id ? null : n.id)}
+                    style={{ background: `${RISK_COL[n.risk_level] ?? '#888'}10`,
+                      border: `1px solid ${RISK_COL[n.risk_level] ?? '#888'}30` }}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9,
+                        color: RISK_COL[n.risk_level] ?? 'var(--text-mid)', fontWeight: 700,
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 120 }}>
+                        {n.id}
+                      </span>
+                      <span className="tag" style={{ fontSize: 7,
+                        background: `${RISK_COL[n.risk_level] ?? '#888'}20`,
+                        color: RISK_COL[n.risk_level] ?? '#888',
+                        border: `1px solid ${RISK_COL[n.risk_level] ?? '#888'}40` }}>
+                        {n.status?.toUpperCase() ?? n.risk_level.toUpperCase()}
+                      </span>
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)', lineHeight: 1.4 }}>
+                      {n.reasons[0]}
+                    </div>
+                    <div className="flex gap-2 mt-1">
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--red)' }}>
+                        ⚠ {n.threat_count}
+                      </span>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)' }}>
+                        trust {n.trust_score}%
+                      </span>
+                      {n.fanout > 0 && (
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--amber)' }}>
+                          fan-out {n.fanout}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Top traffic */}
           {displayNodes.length > 0 && (
             <div className="rounded-xl p-4 bracket-all"
-              style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)' }}>
+              style={{ background: '#ffffff', border: '1px solid #000000', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)',
                 letterSpacing: '0.1em', marginBottom: 8 }}>// TOP TRAFFIC</div>
               <div className="space-y-2">

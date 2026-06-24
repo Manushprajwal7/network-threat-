@@ -8,13 +8,13 @@ export interface ThreatLevelInfo {
 
 export function deriveThreatLevel(threats: number, total: number): ThreatLevelInfo {
   if (total === 0 || threats === 0)
-    return { label: 'LOW',      color: 'var(--green)',  border: 'rgba(0,255,157,0.25)',  bg: 'rgba(0,255,157,0.07)',  barCount: 1 };
+    return { label: 'LOW',      color: 'var(--green)',  border: 'rgba(5,150,105,0.28)',  bg: 'rgba(5,150,105,0.08)',  barCount: 1 };
   const pct = threats / total;
   if (pct < 0.01)
-    return { label: 'MODERATE', color: 'var(--cyan)',   border: 'rgba(0,212,255,0.25)',  bg: 'rgba(0,212,255,0.06)',  barCount: 2 };
+    return { label: 'MODERATE', color: 'var(--cyan)',   border: 'rgba(2,132,199,0.28)',  bg: 'rgba(2,132,199,0.08)',  barCount: 2 };
   if (pct < 0.05)
-    return { label: 'ELEVATED', color: 'var(--amber)',  border: 'rgba(255,176,32,0.25)', bg: 'rgba(255,176,32,0.07)', barCount: 3 };
+    return { label: 'ELEVATED', color: 'var(--amber)',  border: 'rgba(217,119,6,0.28)',  bg: 'rgba(217,119,6,0.09)',  barCount: 3 };
   if (pct < 0.15)
-    return { label: 'HIGH',     color: '#ff8c42',       border: 'rgba(255,140,66,0.25)', bg: 'rgba(255,140,66,0.06)', barCount: 4 };
-  return   { label: 'CRITICAL', color: 'var(--red)',    border: 'rgba(255,45,85,0.25)',  bg: 'rgba(255,45,85,0.07)',  barCount: 5 };
+    return { label: 'HIGH',     color: '#ea6c1a',       border: 'rgba(234,108,26,0.28)', bg: 'rgba(234,108,26,0.08)', barCount: 4 };
+  return   { label: 'CRITICAL', color: 'var(--red)',    border: 'rgba(220,38,38,0.28)',  bg: 'rgba(220,38,38,0.09)',  barCount: 5 };
 }

@@ -26,13 +26,18 @@ import warnings
 import sys
 from pathlib import Path
 
-# Suppress sklearn's internal joblib/parallel compatibility warning that fires
-# during Random Forest inference — it is an sklearn-internal issue, not ours.
+# Suppress sklearn's internal joblib/parallel compatibility warning.
+# Removing the `module` constraint so it catches the warning regardless of
+# which call-stack frame joblib uses to issue it.
 warnings.filterwarnings(
     "ignore",
     message=r".*sklearn\.utils\.parallel\.delayed.*",
     category=UserWarning,
-    module=r"sklearn\.utils\.parallel",
+)
+warnings.filterwarnings(
+    "ignore",
+    message=r".*make it possible to propagate the scikit-learn configuration.*",
+    category=UserWarning,
 )
 
 from flask import Flask, jsonify, request
@@ -51,6 +56,7 @@ from api.simulation_manager import get_simulation_manager, SIM_TYPES
 from api.research_api import research_bp
 from packet_capture.capture_manager import get_manager
 from packet_capture.interface_utils import list_interfaces, check_tshark_installed, get_default_interface_index
+from api.network_config import get_network_config
 
 # ── App setup ─────────────────────────────────────────────────────────────────
 app = Flask(__name__)
@@ -79,11 +85,21 @@ def index():
 def health():
     available = list_available_models()
     tshark_ok, tshark_info = check_tshark_installed()
+    try:
+        from ml_model.ensemble_detector import get_ensemble_members
+        ensemble = get_ensemble_members()
+    except Exception:
+        ensemble = []
+    primary = "xgboost" if "xgboost" in available else (
+        "random_forest" if "random_forest" in available else (available[0] if available else None)
+    )
     return jsonify({
         "backend":          "running",
         "models_loaded":    len(available) > 0,
         "available_models": available,
-        "primary_model":    "random_forest" if "random_forest" in available else (available[0] if available else None),
+        "ensemble_models":  ensemble,
+        "primary_model":    primary,
+        "dataset":          "CICIoT2023",
         "tshark_available": tshark_ok,
         "tshark_info":      tshark_info,
         "timestamp":        _now(),
@@ -129,17 +145,19 @@ def predict():
 @app.route("/api/model-comparison", methods=["GET"])
 def model_comparison():
     import csv
-    csv_path = REPORTS_DIR / "model_comparison.csv"
-    if not csv_path.exists():
+    # Prefer the CICIoT2023 comparison; fall back to legacy file names.
+    candidates = ["model_comparison_ciciot2023.csv", "model_comparison.csv"]
+    csv_path = next((REPORTS_DIR / c for c in candidates if (REPORTS_DIR / c).exists()), None)
+    if csv_path is None:
         return jsonify({
-            "error": "model_comparison.csv not found",
-            "hint":  "Run python ml_model/train_models.py to generate it",
+            "error": "model comparison CSV not found",
+            "hint":  "Run python ml_model/train_ciciot2023_models.py then python ml_model/make_research_reports.py",
         }), 404
     rows = []
     with open(csv_path, newline="", encoding="utf-8") as f:
         for row in csv.DictReader(f):
             rows.append({k: _coerce_numeric(v) for k, v in row.items()})
-    return jsonify({"models": rows, "count": len(rows), "timestamp": _now()})
+    return jsonify({"models": rows, "count": len(rows), "dataset": "CICIoT2023", "timestamp": _now()})
 
 
 # ── Interface discovery ───────────────────────────────────────────────────────
@@ -292,6 +310,52 @@ def topology():
     return jsonify(data)
 
 
+@app.route("/api/topology/risky-nodes", methods=["GET"])
+def topology_risky_nodes():
+    """Return nodes flagged risky by topology-aware analysis (scans, attackers, etc.)."""
+    data = get_manager().get_risky_nodes()
+    data["timestamp"] = _now()
+    return jsonify(data)
+
+
+@app.route("/api/networks", methods=["GET"])
+def networks_list():
+    """Return list of all configured networks."""
+    config = get_network_config()
+    return jsonify({
+        "networks": config.get_networks(),
+        "timestamp": _now(),
+    })
+
+
+@app.route("/api/topology/network/<network_id>", methods=["GET"])
+def topology_by_network(network_id: str):
+    """Return network topology filtered by network segment."""
+    config = get_network_config()
+    data = get_manager().get_topology()
+
+    # Filter nodes by network
+    filtered_nodes = config.filter_nodes_by_network(data.get("nodes", []), network_id)
+
+    # Filter edges to only include connections within the network
+    filtered_node_ids = {n["id"] for n in filtered_nodes}
+    filtered_edges = [
+        e for e in data.get("edges", [])
+        if e["source"] in filtered_node_ids and e["target"] in filtered_node_ids
+    ]
+
+    net = config.get_network(network_id)
+    return jsonify({
+        "network_id": network_id,
+        "network_name": net["name"] if net else "Unknown",
+        "subnet": net["subnet"] if net else None,
+        "nodes": filtered_nodes,
+        "edges": filtered_edges,
+        "total_events": data.get("total_events", 0),
+        "timestamp": _now(),
+    })
+
+
 @app.route("/api/debug", methods=["GET"])
 def debug():
     """Return capture manager internal state for diagnosing data pipeline issues."""
@@ -339,60 +403,58 @@ def simulation_status():
 
 @app.route("/api/simulation/events", methods=["GET"])
 def simulation_events():
-    """Return recent simulation-generated events."""
+    """
+    Return recent simulation-generated events. Events are already analysed by the
+    live detection pipeline at generation time (injected into the CaptureManager),
+    so they carry predicted_attack / confidence / trust_score / security_action /
+    known_or_unknown and are also visible across the rest of the dashboard.
+    """
     limit  = min(int(request.args.get("limit", 50)), 200)
     events = get_simulation_manager().get_events(limit)
-
-    # Run each event through the ML pipeline if models are loaded
-    enriched = []
-    for evt in events:
-        enriched_evt = dict(evt)
-        try:
-            if evt.get("sim_type") == "unknown":
-                enriched_evt["known_or_unknown"]  = "Unknown"
-                enriched_evt["predicted_attack"]  = "Unknown/Suspicious"
-                enriched_evt["confidence"]        = round(0.2 + 0.2 * __import__("random").random(), 3)
-                enriched_evt["anomaly_score"]     = round(0.75 + 0.2 * __import__("random").random(), 3)
-                enriched_evt["trust_score"]       = int(20 + 20 * __import__("random").random())
-                enriched_evt["security_action"]   = "Quarantine"
-            else:
-                feat   = _sim_event_to_features(evt)
-                result = detect(flow_features=feat,
-                                model_name="random_forest",
-                                entity_id=evt.get("source_ip", SAFE_TARGET_PLACEHOLDER))
-                enriched_evt["predicted_attack"]  = result["predicted_label"]
-                enriched_evt["confidence"]        = result["confidence_score"]
-                enriched_evt["risk_level"]        = result["risk_level"]
-                enriched_evt["trust_score"]       = result["trust_score"]
-                enriched_evt["trust_level"]       = result["trust_level"]
-                enriched_evt["security_action"]   = result["action"]
-                enriched_evt["known_or_unknown"]  = "Known"
-                enriched_evt["anomaly_score"]     = 0.0
-        except Exception as e:
-            log.debug(f"Sim event enrichment skipped: {e}")
-        enriched.append(enriched_evt)
-
-    return jsonify({"events": enriched, "count": len(enriched), "timestamp": _now()})
+    return jsonify({"events": events, "count": len(events), "timestamp": _now()})
 
 
 SAFE_TARGET_PLACEHOLDER = "127.0.0.1"
 
 
 def _sim_event_to_features(evt: dict) -> dict:
-    """Convert a simulation event dict to a feature dict for ML prediction."""
+    """Convert a simulation event dict to a CICIoT2023 feature dict for ML prediction."""
+    fwd      = int(evt.get("total_fwd_packets", 5))
+    bwd      = int(evt.get("total_backward_packets", 1))
+    number   = max(1, fwd + bwd)
+    duration = float(evt.get("flow_duration", 0.01)) or 0.01
+    pkt_mean = float(evt.get("packet_length_mean", 60.0))
+    dst_port = int(evt.get("dest_port", 0) or 0)
+
+    syn = int(evt.get("syn_flag_count", 0))
+    ack = int(evt.get("ack_flag_count", 0))
+    rst = int(evt.get("rst_flag_count", 0))
+    fin = int(evt.get("fin_flag_count", 0))
+
     return {
-        "Flow Duration":              evt.get("flow_duration", 1000),
-        "Total Fwd Packets":          evt.get("total_fwd_packets", 5),
-        "Total Backward Packets":     evt.get("total_backward_packets", 2),
-        "Flow Bytes/s":               evt.get("flow_bytes_s", 1000.0),
-        "Flow Packets/s":             evt.get("flow_packets_s", 5.0),
-        "SYN Flag Count":             evt.get("syn_flag_count", 0),
-        "ACK Flag Count":             evt.get("ack_flag_count", 0),
-        "RST Flag Count":             evt.get("rst_flag_count", 0),
-        "FIN Flag Count":             evt.get("fin_flag_count", 0),
-        "PSH Flag Count":             evt.get("psh_flag_count", 0),
-        "Packet Length Mean":         evt.get("packet_length_mean", 60.0),
-        "Average Packet Size":        evt.get("packet_length_mean", 60.0),
+        "flow_duration": duration,
+        "Header_Length": 40.0 * number,
+        "Protocol Type": 6.0,                      # TCP
+        "Duration":      64.0,                     # nominal TTL
+        "Rate":          number / duration,
+        "Srate":         fwd / duration,
+        "Drate":         bwd / duration,
+        "syn_flag_number": 1.0 if syn else 0.0,
+        "ack_flag_number": 1.0 if ack else 0.0,
+        "rst_flag_number": 1.0 if rst else 0.0,
+        "fin_flag_number": 1.0 if fin else 0.0,
+        "syn_count": float(syn), "ack_count": float(ack),
+        "rst_count": float(rst), "fin_count": float(fin),
+        "TCP": 1.0, "IPv": 1.0,
+        "HTTP":  1.0 if dst_port in (80, 8080) else 0.0,
+        "HTTPS": 1.0 if dst_port == 443 else 0.0,
+        "Tot sum":  pkt_mean * number,
+        "Min":      pkt_mean, "Max": pkt_mean,
+        "AVG":      pkt_mean, "Tot size": pkt_mean, "Std": 0.0,
+        "Number":   float(number),
+        "IAT":      duration / number,
+        "Magnitue": (2 * pkt_mean) ** 0.5,
+        "Weight":   float(fwd * bwd),
     }
 
 

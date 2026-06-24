@@ -1,21 +1,21 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { getSecurityDecisions, getRecentAlerts, type Alert } from '../lib/api';
 
 const DEC = {
-  allow:      { color: 'var(--green)',  bg: 'rgba(0,255,157,0.06)',  border: 'rgba(0,255,157,0.18)',  label: 'ALLOW',      icon: '✓', desc: 'Permitted through all security layers' },
-  restrict:   { color: 'var(--cyan)',   bg: 'rgba(0,212,255,0.06)',  border: 'rgba(0,212,255,0.18)',  label: 'RESTRICT',   icon: '⊘', desc: 'Rate-limited · bandwidth throttled' },
-  alert:      { color: 'var(--amber)',  bg: 'rgba(255,176,32,0.06)', border: 'rgba(255,176,32,0.18)', label: 'ALERT',      icon: '▲', desc: 'Flagged for analyst review' },
-  quarantine: { color: '#ff8c42',       bg: 'rgba(255,140,66,0.06)', border: 'rgba(255,140,66,0.18)', label: 'QUARANTINE', icon: '⬡', desc: 'Isolated in sandboxed VLAN' },
-  block:      { color: 'var(--red)',    bg: 'rgba(255,45,85,0.06)',  border: 'rgba(255,45,85,0.18)',  label: 'BLOCK',      icon: '✕', desc: 'Dropped · IP blacklisted' },
+  allow:      { color: 'var(--green)',  bg: 'rgba(5,150,105,0.08)',  border: 'rgba(5,150,105,0.22)',  label: 'ALLOW',      icon: '✓', desc: 'Permitted through all security layers' },
+  restrict:   { color: 'var(--cyan)',   bg: 'rgba(2,132,199,0.08)',  border: 'rgba(2,132,199,0.22)',  label: 'RESTRICT',   icon: '⊘', desc: 'Rate-limited · bandwidth throttled' },
+  alert:      { color: 'var(--amber)',  bg: 'rgba(217,119,6,0.08)',  border: 'rgba(217,119,6,0.22)',  label: 'ALERT',      icon: '▲', desc: 'Flagged for analyst review' },
+  quarantine: { color: '#ea6c1a',       bg: 'rgba(234,108,26,0.08)', border: 'rgba(234,108,26,0.22)', label: 'QUARANTINE', icon: '⬡', desc: 'Isolated in sandboxed VLAN' },
+  block:      { color: 'var(--red)',    bg: 'rgba(220,38,38,0.08)',  border: 'rgba(220,38,38,0.22)',  label: 'BLOCK',      icon: '✕', desc: 'Dropped · IP blacklisted' },
 } as const;
 
 const ALERT_SEV: Record<string, { color: string; bg: string; border: string }> = {
-  critical: { color: 'var(--purple)', bg: 'rgba(191,95,255,0.06)', border: 'rgba(191,95,255,0.2)' },
-  high:     { color: 'var(--red)',    bg: 'rgba(255,45,85,0.06)',  border: 'rgba(255,45,85,0.2)' },
-  medium:   { color: 'var(--amber)',  bg: 'rgba(255,176,32,0.06)', border: 'rgba(255,176,32,0.2)' },
-  low:      { color: 'var(--cyan)',   bg: 'rgba(0,212,255,0.06)',  border: 'rgba(0,212,255,0.2)' },
+  critical: { color: 'var(--purple)', bg: 'rgba(124,58,237,0.08)', border: 'rgba(124,58,237,0.22)' },
+  high:     { color: 'var(--red)',    bg: 'rgba(220,38,38,0.08)',  border: 'rgba(220,38,38,0.22)' },
+  medium:   { color: 'var(--amber)',  bg: 'rgba(217,119,6,0.08)',  border: 'rgba(217,119,6,0.22)' },
+  low:      { color: 'var(--cyan)',   bg: 'rgba(2,132,199,0.08)',  border: 'rgba(2,132,199,0.22)' },
 };
 
 const DOT_CLASS: Record<string, string> = {
@@ -66,7 +66,7 @@ export default function SecurityDecisionPanel() {
 
       {/* Decision Engine */}
       <div className="rounded-xl p-4 bracket-all"
-        style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+        style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
         <div className="card-header">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" strokeWidth="2">
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -89,9 +89,9 @@ export default function SecurityDecisionPanel() {
               const d = decisions[key] ?? { count: 0, percentage: 0 };
               return (
                 <div key={key} className="rounded-lg p-3 transition-all cursor-default"
-                  style={{ background: 'rgba(255,255,255,0.018)', border: `1px solid ${cfg.border}` }}
+                  style={{ background: 'rgba(0,0,0,0.08)', border: `1px solid ${cfg.border}` }}
                   onMouseEnter={e => { e.currentTarget.style.background = cfg.bg; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.018)'; }}>
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.08)'; }}>
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2.5">
                       <span className="w-6 h-6 rounded flex items-center justify-center text-sm"
@@ -122,19 +122,19 @@ export default function SecurityDecisionPanel() {
 
       {/* Alerts */}
       <div className="rounded-xl overflow-hidden bracket-all"
-        style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
-        <div className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: '1px solid var(--border-dim)', background: 'rgba(0,5,12,0.5)' }}>
+        style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
+        <div className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: '1px solid var(--border-dim)', background: 'rgba(0,0,0,0.05)' }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--red)" strokeWidth="2">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
             <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
           </svg>
           <span className="card-title">Active Alerts</span>
-          <span className="tag" style={{ background: 'rgba(255,45,85,0.1)', color: 'var(--red)', border: '1px solid rgba(255,45,85,0.2)', fontSize: 9 }}>
+          <span className="tag" style={{ background: 'rgba(220,38,38,0.09)', color: 'var(--red)', border: '1px solid rgba(220,38,38,0.25)', fontSize: 9 }}>
             {alerts.filter(a => !a._acked).length} UNACKED
           </span>
           {hasAlerts && (
             <button className="ml-auto text-xs px-2 py-1 rounded transition-all"
-              style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', border: '1px solid var(--border-dim)' }}
+              style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', border: '1px solid #000000' }}
               onClick={ackAll}
               onMouseEnter={e => { e.currentTarget.style.color = 'var(--cyan)'; e.currentTarget.style.borderColor = 'var(--border-mid)'; }}
               onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-lo)'; e.currentTarget.style.borderColor = 'var(--border-dim)'; }}>
@@ -163,7 +163,7 @@ export default function SecurityDecisionPanel() {
                 <div key={alert.id}
                   className="px-4 py-3 transition-all"
                   style={{
-                    borderBottom: '1px solid rgba(0,212,255,0.03)',
+                    borderBottom: '1px solid rgba(0,0,0,0.18)',
                     background: acked ? 'transparent' : sc.bg,
                     opacity: acked ? 0.4 : 1,
                     transition: 'all 0.4s ease',
@@ -186,9 +186,9 @@ export default function SecurityDecisionPanel() {
                       className="flex-shrink-0 text-xs px-2 py-1 rounded transition-all"
                       style={{
                         fontFamily: 'var(--font-mono)', fontSize: 9,
-                        background: acked ? 'transparent' : 'rgba(0,212,255,0.07)',
+                        background: acked ? 'transparent' : 'rgba(2,132,199,0.08)',
                         color: acked ? 'var(--text-lo)' : 'var(--cyan)',
-                        border: acked ? '1px solid transparent' : '1px solid rgba(0,212,255,0.2)',
+                        border: acked ? '1px solid transparent' : '1px solid rgba(2,132,199,0.25)',
                         cursor: acked ? 'default' : 'pointer',
                       }}>
                       {acked ? '✓ ACK' : 'ACK'}

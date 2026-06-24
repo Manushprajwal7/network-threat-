@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import {
@@ -11,7 +11,7 @@ function ChartTip({ active, payload, label }: { active?: boolean; payload?: Arra
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-lg px-3 py-2"
-      style={{ background: 'rgba(0,5,14,0.97)', border: '1px solid var(--border-mid)', backdropFilter: 'blur(12px)' }}>
+      style={{ background: 'rgba(255,255,255,0.97)', border: '1px solid rgba(0,0,0,0.20)', backdropFilter: 'blur(12px)' }}>
       {label && <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--cyan)', letterSpacing: '0.1em', marginBottom: 4 }}>{label}</div>}
       {payload.map((p, i) => (
         <div key={i} className="flex items-center gap-2" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-mid)' }}>
@@ -28,7 +28,7 @@ function PieTip({ active, payload }: { active?: boolean; payload?: Array<{name:s
   const d = payload[0];
   return (
     <div className="rounded-lg px-3 py-2"
-      style={{ background: 'rgba(0,5,14,0.97)', border: `1px solid ${d.payload.color}40`, backdropFilter: 'blur(12px)' }}>
+      style={{ background: 'rgba(255,255,255,0.97)', border: `1px solid ${d.payload.color}40`, backdropFilter: 'blur(12px)' }}>
       <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: d.payload.color, letterSpacing: '0.1em', marginBottom: 2 }}>{d.name}</div>
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-mid)' }}>
         Count: <strong style={{ color: 'var(--text-hi)' }}>{d.value.toLocaleString()}</strong>
@@ -85,7 +85,7 @@ export default function ThreatDashboard() {
 
       {/* Attack Distribution */}
       <div className="rounded-xl p-4 bracket-all"
-        style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+        style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
         <div className="card-header">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" strokeWidth="2">
             <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>
@@ -105,7 +105,7 @@ export default function ThreatDashboard() {
                 <PieChart>
                   <Pie data={distribution} cx="50%" cy="50%" innerRadius={48} outerRadius={76} dataKey="count" nameKey="name" paddingAngle={2}>
                     {distribution.map((e, i) => (
-                      <Cell key={i} fill={e.color} stroke="rgba(0,0,0,0.4)" strokeWidth={1}/>
+                      <Cell key={i} fill={e.color} stroke="rgba(255,255,255,0.8)" strokeWidth={1}/>
                     ))}
                   </Pie>
                   <Tooltip content={<PieTip />}/>
@@ -134,7 +134,7 @@ export default function ThreatDashboard() {
 
       {/* Traffic Trend */}
       <div className="rounded-xl p-4 bracket-all"
-        style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+        style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
         <div className="card-header">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="2">
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
@@ -160,7 +160,7 @@ export default function ThreatDashboard() {
                       <stop offset="100%" stopColor="var(--red)" stopOpacity="0"/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,212,255,0.05)" vertical={false}/>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.20)" vertical={false}/>
                   <XAxis dataKey="time" tick={{ fill: 'var(--text-lo)', fontSize: 9, fontFamily: 'var(--font-mono)' }} axisLine={false} tickLine={false}/>
                   <YAxis tick={{ fill: 'var(--text-lo)', fontSize: 9, fontFamily: 'var(--font-mono)' }} axisLine={false} tickLine={false}/>
                   <Tooltip content={<ChartTip/>}/>

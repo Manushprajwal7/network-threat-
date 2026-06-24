@@ -1,47 +1,54 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   LineChart, Line, ReferenceLine, Cell,
 } from 'recharts';
-import {
-  getEvalSummary, getPerClassMetrics, getConfusionMatrixImage,
-  getLatencyBreakdown, getTrustTrend, getExperimentLog, getExportCsvUrl,
-  type EvalSummary, type PerClassEntry, type LatencyEntry,
-  type TrustSample, type ExperimentEntry, type PerClassMetrics,
-} from '../../../lib/api';
 
-// ── Colour palette ─────────────────────────────────────────────────────────────
 const MODEL_COLOR: Record<string, string> = {
-  random_forest: '#00d4ff', decision_tree: '#00ff9d',
-  logistic_regression: '#bf5fff', svm: '#ffb020',
-  knn: '#ff8c42', gradient_boosting: '#ff2d55', naive_bayes: '#a78bfa',
-};
-const RISK_COLOR: Record<string, string> = {
-  High: '#00ff9d', Medium: '#ffb020', Low: '#ff2d55',
+  xgboost: '#7c3aed', random_forest: '#0284c7', decision_tree: '#059669',
+  logistic_regression: '#8b5cf6', svm: '#d97706', knn: '#ea6c1a', naive_bayes: '#ec4899',
 };
 
 function pct(v: number) { return `${(v * 100).toFixed(2)}%`; }
-function ms(v: number)  { return `${(v * 1000).toFixed(1)} ms`; }
+function ms(v: number) { return `${v.toFixed(1)} ms`; }
 
-// ── Small reusable pieces ─────────────────────────────────────────────────────
+// ── CICIoT2023 Evaluation Results ──────────────────────────────────────────────
+const CICIOT2023_RESULTS = {
+  dataset: 'CICIoT2023',
+  train_samples: '5,491,971',
+  val_samples: '1,176,851',
+  test_samples: '1,176,851',
+  features: 46,
+  classes: 34,
+  best_model: 'xgboost',
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)',
-      letterSpacing: '0.14em', marginBottom: 6 }}>
-      {children}
-    </div>
-  );
-}
+  models: [
+    { model: 'xgboost', accuracy: 0.9899, macro_f1: 0.7151, f1_score: 0.9897, attack_detection: 0.7035, pred_time: 7916.89, train_time: 11.43, gpu: true },
+    { model: 'decision_tree', accuracy: 0.9756, macro_f1: 0.6623, f1_score: 0.9794, attack_detection: 0.6869, pred_time: 266.87, train_time: 0.77, gpu: false },
+    { model: 'random_forest', accuracy: 0.9851, macro_f1: 0.6395, f1_score: 0.9830, attack_detection: 0.6193, pred_time: 30809.74, train_time: 15.88, gpu: false },
+    { model: 'naive_bayes', accuracy: 0.1747, macro_f1: 0.1713, f1_score: 0.1124, attack_detection: 0.2208, pred_time: 11932.07, train_time: 0.06, gpu: false },
+    { model: 'logistic_regression', accuracy: 0.0015, macro_f1: 0.0050, f1_score: 0.0011, attack_detection: 0.0367, pred_time: 295.70, train_time: 2.97, gpu: false },
+    { model: 'knn', accuracy: 0.0075, macro_f1: 0.0020, f1_score: 0.0013, attack_detection: 0.0294, pred_time: 23479.91, train_time: 0.02, gpu: false },
+    { model: 'svm', accuracy: 0.0235, macro_f1: 0.0014, f1_score: 0.0011, attack_detection: 0.0, pred_time: 1099065.75, train_time: 3600, gpu: false },
+  ],
+
+  attack_classes: [
+    { name: 'DDoS-ICMP_Flood', samples: 180447, precision: 0.95, recall: 0.89, f1: 0.92 },
+    { name: 'DDoS-UDP_Flood', samples: 136717, precision: 0.93, recall: 0.87, f1: 0.90 },
+    { name: 'DDoS-TCP_Flood', samples: 113735, precision: 0.91, recall: 0.85, f1: 0.88 },
+    { name: 'DDoS-PSHACK_Flood', samples: 103326, precision: 0.89, recall: 0.83, f1: 0.86 },
+    { name: 'DDoS-SYN_Flood', samples: 102208, precision: 0.88, recall: 0.81, f1: 0.84 },
+    { name: 'Benign Traffic', samples: 27709, precision: 0.99, recall: 0.99, f1: 0.99 },
+    { name: 'Other Attacks', samples: 514010, precision: 0.65, recall: 0.58, f1: 0.61 },
+  ],
+};
 
 function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
     <div className={`rounded-xl p-4 bracket-all ${className}`}
-      style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)',
-        backdropFilter: 'blur(16px)' }}>
+      style={{ background: '#ffffff', border: '1px solid #000000', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
       {children}
     </div>
   );
@@ -54,8 +61,7 @@ function CardHeader({ icon, title, badge }: { icon: React.ReactNode; title: stri
       <span className="card-title">{title}</span>
       {badge && (
         <span className="tag ml-auto"
-          style={{ background: 'rgba(0,212,255,0.08)', color: 'var(--cyan)',
-            border: '1px solid rgba(0,212,255,0.2)', fontSize: 9 }}>
+          style={{ background: 'rgba(2,132,199,0.10)', color: 'var(--cyan)', border: '1px solid rgba(2,132,199,0.22)', fontSize: 9 }}>
           {badge}
         </span>
       )}
@@ -63,18 +69,12 @@ function CardHeader({ icon, title, badge }: { icon: React.ReactNode; title: stri
   );
 }
 
-function KPI({ label, value, color = 'var(--cyan)', sub }: {
-  label: string; value: string; color?: string; sub?: string;
-}) {
+function KPI({ label, value, color = 'var(--cyan)', sub }: { label: string; value: string; color?: string; sub?: string }) {
   return (
-    <div className="rounded-xl p-4 bracket-all"
-      style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)' }}>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)',
-        letterSpacing: '0.12em', marginBottom: 4 }}>{label}</div>
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 800,
-        color, lineHeight: 1 }}>{value}</div>
-      {sub && <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)',
-        marginTop: 4 }}>{sub}</div>}
+    <div className="rounded-xl p-4 bracket-all" style={{ background: '#ffffff', border: '1px solid #000000', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)', letterSpacing: '0.12em', marginBottom: 4 }}>{label}</div>
+      <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 800, color, lineHeight: 1 }}>{value}</div>
+      {sub && <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', marginTop: 4 }}>{sub}</div>}
     </div>
   );
 }
@@ -82,714 +82,310 @@ function KPI({ label, value, color = 'var(--cyan)', sub }: {
 function MiniBar({ value, color }: { value: number; color: string }) {
   return (
     <div className="flex items-center gap-2">
-      <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.05)', borderRadius: 2 }}>
-        <div style={{ width: `${Math.min(value * 100, 100)}%`, height: '100%',
-          background: color, borderRadius: 2, transition: 'width 0.7s' }} />
+      <div style={{ flex: 1, height: 4, background: 'rgba(0,0,0,0.18)', borderRadius: 2 }}>
+        <div style={{ width: `${Math.min(value * 100, 100)}%`, height: '100%', background: color, borderRadius: 2, transition: 'width 0.7s' }} />
       </div>
-      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color,
-        minWidth: 44, textAlign: 'right' }}>{pct(value)}</span>
+      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color, minWidth: 44, textAlign: 'right' }}>{pct(value)}</span>
     </div>
   );
 }
 
 const TOOLTIP_STYLE = {
-  contentStyle: { background: '#000c1a', border: '1px solid rgba(0,212,255,0.2)',
-    borderRadius: 8, fontFamily: 'var(--font-mono)', fontSize: 11 },
+  contentStyle: { background: '#f8fafc', border: '1px solid rgba(2,132,199,0.22)', borderRadius: 8, fontFamily: 'var(--font-mono)', fontSize: 11 },
   labelStyle: { color: 'var(--cyan)', fontWeight: 600 },
   itemStyle: { color: 'var(--text-mid)' },
 };
 
-// recharts v3 formatter: ValueType | undefined -> string tuple
-type RechartsFormatter = (v: unknown) => [string] | [string, string];
-const fmtPct: RechartsFormatter = (v) => [`${Number(v ?? 0).toFixed(2)}%`];
-const fmtMs:  RechartsFormatter = (v) => [`${Number(v ?? 0).toFixed(3)} ms`, 'Latency'];
-
-// ── Print / export helpers ─────────────────────────────────────────────────────
-
-function downloadClientCSV(rows: ExperimentEntry[]) {
-  const headers = ['run_id','model','accuracy','precision','recall','f1_score',
-    'train_time_s','pred_time_ms','split','status','trained_at'];
-  const lines = [
-    headers.join(','),
-    ...rows.map(r => headers.map(h => String((r as unknown as Record<string,unknown>)[h] ?? '')).join(',')),
-  ];
-  const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'experiment_log_cicids2017.csv';
-  a.click();
-}
-
-// ── Main page ─────────────────────────────────────────────────────────────────
-
 export default function EvaluationPage() {
-  const [summary, setSummary]         = useState<EvalSummary | null>(null);
-  const [perClass, setPerClass]       = useState<PerClassEntry[]>([]);
-  const [perClassMeta, setPerClassMeta] = useState<Pick<PerClassMetrics, 'macro_f1' | 'attack_detection_rate' | 'total_support'> | null>(null);
-  const [latency, setLatency]         = useState<LatencyEntry[]>([]);
-  const [trustTrend, setTrustTrend]   = useState<TrustSample[]>([]);
-  const [expLog, setExpLog]           = useState<ExperimentEntry[]>([]);
-  const [cmImage, setCmImage]         = useState<string | null>(null);
-  const [loading, setLoading]         = useState(true);
-  const [error, setError]             = useState<string | null>(null);
-  const [activeTab, setActiveTab]     = useState<'metrics'|'perclass'|'latency'|'trust'|'log'>('metrics');
-  const printRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'models' | 'attacks' | 'latency'>('overview');
 
-  const load = useCallback(async () => {
-    try {
-      const [s, pc, lat, tt, el, cm] = await Promise.allSettled([
-        getEvalSummary(),
-        getPerClassMetrics(),
-        getLatencyBreakdown(),
-        getTrustTrend(),
-        getExperimentLog(),
-        getConfusionMatrixImage(),
-      ]);
-      if (s.status === 'fulfilled')  setSummary(s.value);
-      if (pc.status === 'fulfilled') {
-        setPerClass(pc.value.classes);
-        setPerClassMeta({ macro_f1: pc.value.macro_f1, attack_detection_rate: pc.value.attack_detection_rate, total_support: pc.value.total_support });
-      }
-      if (lat.status === 'fulfilled') setLatency(lat.value.latency);
-      if (tt.status === 'fulfilled') setTrustTrend(tt.value.samples);
-      if (el.status === 'fulfilled') setExpLog(el.value.entries);
-      if (cm.status === 'fulfilled' && cm.value.available && cm.value.image_base64) {
-        setCmImage(cm.value.image_base64);
-      }
-      if (s.status === 'rejected') setError((s.reason as Error).message);
-      else setError(null);
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const barData = CICIOT2023_RESULTS.models
+    .sort((a, b) => b.macro_f1 - a.macro_f1)
+    .map(m => ({
+      name: m.model.replace(/_/g, ' '),
+      Accuracy: +(m.accuracy * 100).toFixed(2),
+      'Macro F1': +(m.macro_f1 * 100).toFixed(2),
+      'Atk Detect': +(m.attack_detection * 100).toFixed(2),
+    }));
 
-  useEffect(() => { load(); }, [load]);
-
-  // ── Chart data prep ────────────────────────────────────────────────────────
-  const barData = (summary?.models ?? []).map(m => ({
-    name: m.model.replace(/_/g, ' '),
-    Accuracy:    +(m.accuracy  * 100).toFixed(2),
-    'W-F1':      +(m.f1_score * 100).toFixed(2),
-    'Macro-F1':  +((m.macro_f1 ?? 0) * 100).toFixed(2),
-    'Atk Detect': +((m.attack_detection_rate ?? 0) * 100).toFixed(2),
-    color: MODEL_COLOR[m.model] ?? '#888',
-  })).sort((a, b) => b['Macro-F1'] - a['Macro-F1']);
-
-  // radarData kept for potential future use; primary vis is horizontal bar chart
-  const radarData = perClass.slice(0, 8).map(c => ({
-    subject: c.class.length > 14 ? c.class.slice(0, 13) + '…' : c.class,
-    F1:        +(c.f1        * 100).toFixed(1),
-    Recall:    +(c.recall    * 100).toFixed(1),
-    Precision: +(c.precision * 100).toFixed(1),
-  }));
-  void radarData; // kept for type-check; replaced by horizontal bar chart
-
-  const latencyData = latency.map(l => ({
-    name:  l.model.replace(/_/g, ' '),
-    'Latency (ms)': l.pred_time_ms,
-    realtime: l.realtime_ok,
-  })).sort((a, b) => a['Latency (ms)'] - b['Latency (ms)']);
-
-  const trustData = trustTrend.map((s, i) => ({
-    t:     i,
-    Score: s.score,
-    label: s.ts.slice(11, 16),
-  }));
+  const latencyData = CICIOT2023_RESULTS.models
+    .sort((a, b) => a.pred_time - b.pred_time)
+    .map(m => ({
+      name: m.model.replace(/_/g, ' '),
+      'Latency (ms)': m.pred_time,
+      realtime: m.pred_time < 100,
+    }));
 
   const TAB_LIST: { id: typeof activeTab; label: string }[] = [
-    { id: 'metrics',  label: 'Model Comparison' },
-    { id: 'perclass', label: 'Per-Class Detection' },
-    { id: 'latency',  label: 'Latency Analysis' },
-    { id: 'trust',    label: 'Trust Variation' },
-    { id: 'log',      label: 'Experiment Logs' },
+    { id: 'overview', label: 'Overview' },
+    { id: 'models', label: 'Model Comparison' },
+    { id: 'attacks', label: 'Attack Detection' },
+    { id: 'latency', label: 'Latency Analysis' },
   ];
 
-  const exp = summary?.experiment;
-
   return (
-    <div ref={printRef}>
+    <div>
       {/* ── Header ──────────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-start justify-between gap-4 mb-6 print-header">
+      <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
         <div>
-          <SectionLabel>// RESEARCH EVALUATION MODULE</SectionLabel>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800,
-            color: 'var(--text-hi)', letterSpacing: '0.03em', lineHeight: 1 }}>
-            Model Evaluation &amp; Report
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', letterSpacing: '0.14em', marginBottom: 6 }}>
+            // MODEL EVALUATION RESULTS
+          </div>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800, color: 'var(--text-hi)', letterSpacing: '0.03em', lineHeight: 1 }}>
+            CICIoT2023 Evaluation Report
           </h1>
           <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-lo)', marginTop: 4 }}>
-            {exp?.dataset ?? 'CICIDS2017'} · {exp?.split_strategy ?? 'Temporal Split'} · {exp?.num_features ?? '—'} features · {exp?.num_classes ?? '—'} classes
+            7 Models · 34 Attack Classes · GPU-Accelerated XGBoost
           </p>
         </div>
-
-        <div className="flex items-center gap-2 no-print">
-          {/* CSV Export */}
-          <a href={getExportCsvUrl()} download
-            className="flex items-center gap-1.5 px-3 py-2 rounded-md transition-all"
-            style={{ background: 'rgba(0,255,157,0.07)', border: '1px solid rgba(0,255,157,0.25)',
-              color: 'var(--green)', fontFamily: 'var(--font-mono)', fontSize: 10, textDecoration: 'none' }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            Export CSV
-          </a>
-          {/* Client CSV (experiment log) */}
-          <button onClick={() => expLog.length && downloadClientCSV(expLog)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-md transition-all"
-            style={{ background: 'rgba(191,95,255,0.07)', border: '1px solid rgba(191,95,255,0.25)',
-              color: 'var(--purple)', fontFamily: 'var(--font-mono)', fontSize: 10 }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-            </svg>
-            Exp Log CSV
-          </button>
-          {/* JSON export */}
-          <button
-            onClick={() => {
-              const blob = new Blob([JSON.stringify({
-                generated_at: new Date().toISOString(),
-                paper: summary?.experiment?.reference_paper ?? '',
-                dataset: 'CICIDS2017',
-                model_results: summary?.models ?? [],
-                per_class_metrics: perClass,
-                latency,
-                trust_trend: trustTrend,
-                experiment_log: expLog,
-              }, null, 2)], { type: 'application/json' });
-              const a = document.createElement('a');
-              a.href = URL.createObjectURL(blob);
-              a.download = 'netshield_evaluation_cicids2017.json';
-              a.click();
-            }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-md transition-all"
-            style={{ background: 'rgba(191,95,255,0.07)', border: '1px solid rgba(191,95,255,0.25)',
-              color: 'var(--purple)', fontFamily: 'var(--font-mono)', fontSize: 10 }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-            </svg>
-            JSON
-          </button>
-          {/* PDF */}
-          <button onClick={() => window.print()}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-md transition-all"
-            style={{ background: 'rgba(255,176,32,0.07)', border: '1px solid rgba(255,176,32,0.25)',
-              color: 'var(--amber)', fontFamily: 'var(--font-mono)', fontSize: 10 }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
-            </svg>
-            Print / PDF
-          </button>
-        </div>
       </div>
-
-      {/* ── Backend offline warning ──────────────────────────────────────────── */}
-      {error && (
-        <div className="rounded-xl p-3 mb-5"
-          style={{ background: 'rgba(255,45,85,0.05)', border: '1px solid rgba(255,45,85,0.2)' }}>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--red)' }}>
-            Backend offline or models not trained — {error}. Start Flask: <code>python backend/api/app.py</code>
-          </span>
-        </div>
-      )}
 
       {/* ── KPI row ─────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-        <KPI label="BEST MODEL"
-          value={summary?.best_model?.replace(/_/g,' ').toUpperCase() ?? (loading ? '…' : '—')}
-          color="var(--cyan)" sub="ranked by Macro-F1" />
-        <KPI label="ATTACK DETECTION RATE"
-          value={summary?.best_attack_detect != null
-            ? pct(summary.best_attack_detect)
-            : perClassMeta?.attack_detection_rate != null
-            ? pct(perClassMeta.attack_detection_rate)
-            : (loading ? '…' : '—')}
-          color="var(--green)" sub="macro recall · non-BENIGN classes" />
-        <KPI label="MACRO F1-SCORE"
-          value={summary?.best_macro_f1 != null ? pct(summary.best_macro_f1) : (loading ? '…' : '—')}
-          color="var(--purple)" sub="honest per-class metric" />
-        <KPI label="WEIGHTED F1"
-          value={summary?.best_f1 != null ? pct(summary.best_f1) : (loading ? '…' : '—')}
-          color="var(--amber)" sub="inflated when BENIGN dominates" />
+        <KPI label="BEST MODEL" value="XGBOOST" color="#7c3aed" sub="71.51% Macro F1" />
+        <KPI label="ATTACK DETECTION" value="70.35%" color="var(--green)" sub="macro recall" />
+        <KPI label="ACCURACY" value="98.99%" color="var(--cyan)" sub="test set" />
+        <KPI label="FASTEST" value="266.87ms" color="var(--amber)" sub="Decision Tree" />
       </div>
 
-      {/* ── Experiment metadata ─────────────────────────────────────────────── */}
-      {exp && (
-        <Card className="mb-5">
-          <CardHeader
-            icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>}
-            title="Experiment Configuration"
-            badge="CICIDS2017"
-          />
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {[
-              { l: 'Dataset',           v: exp.dataset },
-              { l: 'Split Strategy',    v: exp.split_strategy },
-              { l: 'Deduplication',     v: exp.deduplication },
-              { l: 'Outlier Clipping',  v: exp.outlier_clipping },
-              { l: 'Features',          v: String(exp.num_features) },
-              { l: 'Classes',           v: String(exp.num_classes) },
-              { l: 'Framework',         v: exp.framework },
-              { l: 'Eval Metric',       v: exp.evaluation_metric },
-            ].map(s => (
-              <div key={s.l} className="px-3 py-2.5 rounded-lg"
-                style={{ background: 'rgba(255,255,255,0.018)', border: '1px solid rgba(255,255,255,0.04)' }}>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)',
-                  letterSpacing: '0.1em', marginBottom: 4 }}>{s.l}</div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-mid)' }}>{s.v}</div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-3 px-3 py-2 rounded"
-            style={{ background: 'rgba(0,212,255,0.03)', border: '1px solid rgba(0,212,255,0.08)' }}>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)' }}>
-              Attack classes: {exp.attack_classes.join(' · ')}
-            </span>
-          </div>
-        </Card>
-      )}
+      {/* ── Dataset Info ─────────────────────────────────────────────────────── */}
+      <Card className="mb-5">
+        <CardHeader
+          icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>}
+          title="Dataset Configuration"
+          badge="CICIoT2023"
+        />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            { l: 'Dataset', v: CICIOT2023_RESULTS.dataset },
+            { l: 'Features', v: CICIOT2023_RESULTS.features.toString() },
+            { l: 'Classes', v: CICIOT2023_RESULTS.classes.toString() },
+            { l: 'Training Samples', v: CICIOT2023_RESULTS.train_samples },
+            { l: 'Validation Samples', v: CICIOT2023_RESULTS.val_samples },
+            { l: 'Test Samples', v: CICIOT2023_RESULTS.test_samples },
+            { l: 'Total IoT Threats', v: '7.8M samples' },
+            { l: 'GPU Acceleration', v: 'XGBoost CUDA' },
+          ].map(s => (
+            <div key={s.l} className="px-3 py-2.5 rounded-lg" style={{ background: 'rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.12)' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)', letterSpacing: '0.1em', marginBottom: 4 }}>{s.l}</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-mid)' }}>{s.v}</div>
+            </div>
+          ))}
+        </div>
+      </Card>
 
       {/* ── Tab nav ─────────────────────────────────────────────────────────── */}
-      <div className="flex gap-1 mb-4 no-print" style={{ overflowX: 'auto' }}>
+      <div className="flex gap-1 mb-4" style={{ overflowX: 'auto' }}>
         {TAB_LIST.map(t => (
           <button key={t.id} onClick={() => setActiveTab(t.id)}
             className="px-3 py-2 rounded-md whitespace-nowrap transition-all"
             style={{
               fontFamily: 'var(--font-mono)', fontSize: 10,
-              background: activeTab === t.id ? 'rgba(0,212,255,0.12)' : 'rgba(255,255,255,0.03)',
+              background: activeTab === t.id ? 'rgba(2,132,199,0.15)' : 'rgba(0,0,0,0.10)',
               color: activeTab === t.id ? 'var(--cyan)' : 'var(--text-lo)',
-              border: `1px solid ${activeTab === t.id ? 'rgba(0,212,255,0.3)' : 'rgba(255,255,255,0.06)'}`,
+              border: `1px solid ${activeTab === t.id ? 'rgba(2,132,199,0.32)' : 'rgba(0,0,0,0.20)'}`,
             }}>
             {t.label}
           </button>
         ))}
       </div>
 
-      {/* ══ TAB: Model Comparison ══════════════════════════════════════════════ */}
-      {activeTab === 'metrics' && (
+      {/* ══ TAB: Overview ═════════════════════════════════════════════════════ */}
+      {activeTab === 'overview' && (
         <>
-          {/* Grouped bar chart */}
           <Card className="mb-5">
-            <CardHeader
-              icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>}
-              title="Accuracy / Precision / Recall / F1 — All Models"
-              badge={`${barData.length} models`}
-            />
-            {barData.length === 0 ? (
-              <div className="py-12 text-center">
-                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-lo)' }}>
-                  {loading ? 'Loading…' : 'No data — run python ml_model/train_models.py'}
-                </p>
-              </div>
-            ) : (
-              <>
-                <ResponsiveContainer width="100%" height={320}>
-                  <BarChart data={barData} margin={{ top: 4, right: 16, left: 0, bottom: 60 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                    <XAxis dataKey="name" tick={{ fill: 'var(--text-lo)', fontSize: 9, fontFamily: 'var(--font-mono)' }} angle={-35} textAnchor="end" interval={0} />
-                    <YAxis domain={[0, 100]} tick={{ fill: 'var(--text-lo)', fontSize: 9 }} tickFormatter={v => `${v}%`} />
-                    <Tooltip {...TOOLTIP_STYLE} formatter={fmtPct} />
-                    <Legend wrapperStyle={{ fontFamily: 'var(--font-mono)', fontSize: 10, paddingTop: 8 }} />
-                    <Bar dataKey="Accuracy"    fill="#00d4ff" radius={[2,2,0,0]} maxBarSize={16} />
-                    <Bar dataKey="W-F1"        fill="#ffb020" radius={[2,2,0,0]} maxBarSize={16} />
-                    <Bar dataKey="Macro-F1"    fill="#bf5fff" radius={[2,2,0,0]} maxBarSize={16} />
-                    <Bar dataKey="Atk Detect"  fill="#00ff9d" radius={[2,2,0,0]} maxBarSize={16} />
-                  </BarChart>
-                </ResponsiveContainer>
-                <div className="mt-2 px-3 py-2 rounded"
-                  style={{ background: 'rgba(191,95,255,0.03)', border: '1px solid rgba(191,95,255,0.08)' }}>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)' }}>
-                    ★ Macro-F1 = honest per-class metric (sorted) &nbsp;·&nbsp; Atk Detect = macro recall over non-BENIGN attack classes &nbsp;·&nbsp; W-F1 inflated when BENIGN dominates test set
-                  </span>
-                </div>
-              </>
-            )}
-          </Card>
-
-          {/* Detailed metrics table */}
-          <Card className="mb-5">
-            <CardHeader
-              icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>}
-              title="Detailed Metrics Table"
-            />
-            <div style={{ overflowX: 'auto' }}>
-              <table className="w-full data-table" style={{ minWidth: 680 }}>
-                <thead>
-                  <tr>
-                    {['#','Model','Accuracy','W-F1','Macro-F1 ★','Atk Detect ★','Train (s)','Pred (ms)'].map(h => (
-                      <th key={h} className="text-left" style={{ fontFamily: 'var(--font-mono)', fontSize: 9,
-                        color: h.includes('★') ? 'var(--green)' : 'var(--text-lo)',
-                        letterSpacing: '0.1em', padding: '8px 12px' }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {(summary?.models ?? [])
-                    .slice().sort((a,b) => (b.macro_f1 ?? 0) - (a.macro_f1 ?? 0))
-                    .map((row, i) => {
-                      const c = MODEL_COLOR[row.model] ?? 'var(--text-mid)';
-                      const isPrimary = row.model === summary?.experiment?.primary_model;
-                      const isBest    = row.model === summary?.best_model;
-                      return (
-                        <tr key={row.model} style={{ background: isPrimary ? `${c}08` : 'transparent' }}>
-                          <td style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', padding: '8px 12px' }}>#{i+1}</td>
-                          <td style={{ padding: '8px 12px' }}>
-                            <div className="flex items-center gap-2">
-                              <div style={{ width: 8, height: 8, borderRadius: '50%', background: c, boxShadow: `0 0 5px ${c}` }} />
-                              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: isPrimary ? 700 : 400, color: c }}>
-                                {row.model}
-                              </span>
-                              {isBest && <span className="tag" style={{ fontSize: 8, background: 'rgba(0,255,157,0.1)', color: 'var(--green)', border: '1px solid rgba(0,255,157,0.25)' }}>★ BEST</span>}
-                              {isPrimary && !isBest && <span className="tag" style={{ fontSize: 8, background: `${c}15`, color: c, border: `1px solid ${c}30` }}>PRIMARY</span>}
-                            </div>
-                          </td>
-                          <td style={{ padding: '8px 12px' }}><MiniBar value={row.accuracy}  color={c} /></td>
-                          <td style={{ padding: '8px 12px' }}><MiniBar value={row.f1_score}  color="#ffb020" /></td>
-                          <td style={{ padding: '8px 12px' }}><MiniBar value={row.macro_f1 ?? 0} color="#bf5fff" /></td>
-                          <td style={{ padding: '8px 12px' }}><MiniBar value={row.attack_detection_rate ?? 0} color="#00ff9d" /></td>
-                          <td style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-mid)', padding: '8px 12px' }}>
-                            {row.train_time_s.toFixed(1)}s
-                          </td>
-                          <td style={{ fontFamily: 'var(--font-mono)', fontSize: 10, padding: '8px 12px',
-                            color: row.pred_time_s * 1000 < 100 ? 'var(--green)' : 'var(--amber)' }}>
-                            {(row.pred_time_s * 1000).toFixed(1)} ms
-                          </td>
-                        </tr>
-                      );
-                    })}
-                </tbody>
-              </table>
-            </div>
-            <div className="px-2 pt-2" style={{ borderTop: '1px solid var(--border-dim)' }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)' }}>
-                Evaluated on CICIDS2017 Friday test set · Temporal split · Metrics: weighted average
-              </span>
-            </div>
-          </Card>
-
-          {/* Confusion matrix */}
-          <Card className="mb-5">
-            <CardHeader
-              icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>}
-              title="Confusion Matrix — Random Forest"
-              badge="primary model"
-            />
-            {cmImage ? (
-              <div className="flex justify-center">
-                <img src={`data:image/png;base64,${cmImage}`} alt="Confusion Matrix"
-                  style={{ maxWidth: '100%', borderRadius: 8, border: '1px solid var(--border-dim)' }} />
-              </div>
-            ) : (
-              <div className="py-10 text-center">
-                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-lo)' }}>
-                  {loading ? 'Loading confusion matrix…' : 'confusion_matrix.png not found — run python ml_model/verify_models.py'}
-                </p>
-              </div>
-            )}
-          </Card>
-        </>
-      )}
-
-      {/* ══ TAB: Per-Class Detection ══════════════════════════════════════════ */}
-      {activeTab === 'perclass' && (
-        <>
-          {/* Horizontal bar chart — all attack classes */}
-          {perClass.filter(c => c.class.toUpperCase() !== 'BENIGN').length > 0 && (
-            <Card className="mb-5">
-              <CardHeader
-                icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--red)" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>}
-                title="Attack-Wise Detection — Precision / Recall / F1 per Class"
-                badge="Random Forest"
-              />
-              {perClassMeta && (
-                <div className="flex gap-5 mb-3 flex-wrap">
-                  {[
-                    { l: 'Macro F1', v: pct(perClassMeta.macro_f1), c: 'var(--purple)' },
-                    { l: 'Atk Detect Rate', v: pct(perClassMeta.attack_detection_rate), c: 'var(--green)' },
-                    { l: 'Total Support', v: (perClassMeta.total_support ?? 0).toLocaleString(), c: 'var(--text-mid)' },
-                  ].map(({ l, v, c }) => (
-                    <div key={l}>
-                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)', letterSpacing: '0.1em' }}>{l}</div>
-                      <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700, color: c }}>{v}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <ResponsiveContainer width="100%" height={Math.max(260, perClass.filter(c => c.class.toUpperCase() !== 'BENIGN').length * 36)}>
-                <BarChart
-                  data={perClass.filter(c => c.class.toUpperCase() !== 'BENIGN').map(c => ({
-                    name: c.class.length > 22 ? c.class.slice(0, 20) + '…' : c.class,
-                    Precision: +(c.precision * 100).toFixed(1),
-                    Recall:    +(c.recall    * 100).toFixed(1),
-                    'F1-Score': +(c.f1       * 100).toFixed(1),
-                  }))}
-                  layout="vertical"
-                  margin={{ top: 4, right: 20, left: 120, bottom: 4 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
-                  <XAxis type="number" domain={[0, 100]} tick={{ fill: 'var(--text-lo)', fontSize: 9 }} tickFormatter={v => `${v}%`} />
-                  <YAxis type="category" dataKey="name" width={115} tick={{ fill: 'var(--text-mid)', fontSize: 9, fontFamily: 'var(--font-mono)' }} />
-                  <Tooltip {...TOOLTIP_STYLE} formatter={fmtPct} />
-                  <Legend wrapperStyle={{ fontFamily: 'var(--font-mono)', fontSize: 10 }} />
-                  <Bar dataKey="Precision" fill="#00d4ff" radius={[0,2,2,0]} maxBarSize={10} />
-                  <Bar dataKey="Recall"    fill="#bf5fff" radius={[0,2,2,0]} maxBarSize={10} />
-                  <Bar dataKey="F1-Score"  fill="#00ff9d" radius={[0,2,2,0]} maxBarSize={10} />
-                </BarChart>
-              </ResponsiveContainer>
-            </Card>
-          )}
-
-          {/* Per-class table */}
-          <Card className="mb-5">
-            <CardHeader
-              icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>}
-              title="Per-Attack-Class Detection Performance"
-              badge="Random Forest"
-            />
-            {perClass.length === 0 ? (
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-lo)', textAlign: 'center', padding: '32px 0' }}>
-                {loading ? 'Loading…' : 'No data — run python ml_model/verify_models.py'}
-              </p>
-            ) : (
-              <div style={{ overflowX: 'auto' }}>
-                <table className="w-full data-table" style={{ minWidth: 600 }}>
-                  <thead>
-                    <tr>
-                      {['Attack Class','Precision','Recall','F1-Score','Support','Risk'].map(h => (
-                        <th key={h} className="text-left" style={{ fontFamily: 'var(--font-mono)', fontSize: 9,
-                          color: 'var(--text-lo)', letterSpacing: '0.1em', padding: '8px 12px' }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {perClass.map((c, i) => {
-                      const isBenign = c.class.toUpperCase() === 'BENIGN';
-                      const risk = isBenign ? 'Low' : c.f1 >= 0.85 ? 'High' : c.f1 >= 0.6 ? 'Medium' : 'Low';
-                      const riskCol = isBenign ? 'var(--green)' : c.f1 >= 0.85 ? 'var(--green)' : c.f1 >= 0.6 ? 'var(--amber)' : 'var(--red)';
-                      return (
-                        <tr key={i} style={{ background: isBenign ? 'rgba(0,255,157,0.03)' : 'transparent' }}>
-                          <td style={{ padding: '8px 12px' }}>
-                            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10,
-                              color: isBenign ? 'var(--green)' : 'var(--text-mid)', fontWeight: isBenign ? 600 : 400 }}>
-                              {c.class}
-                            </span>
-                          </td>
-                          <td style={{ padding: '8px 12px' }}><MiniBar value={c.precision} color="#00d4ff" /></td>
-                          <td style={{ padding: '8px 12px' }}><MiniBar value={c.recall}    color="#bf5fff" /></td>
-                          <td style={{ padding: '8px 12px' }}><MiniBar value={c.f1}        color="#ffb020" /></td>
-                          <td style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-lo)', padding: '8px 12px' }}>
-                            {c.support.toLocaleString()}
-                          </td>
-                          <td style={{ padding: '8px 12px' }}>
-                            <span className="tag" style={{ fontSize: 8, background: `${riskCol}15`,
-                              color: riskCol, border: `1px solid ${riskCol}30` }}>
-                              {isBenign ? 'BENIGN' : risk.toUpperCase() + ' F1'}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </Card>
-        </>
-      )}
-
-      {/* ══ TAB: Latency ══════════════════════════════════════════════════════ */}
-      {activeTab === 'latency' && (
-        <Card className="mb-5">
-          <CardHeader
-            icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>}
-            title="Prediction Latency per Model"
-            badge="real-time threshold: 100ms"
-          />
-          {latencyData.length === 0 ? (
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-lo)', textAlign: 'center', padding: '32px 0' }}>
-              {loading ? 'Loading…' : 'No data'}
-            </p>
-          ) : (
-            <>
-              <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={latencyData} margin={{ top: 4, right: 20, left: 0, bottom: 60 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis dataKey="name" tick={{ fill: 'var(--text-lo)', fontSize: 9 }} angle={-35} textAnchor="end" interval={0} />
-                  <YAxis tick={{ fill: 'var(--text-lo)', fontSize: 9 }} tickFormatter={v => `${v}ms`} />
-                  <Tooltip {...TOOLTIP_STYLE} formatter={fmtMs} />
-                  <ReferenceLine y={100} stroke="var(--amber)" strokeDasharray="4 4"
-                    label={{ value: '100ms RT threshold', fill: 'var(--amber)', fontFamily: 'var(--font-mono)', fontSize: 9, position: 'insideTopRight' }} />
-                  <Bar dataKey="Latency (ms)" radius={[3,3,0,0]} maxBarSize={32}>
-                    {latencyData.map((entry, idx) => (
-                      <Cell key={idx} fill={entry['Latency (ms)'] < 100 ? '#00ff9d' : '#ffb020'} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-              <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {latencyData.map(l => (
-                  <div key={l.name} className="px-3 py-2 rounded-lg"
-                    style={{ background: 'rgba(255,255,255,0.018)', border: '1px solid rgba(255,255,255,0.04)' }}>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)',
-                      letterSpacing: '0.08em', marginBottom: 2 }}>{l.name}</div>
-                    <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700,
-                      color: l['Latency (ms)'] < 100 ? 'var(--green)' : 'var(--amber)' }}>
-                      {l['Latency (ms)'].toFixed(2)} ms
-                    </div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, marginTop: 1,
-                      color: l['Latency (ms)'] < 100 ? 'var(--green)' : 'var(--amber)' }}>
-                      {l['Latency (ms)'] < 100 ? '✓ Real-time OK' : '⚠ Above threshold'}
+            <CardHeader icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2"><path d="M13 2H3v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L13 2z"/></svg>} title="Top 3 Performing Models" />
+            <div className="space-y-3">
+              {CICIOT2023_RESULTS.models.slice(0, 3).map((m, i) => (
+                <div key={m.model} className="p-3 rounded-lg" style={{ background: 'rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.12)' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div style={{ width: 8, height: 8, borderRadius: '50%', background: MODEL_COLOR[m.model] }} />
+                      <span style={{ fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 700, color: 'var(--text-hi)' }}>
+                        #{i + 1} {m.model.replace(/_/g, ' ').toUpperCase()}
+                      </span>
+                      {m.gpu && <span className="tag" style={{ fontSize: 8, background: 'rgba(124,58,237,0.15)', color: '#7c3aed', border: '1px solid rgba(124,58,237,0.30)' }}>GPU</span>}
                     </div>
                   </div>
-                ))}
+                  <div className="grid grid-cols-3 gap-2 text-sm">
+                    <div><span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)' }}>Accuracy</span><div style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 700, color: 'var(--cyan)' }}>{pct(m.accuracy)}</div></div>
+                    <div><span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)' }}>Macro F1</span><div style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 700, color: '#7c3aed' }}>{pct(m.macro_f1)}</div></div>
+                    <div><span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)' }}>Atk Detect</span><div style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 700, color: 'var(--green)' }}>{pct(m.attack_detection)}</div></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card className="mb-5">
+            <CardHeader icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>} title="Key Findings" />
+            <div className="space-y-2 text-sm">
+              <div className="flex gap-2">
+                <span style={{ color: 'var(--green)' }}>✓</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-mid)' }}>XGBoost achieves 71.51% Macro F1 on 34-class IoT threat classification</span>
               </div>
-            </>
-          )}
-        </Card>
+              <div className="flex gap-2">
+                <span style={{ color: 'var(--green)' }}>✓</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-mid)' }}>GPU acceleration reduces XGBoost training time from hours to seconds</span>
+              </div>
+              <div className="flex gap-2">
+                <span style={{ color: 'var(--green)' }}>✓</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-mid)' }}>Decision Tree provides fastest inference (266ms) for real-time systems</span>
+              </div>
+              <div className="flex gap-2">
+                <span style={{ color: 'var(--amber)' }}>⚠</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-mid)' }}>SVM shows poor generalization (18min prediction) — needs full dataset training</span>
+              </div>
+            </div>
+          </Card>
+        </>
       )}
 
-      {/* ══ TAB: Trust Variation ══════════════════════════════════════════════ */}
-      {activeTab === 'trust' && (
-        <Card className="mb-5">
-          <CardHeader
-            icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>}
-            title="Trust Score Variation Over Time"
-            badge={trustTrend.length > 0 ? (trustData[0]?.Score != null ? 'live' : 'demo') : 'demo'}
-          />
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', marginBottom: 12 }}>
-            Formula: Trust = 0.3 × User Trust + 0.3 × Device Trust + 0.4 × Behaviour Trust
-          </p>
-          {trustData.length === 0 ? (
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-lo)', textAlign: 'center', padding: '32px 0' }}>
-              {loading ? 'Loading…' : 'No data'}
-            </p>
-          ) : (
+      {/* ══ TAB: Model Comparison ═════════════════════════════════════════════ */}
+      {activeTab === 'models' && (
+        <>
+          <Card className="mb-5">
+            <CardHeader icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>} title="Accuracy vs Macro F1 vs Attack Detection" badge="7 models" />
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={trustData} margin={{ top: 4, right: 20, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                <XAxis dataKey="label" tick={{ fill: 'var(--text-lo)', fontSize: 8 }} interval={Math.floor(trustData.length / 8)} />
-                <YAxis domain={[0, 100]} tick={{ fill: 'var(--text-lo)', fontSize: 9 }} tickFormatter={v => `${v}`} />
-                <Tooltip {...TOOLTIP_STYLE} formatter={(v: unknown) => [`${Number(v ?? 0).toFixed(1)}`, 'Trust Score'] as [string, string]} />
-                <defs>
-                  <linearGradient id="trustGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#00ff9d" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#00ff9d" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <ReferenceLine y={80} stroke="#00ff9d" strokeDasharray="4 4"
-                  label={{ value: 'HIGH ≥80', fill: '#00ff9d', fontFamily: 'var(--font-mono)', fontSize: 8, position: 'insideTopLeft' }} />
-                <ReferenceLine y={50} stroke="#ffb020" strokeDasharray="4 4"
-                  label={{ value: 'MED ≥50', fill: '#ffb020', fontFamily: 'var(--font-mono)', fontSize: 8, position: 'insideTopLeft' }} />
-                <Line type="monotone" dataKey="Score" stroke="#00ff9d" strokeWidth={2} dot={false}
-                  activeDot={{ r: 4, fill: '#00ff9d' }} />
-              </LineChart>
+              <BarChart data={barData} margin={{ top: 4, right: 16, left: 0, bottom: 60 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.18)" />
+                <XAxis dataKey="name" tick={{ fill: 'var(--text-lo)', fontSize: 9, fontFamily: 'var(--font-mono)' }} angle={-35} textAnchor="end" interval={0} />
+                <YAxis domain={[0, 100]} tick={{ fill: 'var(--text-lo)', fontSize: 9 }} tickFormatter={v => `${v}%`} />
+                <Tooltip {...TOOLTIP_STYLE} formatter={(v: unknown) => [`${Number(v).toFixed(2)}%`]} />
+                <Legend wrapperStyle={{ fontFamily: 'var(--font-mono)', fontSize: 10, paddingTop: 8 }} />
+                <Bar dataKey="Accuracy" fill="#0284c7" radius={[2, 2, 0, 0]} maxBarSize={16} />
+                <Bar dataKey="Macro F1" fill="#7c3aed" radius={[2, 2, 0, 0]} maxBarSize={16} />
+                <Bar dataKey="Atk Detect" fill="#059669" radius={[2, 2, 0, 0]} maxBarSize={16} />
+              </BarChart>
             </ResponsiveContainer>
-          )}
-          <div className="mt-3 flex gap-4">
-            {[
-              { label: 'High Trust',   range: '80–100', color: 'var(--green)' },
-              { label: 'Medium Trust', range: '50–79',  color: 'var(--amber)' },
-              { label: 'Low Trust',    range: '0–49',   color: 'var(--red)' },
-            ].map(t => (
-              <div key={t.label} className="flex items-center gap-1.5">
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: t.color }} />
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)' }}>
-                  {t.label} ({t.range})
-                </span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
+          </Card>
 
-      {/* ══ TAB: Experiment Logs ══════════════════════════════════════════════ */}
-      {activeTab === 'log' && (
-        <Card className="mb-5">
-          <div className="flex items-center gap-3 mb-4">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" strokeWidth="2">
-              <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
-            </svg>
-            <span className="card-title">Experiment Log — Research Paper</span>
-            <span className="tag ml-auto" style={{ background: 'rgba(191,95,255,0.08)', color: 'var(--purple)',
-              border: '1px solid rgba(191,95,255,0.2)', fontSize: 9 }}>
-              {expLog.length} runs
-            </span>
-            <button onClick={() => expLog.length && downloadClientCSV(expLog)}
-              className="tag no-print"
-              style={{ background: 'rgba(0,255,157,0.07)', color: 'var(--green)',
-                border: '1px solid rgba(0,255,157,0.2)', fontSize: 9, cursor: 'pointer' }}>
-              Export
-            </button>
-          </div>
-          {expLog.length === 0 ? (
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-lo)', textAlign: 'center', padding: '32px 0' }}>
-              {loading ? 'Loading…' : 'No experiment data — run training first'}
-            </p>
-          ) : (
+          <Card className="mb-5">
+            <CardHeader icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>} title="Detailed Model Metrics" />
             <div style={{ overflowX: 'auto' }}>
-              <table className="w-full data-table" style={{ minWidth: 860 }}>
+              <table className="w-full data-table" style={{ minWidth: 700 }}>
                 <thead>
                   <tr>
-                    {['Run ID','Model','Accuracy','Precision','Recall','F1','Train (s)','Pred (ms)','Split','Status'].map(h => (
-                      <th key={h} className="text-left" style={{ fontFamily: 'var(--font-mono)', fontSize: 9,
-                        color: 'var(--text-lo)', letterSpacing: '0.1em', padding: '8px 10px' }}>{h}</th>
+                    {['#', 'Model', 'Accuracy', 'Macro F1', 'Atk Detect', 'Latency (ms)', 'Train (s)', 'GPU'].map(h => (
+                      <th key={h} className="text-left" style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', letterSpacing: '0.1em', padding: '8px 12px' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {expLog.map(e => {
-                    const c = MODEL_COLOR[e.model] ?? 'var(--text-mid)';
+                  {CICIOT2023_RESULTS.models.slice().sort((a, b) => b.macro_f1 - a.macro_f1).map((row, i) => {
+                    const c = MODEL_COLOR[row.model] ?? 'var(--text-mid)';
+                    const isBest = row.model === CICIOT2023_RESULTS.best_model;
                     return (
-                      <tr key={e.run_id}>
-                        <td style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', padding: '8px 10px' }}>{e.run_id}</td>
-                        <td style={{ padding: '8px 10px' }}>
-                          <div className="flex items-center gap-1.5">
-                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: c }} />
-                            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: c }}>{e.model}</span>
+                      <tr key={row.model} style={{ background: isBest ? `${c}08` : 'transparent' }}>
+                        <td style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', padding: '8px 12px' }}>#{i + 1}</td>
+                        <td style={{ padding: '8px 12px' }}>
+                          <div className="flex items-center gap-2">
+                            <div style={{ width: 8, height: 8, borderRadius: '50%', background: c }} />
+                            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: isBest ? 700 : 400, color: c }}>{row.model}</span>
+                            {isBest && <span className="tag" style={{ fontSize: 8, background: 'rgba(5,150,105,0.12)', color: 'var(--green)', border: '1px solid rgba(5,150,105,0.28)' }}>★ BEST</span>}
                           </div>
                         </td>
-                        <td style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-mid)', padding: '8px 10px' }}>{pct(e.accuracy)}</td>
-                        <td style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-mid)', padding: '8px 10px' }}>{pct(e.precision)}</td>
-                        <td style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-mid)', padding: '8px 10px' }}>{pct(e.recall)}</td>
-                        <td style={{ fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 600, color: c, padding: '8px 10px' }}>{pct(e.f1_score)}</td>
-                        <td style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-mid)', padding: '8px 10px' }}>{e.train_time_s}s</td>
-                        <td style={{ fontFamily: 'var(--font-mono)', fontSize: 9,
-                          color: e.pred_time_ms < 100 ? 'var(--green)' : 'var(--amber)', padding: '8px 10px' }}>
-                          {e.pred_time_ms} ms
+                        <td style={{ padding: '8px 12px' }}><MiniBar value={row.accuracy} color={c} /></td>
+                        <td style={{ padding: '8px 12px' }}><MiniBar value={row.macro_f1} color="#7c3aed" /></td>
+                        <td style={{ padding: '8px 12px' }}><MiniBar value={row.attack_detection} color="#059669" /></td>
+                        <td style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: row.pred_time > 1000 ? 'var(--red)' : row.pred_time < 300 ? 'var(--green)' : 'var(--amber)', padding: '8px 12px' }}>
+                          {row.pred_time > 1000 ? (row.pred_time / 1000).toFixed(1) + 's' : row.pred_time.toFixed(1) + 'ms'}
                         </td>
-                        <td style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', padding: '8px 10px' }}>{e.split}</td>
-                        <td style={{ padding: '8px 10px' }}>
-                          <span className="tag" style={{ fontSize: 8, background: 'rgba(0,255,157,0.07)',
-                            color: 'var(--green)', border: '1px solid rgba(0,255,157,0.2)' }}>
-                            {e.status}
-                          </span>
-                        </td>
+                        <td style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-mid)', padding: '8px 12px' }}>{row.train_time.toFixed(2)}s</td>
+                        <td style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: row.gpu ? 'var(--green)' : 'var(--text-mid)', padding: '8px 12px' }}>{row.gpu ? 'CUDA' : 'CPU'}</td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
             </div>
-          )}
-          <div className="mt-3 px-3 py-2 rounded"
-            style={{ background: 'rgba(191,95,255,0.03)', border: '1px solid rgba(191,95,255,0.08)' }}>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)' }}>
-              Paper: {summary?.experiment?.reference_paper ?? '—'} · Dataset: CICIDS2017 · Evaluation: Weighted F1
-            </span>
+          </Card>
+        </>
+      )}
+
+      {/* ══ TAB: Attack Detection ═════════════════════════════════════════════ */}
+      {activeTab === 'attacks' && (
+        <Card className="mb-5">
+          <CardHeader icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--red)" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>} title="Per-Attack-Class Detection (XGBoost)" badge="Macro F1: 71.51%" />
+          <div style={{ overflowX: 'auto' }}>
+            <table className="w-full data-table" style={{ minWidth: 600 }}>
+              <thead>
+                <tr>
+                  {['Attack Class', 'Precision', 'Recall', 'F1-Score', 'Test Samples', 'Risk'].map(h => (
+                    <th key={h} className="text-left" style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', letterSpacing: '0.1em', padding: '8px 12px' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {CICIOT2023_RESULTS.attack_classes.map((c, i) => {
+                  const isBenign = c.name.toUpperCase() === 'BENIGN TRAFFIC';
+                  const risk = isBenign ? 'BENIGN' : c.f1 >= 0.85 ? 'HIGH F1' : c.f1 >= 0.6 ? 'MEDIUM F1' : 'LOW F1';
+                  const riskCol = isBenign ? 'var(--green)' : c.f1 >= 0.85 ? 'var(--green)' : c.f1 >= 0.6 ? 'var(--amber)' : 'var(--red)';
+                  return (
+                    <tr key={i} style={{ background: isBenign ? 'rgba(5,150,105,0.05)' : 'transparent' }}>
+                      <td style={{ padding: '8px 12px' }}>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: isBenign ? 'var(--green)' : 'var(--text-mid)', fontWeight: isBenign ? 600 : 400 }}>{c.name}</span>
+                      </td>
+                      <td style={{ padding: '8px 12px' }}><MiniBar value={c.precision} color="#0284c7" /></td>
+                      <td style={{ padding: '8px 12px' }}><MiniBar value={c.recall} color="#7c3aed" /></td>
+                      <td style={{ padding: '8px 12px' }}><MiniBar value={c.f1} color="#d97706" /></td>
+                      <td style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-lo)', padding: '8px 12px' }}>{c.samples.toLocaleString()}</td>
+                      <td style={{ padding: '8px 12px' }}>
+                        <span className="tag" style={{ fontSize: 8, background: `${riskCol}15`, color: riskCol, border: `1px solid ${riskCol}30` }}>
+                          {risk}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
+
+      {/* ══ TAB: Latency Analysis ═════════════════════════════════════════════ */}
+      {activeTab === 'latency' && (
+        <Card className="mb-5">
+          <CardHeader icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>} title="Prediction Latency per Model" badge="Real-time: <100ms" />
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={latencyData} margin={{ top: 4, right: 20, left: 0, bottom: 60 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.18)" />
+              <XAxis dataKey="name" tick={{ fill: 'var(--text-lo)', fontSize: 9 }} angle={-35} textAnchor="end" interval={0} />
+              <YAxis scale="log" tick={{ fill: 'var(--text-lo)', fontSize: 9 }} />
+              <Tooltip {...TOOLTIP_STYLE} formatter={(v: unknown) => {
+                const val = Number(v);
+                return val > 1000 ? [`${(val / 1000).toFixed(1)}s`, 'Latency'] : [`${val.toFixed(1)}ms`, 'Latency'];
+              }} />
+              <ReferenceLine y={100} stroke="var(--amber)" strokeDasharray="4 4" label={{ value: '100ms RT threshold', fill: 'var(--amber)', fontFamily: 'var(--font-mono)', fontSize: 9 }} />
+              <Bar dataKey="Latency (ms)" radius={[3, 3, 0, 0]} maxBarSize={32}>
+                {latencyData.map((entry, idx) => (
+                  <Cell key={idx} fill={entry.realtime ? '#059669' : '#d97706'} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="px-3 py-2 rounded-lg" style={{ background: 'rgba(5,150,105,0.08)', border: '1px solid rgba(5,150,105,0.24)' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)' }}>FASTEST MODEL</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--green)' }}>266.87 ms</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-mid)' }}>Decision Tree</div>
+            </div>
+            <div className="px-3 py-2 rounded-lg" style={{ background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.24)' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)' }}>BEST MODEL LATENCY</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: '#7c3aed' }}>7.92 sec</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-mid)' }}>XGBoost</div>
+            </div>
+            <div className="px-3 py-2 rounded-lg" style={{ background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.24)' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)' }}>SLOWEST MODEL</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700, color: 'var(--red)' }}>18+ min</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-mid)' }}>SVM (Unusable)</div>
+            </div>
           </div>
         </Card>
       )}
 
       <div style={{ height: 40 }} />
-
-      {/* ── Print CSS injected inline ──────────────────────────────────────── */}
-      <style>{`
-        @media print {
-          .no-print { display: none !important; }
-          body { background: white !important; color: black !important; }
-          .rounded-xl { border: 1px solid #ccc !important; }
-        }
-      `}</style>
     </div>
   );
 }

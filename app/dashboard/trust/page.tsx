@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { getTrustSummary, getDashboardStats, type TrustSummary, type EntityTrust } from '../../../lib/api';
@@ -13,7 +13,7 @@ function GaugeRing({ value, color, size = 80 }: { value: number; color: string; 
   const filled = circ * Math.max(0, Math.min(1, value));
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="6" />
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(0,0,0,0.18)" strokeWidth="6" />
       <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth="6"
         strokeDasharray={`${filled} ${circ - filled}`}
         strokeDashoffset={circ * 0.25}
@@ -30,7 +30,7 @@ function GaugeRing({ value, color, size = 80 }: { value: number; color: string; 
 
 function EntityRow({ entity, rank }: { entity: EntityTrust; rank: number }) {
   const STATUS: Record<string, string> = {
-    online: 'var(--green)', alerted: 'var(--amber)', quarantined: '#ff8c42', blocked: 'var(--red)',
+    online: 'var(--green)', alerted: 'var(--amber)', quarantined: '#ea6c1a', blocked: 'var(--red)',
   };
   const statusColor = STATUS[entity.status] ?? 'var(--text-lo)';
   const trustColor = entity.finalTrust >= 0.8 ? 'var(--green)' : entity.finalTrust >= 0.5 ? 'var(--amber)' : 'var(--red)';
@@ -41,7 +41,7 @@ function EntityRow({ entity, rank }: { entity: EntityTrust; rank: number }) {
       <td>
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded flex items-center justify-center flex-shrink-0"
-            style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.2)' }}>
+            style={{ background: 'rgba(2,132,199,0.12)', border: '1px solid rgba(2,132,199,0.22)' }}>
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--cyan)' }}>
               {entity.name.slice(0, 2).toUpperCase()}
             </span>
@@ -86,9 +86,9 @@ function EntityRow({ entity, rank }: { entity: EntityTrust; rank: number }) {
       </td>
       <td>
         <span className="tag" style={{ fontSize: 9,
-          background: entity.riskLevel === 'Low' ? 'rgba(0,255,157,0.07)' : entity.riskLevel === 'Critical' ? 'rgba(191,95,255,0.1)' : 'rgba(255,176,32,0.07)',
+          background: entity.riskLevel === 'Low' ? 'rgba(5,150,105,0.09)' : entity.riskLevel === 'Critical' ? 'rgba(124,58,237,0.12)' : 'rgba(217,119,6,0.09)',
           color: entity.riskLevel === 'Low' ? 'var(--green)' : entity.riskLevel === 'Critical' ? 'var(--purple)' : entity.riskLevel === 'High' ? 'var(--red)' : 'var(--amber)',
-          border: '1px solid rgba(255,255,255,0.06)',
+          border: '1px solid rgba(0,0,0,0.20)',
         }}>
           {entity.riskLevel}
         </span>
@@ -149,12 +149,12 @@ export default function TrustPage() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-5">
         {/* Formula card */}
         <div className="rounded-xl p-5 bracket-all lg:col-span-1"
-          style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+          style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
           <div className="card-header mb-4">
             <span className="card-title">Trust Formula</span>
           </div>
           <div className="px-3 py-3 rounded-lg mb-4"
-            style={{ background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.1)', fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 700, color: 'var(--cyan)', letterSpacing: '0.06em', textAlign: 'center' }}>
+            style={{ background: 'rgba(2,132,199,0.06)', border: '1px solid rgba(2,132,199,0.12)', fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 700, color: 'var(--cyan)', letterSpacing: '0.06em', textAlign: 'center' }}>
             T = α·U + β·D + γ·B
           </div>
           {[
@@ -164,7 +164,7 @@ export default function TrustPage() {
           ].map(w => (
             <div key={w.sym} className="mb-3">
               <div className="flex items-center gap-2 mb-1">
-                <span className="tag" style={{ background: 'rgba(255,255,255,0.04)', color: w.c, border: '1px solid rgba(255,255,255,0.08)', fontSize: 9, minWidth: 22, textAlign: 'center' }}>
+                <span className="tag" style={{ background: 'rgba(0,0,0,0.12)', color: w.c, border: '1px solid rgba(0,0,0,0.25)', fontSize: 9, minWidth: 22, textAlign: 'center' }}>
                   {w.sym}={w.val}
                 </span>
                 <span style={{ fontFamily: 'var(--font-ui)', fontSize: 11, fontWeight: 500, color: 'var(--text-mid)' }}>{w.label}</span>
@@ -177,13 +177,13 @@ export default function TrustPage() {
         {/* Gauge rings */}
         <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { label: 'Avg Trust', value: avgTrustGlobal, color: '#00ff9d', sub: 'Global · T score' },
-            { label: 'User Trust',     value: avgU, color: '#00d4ff', sub: `α = ${ALPHA} weight` },
-            { label: 'Device Trust',   value: avgD, color: '#bf5fff', sub: `β = ${BETA} weight` },
-            { label: 'Behavior Trust', value: avgB, color: '#ffb020', sub: `γ = ${GAMMA} weight` },
+            { label: 'Avg Trust', value: avgTrustGlobal, color: '#059669', sub: 'Global · T score' },
+            { label: 'User Trust',     value: avgU, color: '#0284c7', sub: `α = ${ALPHA} weight` },
+            { label: 'Device Trust',   value: avgD, color: '#7c3aed', sub: `β = ${BETA} weight` },
+            { label: 'Behavior Trust', value: avgB, color: '#d97706', sub: `γ = ${GAMMA} weight` },
           ].map(g => (
             <div key={g.label} className="rounded-xl p-4 bracket-all flex flex-col items-center gap-2"
-              style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+              style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
               <GaugeRing value={g.value} color={g.color} size={90} />
               <div style={{ fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700, color: 'var(--text-mid)', letterSpacing: '0.08em', textAlign: 'center' }}>
                 {g.label}
@@ -202,7 +202,7 @@ export default function TrustPage() {
           { l: 'Low Trust',  v: summary?.low_trust_entities ?? 0, c: 'var(--red)', desc: '< 50 trust score' },
         ].map(s => (
           <div key={s.l} className="rounded-xl p-4 bracket-all"
-            style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+            style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)', letterSpacing: '0.12em', marginBottom: 4 }}>{s.l}</div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 800, color: s.c, lineHeight: 1 }}>{s.v}</div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', marginTop: 4 }}>{s.desc}</div>
@@ -212,9 +212,9 @@ export default function TrustPage() {
 
       {/* Entity registry table */}
       <div className="rounded-xl overflow-hidden bracket-all mb-5"
-        style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+        style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
         <div className="flex items-center gap-3 px-4 py-3"
-          style={{ borderBottom: '1px solid var(--border-dim)', background: 'rgba(0,5,12,0.5)' }}>
+          style={{ borderBottom: '1px solid var(--border-dim)', background: 'rgba(0,0,0,0.05)' }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" strokeWidth="2">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
             <circle cx="9" cy="7" r="4"/>
@@ -222,7 +222,7 @@ export default function TrustPage() {
             <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
           <span className="card-title">Entity Registry</span>
-          <span className="tag ml-auto" style={{ background: 'rgba(191,95,255,0.08)', color: 'var(--purple)', border: '1px solid rgba(191,95,255,0.2)', fontSize: 9 }}>
+          <span className="tag ml-auto" style={{ background: 'rgba(124,58,237,0.10)', color: 'var(--purple)', border: '1px solid rgba(124,58,237,0.24)', fontSize: 9 }}>
             {entities.length} entities
           </span>
         </div>
@@ -236,7 +236,7 @@ export default function TrustPage() {
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table className="w-full data-table" style={{ minWidth: 900 }}>
-              <thead style={{ position: 'sticky', top: 0, background: 'rgba(0,5,14,0.98)', zIndex: 2 }}>
+              <thead style={{ position: 'sticky', top: 0, background: 'rgba(0,0,0,0.08)', zIndex: 2 }}>
                 <tr>
                   {['#','Entity IP','User Trust (U)','Device Trust (D)','Behavior Trust (B)','Final T','Risk','Status'].map(h => (
                     <th key={h} className="text-left">{h}</th>
@@ -252,7 +252,7 @@ export default function TrustPage() {
           </div>
         )}
 
-        <div className="px-4 py-2" style={{ borderTop: '1px solid var(--border-dim)', background: 'rgba(0,5,12,0.4)' }}>
+        <div className="px-4 py-2" style={{ borderTop: '1px solid var(--border-dim)', background: 'rgba(0,0,0,0.03)' }}>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)' }}>
             {entities.length} unique entities · 5s refresh · sorted by ascending trust score
           </span>

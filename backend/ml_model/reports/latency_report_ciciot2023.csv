@@ -1,0 +1,8 @@
+model,train_time_s,pred_time_s,pred_time_ms
+knn,0.02,23.479913,23479.913
+naive_bayes,0.06,11.932073,11932.073
+decision_tree,0.77,0.266871,266.871
+logistic_regression,2.97,0.295702,295.702
+xgboost,11.43,7.916891,7916.891
+svm,15.84,1099.065754,1099065.754
+random_forest,15.88,30.809741,30809.741

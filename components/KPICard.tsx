@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, useRef } from 'react';
 
@@ -63,11 +63,11 @@ export default function KPICard({
       onMouseLeave={() => setHovered(false)}
       style={{
         background: hovered
-          ? 'linear-gradient(135deg, rgba(8,22,48,0.98), rgba(5,15,35,0.98))'
-          : 'linear-gradient(135deg, rgba(5,15,35,0.90), rgba(3,10,22,0.90))',
-        border: `1px solid ${hovered ? accentColor + '35' : 'rgba(0,212,255,0.07)'}`,
+          ? '#ffffff'
+          : '#ffffff',
+        border: '1px solid #000000',
         backdropFilter: 'blur(16px)',
-        boxShadow: hovered ? `0 0 32px ${accentColor}12, inset 0 1px 0 ${accentColor}15` : 'inset 0 1px 0 rgba(255,255,255,0.03)',
+        boxShadow: hovered ? `0 0 32px ${accentColor}15, inset 0 1px 0 ${accentColor}15` : '0 1px 3px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.8)',
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(14px)',
         transition: `opacity 0.45s ease ${delay}ms, transform 0.45s ease ${delay}ms, border-color 0.2s, box-shadow 0.2s, background 0.2s`,
@@ -88,8 +88,8 @@ export default function KPICard({
         {trend && (
           <div className="flex items-center gap-1 px-2 py-0.5 rounded-md"
             style={{
-              background: trendUp ? 'rgba(0,255,157,0.07)' : 'rgba(255,45,85,0.07)',
-              border: `1px solid ${trendUp ? 'rgba(0,255,157,0.18)' : 'rgba(255,45,85,0.18)'}`,
+              background: trendUp ? 'rgba(5,150,105,0.08)' : 'rgba(220,38,38,0.08)',
+              border: `1px solid ${trendUp ? 'rgba(5,150,105,0.22)' : 'rgba(220,38,38,0.22)'}`,
               fontFamily: 'var(--font-mono)',
               fontSize: 10,
               color: trendUp ? 'var(--green)' : 'var(--red)',

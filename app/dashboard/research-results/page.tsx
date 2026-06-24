@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -34,18 +34,34 @@ import {
 
 // ── Palette ────────────────────────────────────────────────────────────────────
 const MODEL_COLOR: Record<string, string> = {
-  xgboost_research: "#00d4ff",
-  random_forest_research: "#00ff9d",
-  cnn_research: "#bf5fff",
-  lstm_research: "#ffb020",
+  // CICIoT2023 ensemble + baselines (plain model names)
+  xgboost: "#7c3aed",
+  random_forest: "#0284c7",
+  decision_tree: "#059669",
+  logistic_regression: "#8b5cf6",
+  svm: "#d97706",
+  knn: "#ea6c1a",
+  naive_bayes: "#ec4899",
+  // Legacy research keys (kept for back-compat)
+  xgboost_research: "#0284c7",
+  random_forest_research: "#059669",
+  cnn_research: "#7c3aed",
+  lstm_research: "#d97706",
 };
 const MODEL_SHORT: Record<string, string> = {
+  xgboost: "XGBoost",
+  random_forest: "Random Forest",
+  decision_tree: "Decision Tree",
+  logistic_regression: "Logistic Reg.",
+  svm: "SVM",
+  knn: "KNN",
+  naive_bayes: "Naive Bayes",
   xgboost_research: "XGBoost",
   random_forest_research: "Random Forest",
   cnn_research: "CNN",
   lstm_research: "LSTM",
 };
-const RANK_COLOR = ["#ffb020", "#8da8c0", "#cd7f32", "#6b7280"];
+const RANK_COLOR = ["#d97706", "#8da8c0", "#cd7f32", "#6b7280"];
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 const pct = (v: number | null | undefined) =>
@@ -76,8 +92,8 @@ function Card({
     <div
       className={`rounded-xl p-5 ${className}`}
       style={{
-        background: "rgba(3,10,22,0.92)",
-        border: "1px solid var(--border-dim)",
+        background: "rgba(255,255,255,0.94)",
+        border: "1px solid #000000",
         backdropFilter: "blur(16px)",
       }}
     >
@@ -122,8 +138,8 @@ function SectionTitle({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "rgba(0,212,255,0.1)",
-          border: "1px solid rgba(0,212,255,0.25)",
+          background: "rgba(2,132,199,0.12)",
+          border: "1px solid rgba(2,132,199,0.28)",
           flexShrink: 0,
         }}
       >
@@ -168,7 +184,7 @@ function EmptyState({ message }: { message: string }) {
         color: "var(--text-lo)",
         fontFamily: "var(--font-mono)",
         fontSize: 11,
-        border: "1px dashed rgba(0,212,255,0.12)",
+        border: "1px dashed rgba(2,132,199,0.15)",
         borderRadius: 10,
       }}
     >
@@ -184,8 +200,8 @@ function EmptyState({ message }: { message: string }) {
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8" />
       </svg>
       {message}
-      <div style={{ marginTop: 8, fontSize: 10, color: "rgba(0,212,255,0.4)" }}>
-        Run: cd backend &amp;&amp; python ml_model/train_research_models.py
+      <div style={{ marginTop: 8, fontSize: 10, color: "rgba(2,132,199,0.40)" }}>
+        Run: cd backend &amp;&amp; python ml_model/train_ciciot2023_models.py &amp;&amp; python ml_model/make_research_reports.py
       </div>
     </div>
   );
@@ -241,8 +257,8 @@ function ExportBtn({
         padding: "8px 14px",
         borderRadius: 7,
         cursor: "pointer",
-        background: "rgba(0,212,255,0.06)",
-        border: "1px solid rgba(0,212,255,0.2)",
+        background: "rgba(2,132,199,0.08)",
+        border: "1px solid rgba(2,132,199,0.22)",
         color: "var(--cyan)",
         fontFamily: "var(--font-mono)",
         fontSize: 10,
@@ -283,7 +299,7 @@ const ChartTooltip = ({
   return (
     <div
       style={{
-        background: "#000c1a",
+        background: "#f8fafc",
         border: "1px solid var(--border-mid)",
         borderRadius: 8,
         padding: "10px 14px",
@@ -309,8 +325,8 @@ export default function ResearchResultsPage() {
   const [latency, setLatency] = useState<ResearchLatency | null>(null);
   const [cmImages, setCmImages] = useState<Record<string, string | null>>({});
   const [cmAvail, setCmAvail] = useState<string[]>([]);
-  const [activeModel, setActiveModel] = useState<string>("xgboost_research");
-  const [pcModel, setPcModel] = useState<string>("xgboost_research");
+  const [activeModel, setActiveModel] = useState<string>("xgboost");
+  const [pcModel, setPcModel] = useState<string>("xgboost");
   const [activeTab, setActiveTab] = useState<"table" | "charts" | "radar">(
     "table"
   );
@@ -489,7 +505,7 @@ export default function ResearchResultsPage() {
               marginTop: 2,
             }}
           >
-            Dataset: CICIDS2017 · Split: Temporal · Publication-ready metrics
+            Dataset: {comparison?.dataset ?? "CICIoT2023"} · Split: {comparison?.split_mode ?? "Train/Val/Test"} · Publication-ready metrics
           </div>
         </div>
 
@@ -527,26 +543,26 @@ export default function ResearchResultsPage() {
       {/* ── Summary cards ───────────────────────────────────────────── */}
       <div className="grid grid-cols-7 gap-3 mb-6">
         {[
-          { label: "Dataset", value: "CICIDS2017", color: "var(--cyan)" },
-          { label: "Split", value: "Temporal", color: "var(--cyan)" },
-          { label: "Features", value: "77", color: "#00ff9d" },
-          { label: "Classes", value: "15", color: "#00ff9d" },
+          { label: "Dataset", value: comparison?.dataset ?? "CICIoT2023", color: "var(--cyan)" },
+          { label: "Split", value: comparison?.split_mode ?? "Train/Val/Test", color: "var(--cyan)" },
+          { label: "Features", value: String(comparison?.num_features ?? 46), color: "#059669" },
+          { label: "Classes", value: String(comparison?.num_classes ?? 34), color: "#059669" },
           {
             label: "Best Model",
             value: comparison
               ? MODEL_SHORT[comparison.best_model] ?? comparison.best_model
               : "—",
-            color: "#ffb020",
+            color: "#d97706",
           },
           {
             label: "Best Macro-F1",
             value: comparison ? pct(comparison.best_macro_f1) : "—",
-            color: "#ffb020",
+            color: "#d97706",
           },
           {
             label: "Best ADR",
             value: comparison ? pct(comparison.best_adr) : "—",
-            color: "#ffb020",
+            color: "#d97706",
           },
         ].map((k) => (
           <div
@@ -554,8 +570,8 @@ export default function ResearchResultsPage() {
             style={{
               borderRadius: 10,
               padding: "12px 14px",
-              background: "rgba(3,10,22,0.92)",
-              border: "1px solid var(--border-dim)",
+              background: "rgba(255,255,255,0.94)",
+              border: "1px solid #000000",
             }}
           >
             <div
@@ -609,8 +625,8 @@ export default function ResearchResultsPage() {
             marginBottom: 16,
             padding: "10px 14px",
             borderRadius: 8,
-            background: "rgba(255,176,32,0.05)",
-            border: "1px solid rgba(255,176,32,0.2)",
+            background: "rgba(217,119,6,0.07)",
+            border: "1px solid rgba(217,119,6,0.24)",
             display: "flex",
             gap: 10,
             alignItems: "flex-start",
@@ -621,7 +637,7 @@ export default function ResearchResultsPage() {
             height="15"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#ffb020"
+            stroke="#d97706"
             strokeWidth="2"
             style={{ flexShrink: 0, marginTop: 1 }}
           >
@@ -631,15 +647,15 @@ export default function ResearchResultsPage() {
             style={{
               fontFamily: "var(--font-mono)",
               fontSize: 10,
-              color: "#ffb020",
+              color: "#d97706",
               lineHeight: 1.6,
             }}
           >
-            <strong>Primary metrics for CICIDS2017:</strong> Macro-F1 and Attack
-            Detection Rate (ADR). Accuracy is inflated by the dominant BENIGN
-            class and should not be used as the sole evaluation criterion.
-            Macro-F1 treats every class equally regardless of support, giving a
-            fair view of minority attack-class detection.
+            <strong>Primary metrics for CICIoT2023:</strong> Macro-F1 and Attack
+            Detection Rate (ADR). Accuracy is inflated by the dominant DDoS/BENIGN
+            classes and should not be used as the sole evaluation criterion.
+            Macro-F1 treats every one of the 34 classes equally regardless of
+            support, giving a fair view of minority attack-class detection.
           </span>
         </div>
 
@@ -652,16 +668,18 @@ export default function ResearchResultsPage() {
             marginBottom: 12,
           }}
         >
-          Macro-F1 and Attack Detection Rate were considered more reliable
-          indicators of model generalization. XGBoost achieved the best Macro-F1
-          of <strong style={{ color: "var(--cyan)" }}>92.29%</strong> and ADR of{" "}
-          <strong style={{ color: "var(--cyan)" }}>91.31%</strong>, while Random
-          Forest achieved the highest ADR of{" "}
-          <strong style={{ color: "#00ff9d" }}>93.19%</strong> with a Macro-F1
-          of <strong style={{ color: "#00ff9d" }}>85.66%</strong>. This
-          indicates that ensemble-based tree models are more effective for
-          flow-based network intrusion detection compared to CNN and LSTM models
-          in the current feature-vector setting.
+          Macro-F1 and Attack Detection Rate were considered the most reliable
+          indicators of model generalization across the 34 IoT attack classes.
+          XGBoost (GPU-accelerated) achieved the best Macro-F1 of{" "}
+          <strong style={{ color: "#7c3aed" }}>71.51%</strong> and ADR of{" "}
+          <strong style={{ color: "#7c3aed" }}>70.35%</strong> at{" "}
+          <strong style={{ color: "var(--cyan)" }}>98.99%</strong> accuracy,
+          followed by Decision Tree (Macro-F1{" "}
+          <strong style={{ color: "#059669" }}>66.23%</strong>) and Random Forest
+          (Macro-F1 <strong style={{ color: "#0284c7" }}>63.95%</strong>). This
+          confirms that ensemble-based tree models are the most effective and
+          efficient choice for flow-based IoT intrusion detection — XGBoost forms
+          the core of the live ensemble alongside Random Forest.
         </p>
         <p
           style={{
@@ -671,18 +689,16 @@ export default function ResearchResultsPage() {
             lineHeight: 1.75,
           }}
         >
-          The deep learning models (CNN: Macro-F1{" "}
-          <strong style={{ color: "#bf5fff" }}>66.45%</strong>, LSTM: Macro-F1{" "}
-          <strong style={{ color: "#ffb020" }}>63.04%</strong>) show lower
-          performance in this configuration. This is expected because CNN and
-          LSTM are architecturally optimised for temporal or spatial sequences,
-          whereas CICIDS2017 flows are represented as fixed-length feature
-          vectors without explicit sequential structure. The higher False
-          Positive Rates for CNN (
-          <strong style={{ color: "#bf5fff" }}>20.61%</strong>) and LSTM (
-          <strong style={{ color: "#ffb020" }}>29.20%</strong>) further indicate
-          that these models require richer sequential input or attention
-          mechanisms to match tree-based performance.
+          The distance- and probability-based baselines underperform sharply on
+          this 34-class problem (Naive Bayes Macro-F1{" "}
+          <strong style={{ color: "#ec4899" }}>17.13%</strong>; KNN, Logistic
+          Regression and SVM below <strong style={{ color: "#d97706" }}>1%</strong>{" "}
+          Macro-F1). These were trained on aggressively sub-sampled data for
+          tractability and do not generalise to the full distribution. SVM is
+          additionally impractical at inference (~18&nbsp;min over the test set),
+          whereas Decision Tree predicts in <strong>267&nbsp;ms</strong>. The
+          results justify deploying a Random&nbsp;Forest&nbsp;+&nbsp;XGBoost
+          ensemble for the live pipeline.
         </p>
       </Card>
 
@@ -719,10 +735,10 @@ export default function ResearchResultsPage() {
                 fontSize: 10,
                 fontWeight: 600,
                 background:
-                  activeTab === t ? "rgba(0,212,255,0.15)" : "transparent",
+                  activeTab === t ? "rgba(2,132,199,0.18)" : "transparent",
                 border:
                   activeTab === t
-                    ? "1px solid rgba(0,212,255,0.4)"
+                    ? "1px solid rgba(2,132,199,0.40)"
                     : "1px solid var(--border-dim)",
                 color: activeTab === t ? "var(--cyan)" : "var(--text-lo)",
                 transition: "all 0.15s",
@@ -734,7 +750,7 @@ export default function ResearchResultsPage() {
         </div>
 
         {models.length === 0 ? (
-          <EmptyState message="model_comparison_research.csv not found." />
+          <EmptyState message="model_comparison_ciciot2023.csv not found." />
         ) : activeTab === "table" ? (
           /* ── Table view ── */
           <div style={{ overflowX: "auto" }}>
@@ -787,7 +803,7 @@ export default function ResearchResultsPage() {
                     <tr
                       key={m.model_name}
                       style={{
-                        borderBottom: "1px solid rgba(0,212,255,0.05)",
+                        borderBottom: "1px solid rgba(2,132,199,0.07)",
                         background:
                           i % 2 === 0 ? "transparent" : "rgba(0,212,255,0.015)",
                       }}
@@ -874,7 +890,7 @@ export default function ResearchResultsPage() {
                           padding: "10px 12px",
                           textAlign: "right",
                           color:
-                            m.false_positive_rate > 0.1 ? "#ff2d55" : "#00ff9d",
+                            m.false_positive_rate > 0.1 ? "#dc2626" : "#059669",
                         }}
                       >
                         {pct4(m.false_positive_rate)}
@@ -988,7 +1004,7 @@ export default function ResearchResultsPage() {
                   >
                     <CartesianGrid
                       strokeDasharray="3 3"
-                      stroke="rgba(0,212,255,0.06)"
+                      stroke="rgba(2,132,199,0.08)"
                       vertical={false}
                     />
                     <XAxis
@@ -1035,7 +1051,7 @@ export default function ResearchResultsPage() {
                 data={radarData}
                 margin={{ top: 10, right: 40, bottom: 10, left: 40 }}
               >
-                <PolarGrid stroke="rgba(0,212,255,0.12)" />
+                <PolarGrid stroke="rgba(2,132,199,0.15)" />
                 <PolarAngleAxis
                   dataKey="metric"
                   tick={{
@@ -1069,7 +1085,7 @@ export default function ResearchResultsPage() {
                 />
                 <Tooltip
                   contentStyle={{
-                    background: "#000c1a",
+                    background: "#f8fafc",
                     border: "1px solid var(--border-mid)",
                     borderRadius: 8,
                     fontSize: 11,
@@ -1104,12 +1120,10 @@ export default function ResearchResultsPage() {
         />
         {/* Model tab selector */}
         <div className="flex gap-2 mb-4 flex-wrap">
-          {[
-            "xgboost_research",
-            "random_forest_research",
-            "cnn_research",
-            "lstm_research",
-          ].map((m) => {
+          {(cmAvail.length > 0
+            ? cmAvail
+            : ["xgboost", "random_forest", "decision_tree", "naive_bayes"]
+          ).map((m) => {
             const avail = cmAvail.includes(m);
             return (
               <button
@@ -1176,7 +1190,7 @@ export default function ResearchResultsPage() {
               style={{
                 maxWidth: "100%",
                 borderRadius: 8,
-                border: "1px solid var(--border-dim)",
+                border: "1px solid #000000",
               }}
             />
             <div
@@ -1188,7 +1202,7 @@ export default function ResearchResultsPage() {
               }}
             >
               {MODEL_SHORT[activeModel] ?? activeModel} — Confusion Matrix ·
-              CICIDS2017 Temporal Split · 15 Classes
+              CICIoT2023 Train/Val/Test · 34 Classes
             </div>
           </div>
         )}
@@ -1252,7 +1266,7 @@ export default function ResearchResultsPage() {
               style={{
                 padding: "8px 12px",
                 borderRadius: 8,
-                background: "rgba(0,255,157,0.05)",
+                background: "rgba(5,150,105,0.07)",
                 border: "1px solid rgba(0,255,157,0.15)",
               }}
             >
@@ -1268,7 +1282,7 @@ export default function ResearchResultsPage() {
               </div>
               <div
                 style={{
-                  color: "#00ff9d",
+                  color: "#059669",
                   fontWeight: 700,
                   fontSize: 12,
                   fontFamily: "var(--font-mono)",
@@ -1291,8 +1305,8 @@ export default function ResearchResultsPage() {
               style={{
                 padding: "8px 12px",
                 borderRadius: 8,
-                background: "rgba(255,45,85,0.05)",
-                border: "1px solid rgba(255,45,85,0.15)",
+                background: "rgba(220,38,38,0.07)",
+                border: "1px solid rgba(220,38,38,0.18)",
               }}
             >
               <div
@@ -1307,7 +1321,7 @@ export default function ResearchResultsPage() {
               </div>
               <div
                 style={{
-                  color: "#ff2d55",
+                  color: "#dc2626",
                   fontWeight: 700,
                   fontSize: 12,
                   fontFamily: "var(--font-mono)",
@@ -1330,8 +1344,8 @@ export default function ResearchResultsPage() {
               style={{
                 padding: "8px 12px",
                 borderRadius: 8,
-                background: "rgba(0,212,255,0.05)",
-                border: "1px solid rgba(0,212,255,0.15)",
+                background: "rgba(2,132,199,0.07)",
+                border: "1px solid rgba(2,132,199,0.18)",
               }}
             >
               <div
@@ -1416,11 +1430,11 @@ export default function ResearchResultsPage() {
                     <tr
                       key={r.class + i}
                       style={{
-                        borderBottom: "1px solid rgba(0,212,255,0.04)",
+                        borderBottom: "1px solid rgba(2,132,199,0.06)",
                         background: isWeak
-                          ? "rgba(255,45,85,0.03)"
+                          ? "rgba(220,38,38,0.05)"
                           : isBest
-                          ? "rgba(0,255,157,0.03)"
+                          ? "rgba(5,150,105,0.05)"
                           : i % 2 === 0
                           ? "transparent"
                           : "rgba(0,212,255,0.015)",
@@ -1448,7 +1462,7 @@ export default function ResearchResultsPage() {
                         style={{
                           padding: "9px 12px",
                           textAlign: "right",
-                          color: r.recall < 0.5 ? "#ff2d55" : "var(--text-mid)",
+                          color: r.recall < 0.5 ? "#dc2626" : "var(--text-mid)",
                         }}
                       >
                         {pct(r.recall)}
@@ -1460,10 +1474,10 @@ export default function ResearchResultsPage() {
                           fontWeight: 700,
                           color:
                             r.f1 >= 0.9
-                              ? "#00ff9d"
+                              ? "#059669"
                               : r.f1 >= 0.6
                               ? "var(--cyan)"
-                              : "#ff2d55",
+                              : "#dc2626",
                         }}
                       >
                         {pct(r.f1)}
@@ -1479,9 +1493,9 @@ export default function ResearchResultsPage() {
                       </td>
                       <td style={{ padding: "9px 12px", textAlign: "right" }}>
                         {isWeak ? (
-                          <Badge color="#ff2d55">Weak</Badge>
+                          <Badge color="#dc2626">Weak</Badge>
                         ) : isBest ? (
-                          <Badge color="#00ff9d">Strong</Badge>
+                          <Badge color="#059669">Strong</Badge>
                         ) : isBenign ? (
                           <Badge color="var(--text-lo)">Ref</Badge>
                         ) : (
@@ -1523,8 +1537,8 @@ export default function ResearchResultsPage() {
               marginBottom: 14,
               padding: "8px 12px",
               borderRadius: 6,
-              background: "rgba(0,212,255,0.04)",
-              border: "1px solid rgba(0,212,255,0.12)",
+              background: "rgba(2,132,199,0.06)",
+              border: "1px solid rgba(2,132,199,0.15)",
               fontFamily: "var(--font-mono)",
               fontSize: 10,
               color: "var(--text-mid)",
@@ -1579,7 +1593,7 @@ export default function ResearchResultsPage() {
                     <tr
                       key={row.model}
                       style={{
-                        borderBottom: "1px solid rgba(0,212,255,0.04)",
+                        borderBottom: "1px solid rgba(2,132,199,0.06)",
                         background:
                           i % 2 === 0 ? "transparent" : "rgba(0,212,255,0.015)",
                       }}
@@ -1622,19 +1636,19 @@ export default function ResearchResultsPage() {
                       </td>
                       <td style={{ padding: "10px 12px", textAlign: "right" }}>
                         {row.train_time_s < 60 ? (
-                          <Badge color="#00ff9d">Fast</Badge>
+                          <Badge color="#059669">Fast</Badge>
                         ) : row.train_time_s < 300 ? (
-                          <Badge color="#ffb020">Moderate</Badge>
+                          <Badge color="#d97706">Moderate</Badge>
                         ) : (
-                          <Badge color="#ff2d55">Slow</Badge>
+                          <Badge color="#dc2626">Slow</Badge>
                         )}
                       </td>
                       <td style={{ padding: "10px 12px", textAlign: "right" }}>
                         {row.model === "random_forest_research" ||
                         row.model === "xgboost_research" ? (
-                          <Badge color="#00ff9d">Real-time capable</Badge>
+                          <Badge color="#059669">Real-time capable</Badge>
                         ) : (
-                          <Badge color="#ffb020">Batch / offline</Badge>
+                          <Badge color="#d97706">Batch / offline</Badge>
                         )}
                       </td>
                     </tr>
@@ -1668,7 +1682,7 @@ export default function ResearchResultsPage() {
                 >
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="rgba(0,212,255,0.06)"
+                    stroke="rgba(2,132,199,0.08)"
                     horizontal={false}
                   />
                   <XAxis
@@ -1695,7 +1709,7 @@ export default function ResearchResultsPage() {
                       "Train time",
                     ]}
                     contentStyle={{
-                      background: "#000c1a",
+                      background: "#f8fafc",
                       border: "1px solid var(--border-mid)",
                       borderRadius: 6,
                       fontSize: 11,
@@ -1758,7 +1772,7 @@ export default function ResearchResultsPage() {
             >
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="rgba(0,212,255,0.06)"
+                stroke="rgba(2,132,199,0.08)"
                 vertical={false}
               />
               <XAxis
@@ -1785,7 +1799,7 @@ export default function ResearchResultsPage() {
               <Bar
                 dataKey="accuracy"
                 name="Accuracy"
-                fill="rgba(0,212,255,0.5)"
+                fill="rgba(2,132,199,0.50)"
                 radius={[4, 4, 0, 0]}
                 maxBarSize={30}
               />
@@ -1842,13 +1856,13 @@ export default function ResearchResultsPage() {
               label: "Deduplication",
               value:
                 "Class-aware: BENIGN deduped; attack rows preserved (repetitive by nature)",
-              color: "#00ff9d",
+              color: "#059669",
             },
             {
               label: "BENIGN Sampling",
               value:
                 "Undersampled to 2× attack count for honest per-class evaluation",
-              color: "#00ff9d",
+              color: "#059669",
             },
             {
               label: "Outlier Clipping",
@@ -1866,7 +1880,7 @@ export default function ResearchResultsPage() {
               label: "Regularisation",
               value:
                 "RF max_depth=15, XGBoost max_depth=7 + L1/L2 — prevents memorisation",
-              color: "#ffb020",
+              color: "#d97706",
             },
           ].map((item) => (
             <div
@@ -1874,8 +1888,8 @@ export default function ResearchResultsPage() {
               style={{
                 padding: "12px 14px",
                 borderRadius: 8,
-                background: "rgba(0,212,255,0.03)",
-                border: "1px solid rgba(0,212,255,0.1)",
+                background: "rgba(2,132,199,0.05)",
+                border: "1px solid rgba(2,132,199,0.12)",
               }}
             >
               <div

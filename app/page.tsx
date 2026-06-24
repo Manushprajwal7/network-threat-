@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
@@ -28,7 +28,7 @@ const PIPELINE = [
 ];
 
 const ATTACKS = ['BENIGN','DoS Hulk','PortScan','DDoS','DoS GoldenEye','Brute Force – FTP','Brute Force – SSH','DoS Slowloris','Web Attack – Brute Force','Web Attack – XSS','Infiltration','Web Attack – SQLi','Botnet'];
-const ATTACK_COLORS = ['var(--green)','var(--red)','var(--cyan)','var(--purple)','var(--amber)','#ec4899','#84cc16','#fb923c','#f87171','#60a5fa','#34d399','#a78bfa','#f97316'];
+const ATTACK_COLORS = ['var(--green)','var(--red)','var(--cyan)','var(--purple)','var(--amber)','#be185d','#6b7c2d','#d97706','#dc2626','#1e40af','#059669','#8b5cf6','#b45309'];
 
 /* ─── PARTICLE CANVAS ──────────────────────────────────────── */
 function ParticleNet() {
@@ -67,7 +67,7 @@ function ParticleNet() {
             ctx.moveTo(nodes[i].x, nodes[i].y);
             ctx.lineTo(nodes[j].x, nodes[j].y);
             const alpha = 0.18 * (1 - d / 130);
-            ctx.strokeStyle = `rgba(0, 212, 255, ${alpha})`;
+            ctx.strokeStyle = `rgba(2, 132, 199, ${alpha})`;
             ctx.lineWidth = 0.6;
             ctx.stroke();
           }
@@ -106,14 +106,14 @@ export default function LandingPage() {
 
       {/* ─── TOP NAV ─────────────────────────────────── */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-3"
-        style={{ background: 'rgba(0,5,8,0.92)', borderBottom: '1px solid var(--border-dim)', backdropFilter: 'blur(20px)' }}>
+        style={{ background: '#ffffff', borderBottom: '1px solid var(--border-dim)', backdropFilter: 'blur(20px)', boxShadow: '0 1px 0 0 rgba(0,0,0,0.15)' }}>
         {/* Top glow line */}
         <div className="absolute top-0 left-0 right-0 h-px"
           style={{ background: 'linear-gradient(90deg, transparent, var(--cyan), var(--purple), transparent)', opacity: 0.6 }} />
 
         <div className="flex items-center gap-2.5">
           <div className="hex-badge w-8 h-8 flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(191,95,255,0.2))', border: '1px solid rgba(0,212,255,0.3)' }}>
+            style={{ background: 'linear-gradient(135deg, rgba(2,132,199,0.18), rgba(124,58,237,0.18))', border: '1px solid rgba(2,132,199,0.30)' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="2">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
             </svg>
@@ -132,9 +132,9 @@ export default function LandingPage() {
         </div>
 
         <Link href="/dashboard" className="tag transition-all"
-          style={{ background: 'rgba(0,212,255,0.08)', color: 'var(--cyan)', border: '1px solid var(--border-mid)', fontFamily: 'var(--font-mono)', fontSize: 11, padding: '6px 14px', textDecoration: 'none' }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'var(--cyan-dim)'; e.currentTarget.style.boxShadow = '0 0 16px rgba(0,212,255,0.2)'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,212,255,0.08)'; e.currentTarget.style.boxShadow = 'none'; }}>
+          style={{ background: 'rgba(2,132,199,0.08)', color: 'var(--cyan)', border: '1px solid var(--border-mid)', fontFamily: 'var(--font-mono)', fontSize: 11, padding: '6px 14px', textDecoration: 'none' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--cyan-dim)'; e.currentTarget.style.boxShadow = '0 0 16px rgba(2,132,199,0.20)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(2,132,199,0.08)'; e.currentTarget.style.boxShadow = 'none'; }}>
           ENTER SOC →
         </Link>
       </nav>
@@ -146,11 +146,11 @@ export default function LandingPage() {
 
         {/* radial spotlight */}
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse 70% 55% at 50% 50%, rgba(0,212,255,0.055) 0%, transparent 75%)' }} />
+          style={{ background: 'radial-gradient(ellipse 70% 55% at 50% 50%, rgba(2,132,199,0.08) 0%, transparent 75%)' }} />
 
         {/* Boot text */}
         <div className="relative z-10 mb-6 px-4 py-2 rounded"
-          style={{ background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.12)', maxWidth: 640 }}>
+          style={{ background: 'rgba(2,132,199,0.06)', border: '1px solid rgba(2,132,199,0.18)', maxWidth: 640 }}>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-lo)', letterSpacing: '0.06em' }}>
             {bootText}
             <span style={{ animation: 'threat-blink 0.7s step-end infinite', color: 'var(--cyan)' }}>█</span>
@@ -181,14 +181,14 @@ export default function LandingPage() {
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '12px 28px', borderRadius: 10,
-              background: 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(191,95,255,0.15))',
-              border: '1px solid rgba(0,212,255,0.35)',
+              background: 'linear-gradient(135deg, rgba(2,132,199,0.12), rgba(124,58,237,0.12))',
+              border: '1px solid rgba(2,132,199,0.35)',
               fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 700,
               letterSpacing: '0.1em', color: 'var(--cyan)',
               textDecoration: 'none',
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(0,212,255,0.25), rgba(191,95,255,0.25))'; e.currentTarget.style.boxShadow = '0 0 32px rgba(0,212,255,0.2)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(0,212,255,0.15), rgba(191,95,255,0.15))'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none'; }}>
+            onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(2,132,199,0.22), rgba(124,58,237,0.22))'; e.currentTarget.style.boxShadow = '0 0 32px rgba(2,132,199,0.18)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(2,132,199,0.12), rgba(124,58,237,0.12))'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none'; }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
               <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
@@ -199,13 +199,13 @@ export default function LandingPage() {
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '12px 24px', borderRadius: 10,
-              background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.08)',
+              background: 'rgba(0,0,0,0.10)', border: '1px solid rgba(0,0,0,0.25)',
               fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 600,
               letterSpacing: '0.1em', color: 'var(--text-mid)',
               textDecoration: 'none', transition: 'all 0.2s',
             }}
-            onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-hi)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-mid)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'none'; }}>
+            onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-hi)'; e.currentTarget.style.borderColor = 'rgba(0,0,0,0.35)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-mid)'; e.currentTarget.style.borderColor = 'rgba(0,0,0,0.25)'; e.currentTarget.style.transform = 'none'; }}>
             VIEW ARCHITECTURE
           </a>
         </div>
@@ -216,15 +216,15 @@ export default function LandingPage() {
             <div key={s.label} className="flex items-center">
               <div className="px-3 py-2 rounded-lg transition-all duration-300 cursor-default"
                 style={{
-                  background: pipeStep === i ? `${s.color}14` : 'rgba(255,255,255,0.025)',
-                  border: `1px solid ${pipeStep === i ? s.color + '50' : 'rgba(255,255,255,0.06)'}`,
+                  background: pipeStep === i ? `${s.color}14` : 'rgba(0,0,0,0.10)',
+                  border: `1px solid ${pipeStep === i ? s.color + '50' : 'rgba(0,0,0,0.20)'}`,
                   boxShadow: pipeStep === i ? `0 0 16px ${s.color}20` : 'none',
                 }}>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 9, color: pipeStep === i ? s.color : 'var(--text-lo)', letterSpacing: '0.08em' }}>{s.label}</div>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: pipeStep === i ? `${s.color}` : 'var(--text-ghost)', marginTop: 1, opacity: 0.8 }}>{s.detail}</div>
               </div>
               {i < PIPELINE.length - 1 && (
-                <div className="mx-1.5 text-xs hidden md:block" style={{ color: 'rgba(0,212,255,0.2)' }}>──▶</div>
+                <div className="mx-1.5 text-xs hidden md:block" style={{ color: 'rgba(2,132,199,0.35)' }}>──▶</div>
               )}
             </div>
           ))}
@@ -240,7 +240,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── STATS BAR ───────────────────────────────── */}
-      <section style={{ background: 'rgba(5,15,35,0.7)', borderTop: '1px solid var(--border-dim)', borderBottom: '1px solid var(--border-dim)', padding: '32px 24px' }}>
+      <section style={{ background: '#ffffff', borderTop: '1px solid var(--border-dim)', borderBottom: '1px solid var(--border-dim)', padding: '32px 24px' }}>
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
             { v: '2.83M+', l: 'Records', sub: 'Training dataset' },
@@ -249,7 +249,7 @@ export default function LandingPage() {
             { v: '78',     l: 'Features', sub: 'Flow-level statistics' },
           ].map(s => (
             <div key={s.l} className="text-center">
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 800, color: 'var(--cyan)', letterSpacing: '-0.03em', textShadow: '0 0 24px rgba(0,212,255,0.3)' }}>{s.v}</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 800, color: 'var(--cyan)', letterSpacing: '-0.03em', textShadow: '0 0 24px rgba(2,132,199,0.25)' }}>{s.v}</div>
               <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13, fontWeight: 600, color: 'var(--text-hi)', marginTop: 4 }}>{s.l}</div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', marginTop: 2 }}>{s.sub}</div>
             </div>
@@ -274,9 +274,9 @@ export default function LandingPage() {
             {MODULES.map((m, i) => (
               <div key={m.title}
                 className="rounded-xl p-5 bracket-all transition-all duration-300 cursor-default"
-                style={{ background: 'rgba(5,15,35,0.8)', border: '1px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)', animationDelay: `${i * 80}ms` }}
-                onMouseEnter={e => { e.currentTarget.style.border = `1px solid ${m.color}35`; e.currentTarget.style.boxShadow = `0 0 32px ${m.color}10`; e.currentTarget.style.transform = 'translateY(-3px)'; }}
-                onMouseLeave={e => { e.currentTarget.style.border = '1px solid rgba(255,255,255,0.05)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none'; }}>
+                style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.18)', backdropFilter: 'blur(12px)', boxShadow: '0 1px 3px rgba(0,0,0,0.15)', animationDelay: `${i * 80}ms` }}
+                onMouseEnter={e => { e.currentTarget.style.border = `1px solid ${m.color}45`; e.currentTarget.style.boxShadow = `0 4px 20px ${m.color}15`; e.currentTarget.style.transform = 'translateY(-3px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.border = '1px solid rgba(0,0,0,0.18)'; e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.15)'; e.currentTarget.style.transform = 'none'; }}>
                 <div className="flex items-start justify-between mb-4">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center"
                     style={{ background: `${m.color}14`, color: m.color, border: `1px solid ${m.color}30` }}>
@@ -297,7 +297,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── ARCHITECTURE ────────────────────────────── */}
-      <section id="architecture" style={{ padding: '80px 24px', background: 'rgba(3,8,18,0.7)', borderTop: '1px solid var(--border-dim)', borderBottom: '1px solid var(--border-dim)' }}>
+      <section id="architecture" style={{ padding: '80px 24px', background: '#ffffff', borderTop: '1px solid var(--border-dim)', borderBottom: '1px solid var(--border-dim)' }}>
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <div className="section-label justify-center mb-3">System Pipeline</div>
@@ -310,7 +310,7 @@ export default function LandingPage() {
             {PIPELINE.map((step, i) => (
               <div key={step.label}
                 className="flex flex-col items-center text-center p-4 rounded-xl bracket-all"
-                style={{ background: 'rgba(5,15,35,0.85)', border: `1px solid ${step.color}20` }}>
+                style={{ background: '#ffffff', border: `1px solid ${step.color}30`, boxShadow: '0 1px 3px rgba(0,0,0,0.15)' }}>
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
                   style={{ background: `${step.color}14`, border: `1px solid ${step.color}35`, color: step.color }}>
                   <span style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 800 }}>{i + 1}</span>
@@ -325,7 +325,7 @@ export default function LandingPage() {
 
           {/* Trust formula callout */}
           <div className="mt-8 rounded-xl p-6 bracket-all"
-            style={{ background: 'rgba(191,95,255,0.04)', border: '1px solid rgba(191,95,255,0.18)' }}>
+            style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.20)' }}>
             <div className="text-center">
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', letterSpacing: '0.15em', marginBottom: 8 }}>// CORE TRUST FORMULA</div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(20px, 4vw, 36px)', fontWeight: 800, color: 'var(--purple)', letterSpacing: '0.04em' }}>
@@ -353,12 +353,12 @@ export default function LandingPage() {
       <section id="dataset" style={{ padding: '80px 24px' }}>
         <div className="max-w-5xl mx-auto">
           <div className="rounded-2xl p-8 md:p-10 relative overflow-hidden bracket-all"
-            style={{ background: 'rgba(5,15,35,0.9)', border: '1px solid var(--border-mid)' }}>
+            style={{ background: '#ffffff', border: '1px solid var(--border-mid)', boxShadow: '0 1px 4px rgba(0,0,0,0.18)' }}>
             {/* BG decor */}
             <div className="absolute top-0 right-0 w-72 h-72 pointer-events-none"
-              style={{ background: 'radial-gradient(circle at top right, rgba(191,95,255,0.07), transparent 70%)' }} />
+              style={{ background: 'radial-gradient(circle at top right, rgba(124,58,237,0.07), transparent 70%)' }} />
             <div className="absolute bottom-0 left-0 w-48 h-48 pointer-events-none"
-              style={{ background: 'radial-gradient(circle at bottom left, rgba(0,212,255,0.06), transparent 70%)' }} />
+              style={{ background: 'radial-gradient(circle at bottom left, rgba(2,132,199,0.06), transparent 70%)' }} />
 
             <div className="relative z-10">
               <div className="section-label mb-4">Training Dataset</div>
@@ -379,7 +379,7 @@ export default function LandingPage() {
                   { v: '5',     l: 'Days Captured', c: 'var(--amber)' },
                 ].map(x => (
                   <div key={x.l} className="rounded-xl p-4 text-center bracket-all"
-                    style={{ background: 'rgba(255,255,255,0.025)', border: `1px solid ${x.c}20` }}>
+                    style={{ background: 'rgba(0,0,0,0.10)', border: `1px solid ${x.c}35` }}>
                     <div style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 800, color: x.c }}>{x.v}</div>
                     <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', marginTop: 4, letterSpacing: '0.08em' }}>{x.l}</div>
                   </div>
@@ -402,7 +402,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── CTA ─────────────────────────────────────── */}
-      <section style={{ padding: '80px 24px', background: 'rgba(3,8,18,0.8)', borderTop: '1px solid var(--border-dim)', textAlign: 'center' }}>
+      <section style={{ padding: '80px 24px', background: '#ffffff', borderTop: '1px solid var(--border-dim)', textAlign: 'center' }}>
         <div className="max-w-xl mx-auto">
           <div className="section-label justify-center mb-4">Ready to Explore</div>
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(22px,3vw,34px)', fontWeight: 800, color: 'var(--text-hi)', marginBottom: 12 }}>
@@ -416,14 +416,14 @@ export default function LandingPage() {
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 10,
               padding: '14px 36px', borderRadius: 12,
-              background: 'linear-gradient(135deg, rgba(0,212,255,0.18), rgba(191,95,255,0.18))',
-              border: '1px solid rgba(0,212,255,0.35)',
+              background: 'linear-gradient(135deg, rgba(2,132,199,0.14), rgba(124,58,237,0.14))',
+              border: '1px solid rgba(2,132,199,0.35)',
               fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 700,
               letterSpacing: '0.12em', color: 'var(--cyan)',
               textDecoration: 'none', transition: 'all 0.25s',
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(0,212,255,0.28), rgba(191,95,255,0.28))'; e.currentTarget.style.boxShadow = '0 0 48px rgba(0,212,255,0.18)'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(0,212,255,0.18), rgba(191,95,255,0.18))'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none'; }}>
+            onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(2,132,199,0.24), rgba(124,58,237,0.24))'; e.currentTarget.style.boxShadow = '0 0 48px rgba(2,132,199,0.18)'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(2,132,199,0.14), rgba(124,58,237,0.14))'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none'; }}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
               <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
@@ -438,7 +438,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="hex-badge w-7 h-7 flex items-center justify-center"
-              style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.2)' }}>
+              style={{ background: 'rgba(2,132,199,0.10)', border: '1px solid rgba(2,132,199,0.22)' }}>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="2">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               </svg>

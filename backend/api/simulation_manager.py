@@ -72,66 +72,126 @@ SIM_TYPES = {
 }
 
 
-# ── Event generators (purely synthetic) ────────────────────────────────────────
+# ── Synthetic actors (RFC-5737 doc ranges for "external" attackers; ───────────────
+#    RFC-1918 private ranges for "internal" victims). These are labels only —
+#    no real packets are sent to them. They give the dashboard/topology a
+#    realistic attacker→victim picture.
+_ATTACKER = {
+    "dos":        "203.0.113.66",
+    "portscan":   "198.51.100.40",
+    "bruteforce": "203.0.113.7",
+    "botnet":     "10.0.0.66",      # internal infected host beaconing out
+    "unknown":    "198.51.100.13",
+}
+_VICTIM = {
+    "dos":        "10.0.0.10",
+    "bruteforce": "10.0.0.22",
+    "botnet":     "192.0.2.99",     # external C2
+    "unknown":    "10.0.0.5",
+}
+
+
+def _ciciot_features(*, number: int, pkt_size: float, duration: float,
+                     proto_num: int, dst_port: int, flags: set) -> dict:
+    """Build a CICIoT2023 feature dict for a synthetic attack flow."""
+    dur = duration if duration > 1e-6 else 1e-3
+    f = {
+        "flow_duration": dur,
+        "Header_Length": 40.0 * number,
+        "Protocol Type": float(proto_num),
+        "Duration": 64.0,
+        "Rate": number / dur,
+        "Srate": number / dur,
+        "Drate": 0.0,
+        "TCP": 1.0 if proto_num == 6 else 0.0,
+        "UDP": 1.0 if proto_num == 17 else 0.0,
+        "ICMP": 1.0 if proto_num == 1 else 0.0,
+        "IPv": 1.0,
+        "HTTP": 1.0 if dst_port in (80, 8080) else 0.0,
+        "HTTPS": 1.0 if dst_port == 443 else 0.0,
+        "SSH": 1.0 if dst_port == 22 else 0.0,
+        "Telnet": 1.0 if dst_port == 23 else 0.0,
+        "Tot sum": pkt_size * number,
+        "Min": pkt_size, "Max": pkt_size, "AVG": pkt_size, "Tot size": pkt_size, "Std": 0.0,
+        "Number": float(number),
+        "IAT": dur / max(1, number),
+        "Magnitue": (2 * pkt_size) ** 0.5,
+        "Radius": 0.0, "Covariance": 0.0, "Variance": 0.0,
+        "Weight": float(number),
+    }
+    for name in ("fin", "syn", "rst", "psh", "ack", "ece", "cwr"):
+        f[f"{name}_flag_number"] = 1.0 if name in flags else 0.0
+    for name in ("ack", "syn", "fin", "urg", "rst"):
+        f[f"{name}_count"] = float(number if name in flags else 0)
+    return f
+
 
 def _make_dos_event(seq: int) -> dict:
-    return _base_event("dos", seq, {
-        "flow_duration":          random.uniform(0.001, 0.02),
-        "total_fwd_packets":      random.randint(500, 2000),
-        "flow_bytes_s":           random.uniform(1e6, 5e6),
-        "packet_length_mean":     random.uniform(40, 80),
-        "syn_flag_count":         random.randint(1, 5),
-        "description":            "High packet rate / short duration DoS-like flow",
+    n = random.randint(180, 320)
+    return _base_event("dos", seq, _ATTACKER["dos"], _VICTIM["dos"], 80, "TCP", {
+        "description":   "High-rate SYN flood — short duration, high packet rate",
+        "_features":     _ciciot_features(number=n, pkt_size=60, duration=random.uniform(0.01, 0.03),
+                                          proto_num=6, dst_port=80, flags={"syn"}),
+        "_packets":      n,
+        "_bytes":        n * 60,
     })
 
 
 def _make_portscan_event(seq: int) -> dict:
-    port = random.choice(list(SAFE_PORT_RANGE))
-    return _base_event("portscan", seq, {
-        "dest_port":              port,
-        "flow_duration":          random.uniform(0.0001, 0.002),
-        "total_fwd_packets":      1,
-        "total_backward_packets": 0,
-        "syn_flag_count":         1,
-        "rst_flag_count":         1,
-        "description":            f"SYN probe to localhost:{port}",
+    # Fan out across many internal hosts → triggers topology scan detection
+    victim = f"10.0.0.{(seq % 24) + 1}"
+    port = random.randint(1, 1024)
+    return _base_event("portscan", seq, _ATTACKER["portscan"], victim, port, "TCP", {
+        "description":   f"SYN/RST probe to {victim}:{port}",
+        "_features":     _ciciot_features(number=2, pkt_size=60, duration=random.uniform(0.0005, 0.003),
+                                          proto_num=6, dst_port=port, flags={"syn", "rst"}),
+        "_packets":      2,
+        "_bytes":        120,
     })
 
 
 def _make_bruteforce_event(seq: int) -> dict:
-    return _base_event("bruteforce", seq, {
-        "flow_duration":          random.uniform(0.1, 0.5),
-        "total_fwd_packets":      random.randint(3, 10),
-        "fin_flag_count":         1,
-        "ack_flag_count":         random.randint(2, 8),
-        "description":            "Repeated failed-auth attempt (mock endpoint)",
-        "auth_result":            "FAILED",
+    n = random.randint(6, 14)
+    return _base_event("bruteforce", seq, _ATTACKER["bruteforce"], _VICTIM["bruteforce"], 22, "TCP", {
+        "description":   "Repeated failed-auth attempts against SSH (mock)",
+        "auth_result":   "FAILED",
+        "_features":     _ciciot_features(number=n, pkt_size=100, duration=random.uniform(0.1, 0.5),
+                                          proto_num=6, dst_port=22, flags={"syn", "ack", "psh"}),
+        "_packets":      n,
+        "_bytes":        n * 100,
     })
 
 
 def _make_botnet_event(seq: int) -> dict:
     interval = random.uniform(20, 60)
-    return _base_event("botnet", seq, {
-        "flow_duration":          random.uniform(0.05, 0.2),
-        "total_fwd_packets":      random.randint(1, 4),
-        "total_backward_packets": random.randint(1, 3),
-        "flow_bytes_s":           random.uniform(100, 800),
-        "beacon_interval_s":      round(interval, 1),
-        "description":            f"Periodic synthetic beacon (interval ~{interval:.0f}s)",
+    n = random.randint(2, 5)
+    return _base_event("botnet", seq, _ATTACKER["botnet"], _VICTIM["botnet"], 8443, "UDP", {
+        "description":      f"Periodic C2 beacon (interval ~{interval:.0f}s)",
+        "beacon_interval_s": round(interval, 1),
+        "_features":         _ciciot_features(number=n, pkt_size=120, duration=random.uniform(0.05, 0.2),
+                                              proto_num=17, dst_port=8443, flags=set()),
+        "_packets":          n,
+        "_bytes":            n * 120,
     })
 
 
-def _make_unknown_event(seq: int, n_features: int = 78) -> dict:
-    features = {f"feat_{i}": random.uniform(1e6, 1e9) * (1 + random.gauss(0, 0.5))
-                for i in range(min(n_features, 20))}
-    return _base_event("unknown", seq, {
-        "description": "Anomalous features outside training distribution",
-        "anomaly":     True,
-        **features,
+def _make_unknown_event(seq: int) -> dict:
+    # Extreme, out-of-distribution features → low confidence / high entropy → Unknown
+    feats = _ciciot_features(number=1, pkt_size=65000, duration=0.00005,
+                             proto_num=6, dst_port=31337, flags={"syn", "fin", "rst", "psh", "urg"})
+    feats["Rate"] = 5_000_000.0
+    feats["Tot sum"] = 5_000_000.0
+    return _base_event("unknown", seq, _ATTACKER["unknown"], _VICTIM["unknown"], 31337, "TCP", {
+        "description":   "Anomalous flow far outside training distribution",
+        "anomaly":       True,
+        "_features":     feats,
+        "_packets":      1,
+        "_bytes":        65000,
     })
 
 
-def _base_event(sim_type: str, seq: int, extras: dict) -> dict:
+def _base_event(sim_type: str, seq: int, src_ip: str, dst_ip: str,
+                dst_port: int, protocol: str, extras: dict) -> dict:
     meta = SIM_TYPES[sim_type]
     return {
         "id":             str(uuid.uuid4()),
@@ -141,12 +201,12 @@ def _base_event(sim_type: str, seq: int, extras: dict) -> dict:
         "sim_type":       sim_type,
         "attack_type":    meta["attack_type"],
         "risk_level":     meta["risk_level"],
-        "source_ip":      SAFE_TARGET,
-        "dest_ip":        SAFE_TARGET,
+        "source_ip":      src_ip,
+        "dest_ip":        dst_ip,
         "source_port":    random.randint(49152, 65535),
-        "dest_port":      random.choice(list(SAFE_PORT_RANGE)),
-        "protocol":       "TCP",
-        "safety_label":   "LOCAL CONTROLLED SIMULATION ONLY",
+        "dest_port":      dst_port,
+        "protocol":       protocol,
+        "safety_label":   "SYNTHETIC SIMULATION — no real packets sent",
         **extras,
     }
 
@@ -245,13 +305,35 @@ class SimulationManager:
             "unknown":    _make_unknown_event,
         }
         gen    = generators[sim_type]
-        end_t  = time.time() + duration
         seq    = 0
 
         # For portscan, do a real (safe) localhost probe once at start
         if sim_type == "portscan":
             probe_results: list = []
             _probe_localhost_ports(probe_results)
+
+        # Inject simulated flows into the live detection pipeline so they have a
+        # visible effect across the dashboard / topology / trust / decisions.
+        try:
+            from packet_capture.capture_manager import get_manager
+            capture = get_manager()
+        except Exception as e:
+            capture = None
+            log.warning(f"[SIM] capture manager unavailable for injection: {e}")
+
+        # Pre-warm the ensemble so the first injection doesn't eat the run window
+        # (the Random Forest model is large and slow to load on first use).
+        try:
+            from ml_model.ensemble_detector import get_ensemble_members
+            from ml_model.predict import build_feature_row, predict_proba_full
+            warm_row = build_feature_row({"Number": 1, "Rate": 1.0})
+            for m in get_ensemble_members():
+                predict_proba_full(m, warm_row)
+        except Exception as e:
+            log.debug(f"[SIM] prewarm skipped: {e}")
+
+        # Start the clock AFTER prewarm so the full duration is spent generating.
+        end_t = time.time() + duration
 
         while time.time() < end_t:
             with self._lock:
@@ -260,6 +342,28 @@ class SimulationManager:
 
             evt = gen(seq)
             seq += 1
+
+            # Run through the real pipeline and merge the detection result back
+            if capture is not None:
+                enriched = capture.inject_simulated_flow(
+                    src_ip=evt["source_ip"], dst_ip=evt["dest_ip"],
+                    src_port=evt["source_port"], dst_port=evt["dest_port"],
+                    protocol=evt["protocol"], features=evt.pop("_features", {}),
+                    packet_count=evt.pop("_packets", 1), byte_count=evt.pop("_bytes", 0),
+                    sim_type=sim_type,
+                )
+                if enriched:
+                    evt["predicted_attack"] = enriched.get("predicted_label")
+                    evt["confidence"]       = enriched.get("confidence")
+                    evt["risk_level"]       = enriched.get("risk_level", evt["risk_level"])
+                    evt["trust_score"]      = enriched.get("trust_score")
+                    evt["trust_level"]      = enriched.get("trust_level")
+                    evt["security_action"]  = enriched.get("action")
+                    evt["anomaly_score"]    = enriched.get("anomaly_score")
+                    evt["known_or_unknown"] = enriched.get("known_or_unknown", "Known")
+                    evt["event_id"]         = enriched.get("id")
+            else:
+                evt.pop("_features", None); evt.pop("_packets", None); evt.pop("_bytes", None)
 
             with self._lock:
                 self._events.append(evt)

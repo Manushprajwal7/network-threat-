@@ -1,13 +1,13 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { getTrustSummary, type TrustSummary, type EntityTrust } from '../lib/api';
 
 const RISK: Record<string, { color: string; bg: string; border: string }> = {
-  Low:      { color: 'var(--green)',  bg: 'rgba(0,255,157,0.07)',  border: 'rgba(0,255,157,0.2)' },
-  Medium:   { color: 'var(--amber)',  bg: 'rgba(255,176,32,0.07)', border: 'rgba(255,176,32,0.2)' },
-  High:     { color: 'var(--red)',    bg: 'rgba(255,45,85,0.07)',  border: 'rgba(255,45,85,0.2)' },
-  Critical: { color: 'var(--purple)', bg: 'rgba(191,95,255,0.07)', border: 'rgba(191,95,255,0.2)' },
+  Low:      { color: 'var(--green)',  bg: 'rgba(5,150,105,0.08)',  border: 'rgba(5,150,105,0.22)' },
+  Medium:   { color: 'var(--amber)',  bg: 'rgba(217,119,6,0.08)',  border: 'rgba(217,119,6,0.22)' },
+  High:     { color: 'var(--red)',    bg: 'rgba(220,38,38,0.08)',  border: 'rgba(220,38,38,0.22)' },
+  Critical: { color: 'var(--purple)', bg: 'rgba(124,58,237,0.08)', border: 'rgba(124,58,237,0.22)' },
 };
 
 const STATUS_DOT: Record<string, string> = {
@@ -36,7 +36,7 @@ function GaugeRing({ value, label, color, size = 88 }: { value: number; label: s
     <div className="flex flex-col items-center gap-1.5">
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-          <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="7"/>
+          <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(0,0,0,0.25)" strokeWidth="7"/>
           <circle cx={size/2} cy={size/2} r={r} fill="none"
             stroke={color} strokeWidth="7" strokeLinecap="round"
             strokeDasharray={circ} strokeDashoffset={offset}
@@ -102,14 +102,14 @@ export default function TrustScore() {
 
       {/* Trust Engine */}
       <div className="rounded-xl p-5 bracket-all"
-        style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+        style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
         <div className="card-header">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" strokeWidth="2">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           </svg>
           <span className="card-title">Dynamic Trust Engine</span>
           {backendError && (
-            <span className="ml-auto tag" style={{ background: 'rgba(255,45,85,0.1)', color: 'var(--red)', border: '1px solid rgba(255,45,85,0.2)', fontSize: 9 }}>
+            <span className="ml-auto tag" style={{ background: 'rgba(220,38,38,0.09)', color: 'var(--red)', border: '1px solid rgba(220,38,38,0.25)', fontSize: 9 }}>
               OFFLINE
             </span>
           )}
@@ -117,7 +117,7 @@ export default function TrustScore() {
 
         {/* Formula */}
         <div className="rounded-lg px-3 py-2.5 mb-5"
-          style={{ background: 'rgba(191,95,255,0.05)', border: '1px solid rgba(191,95,255,0.15)' }}>
+          style={{ background: 'rgba(124,58,237,0.07)', border: '1px solid rgba(124,58,237,0.18)' }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', letterSpacing: '0.12em', marginBottom: 3 }}>// TRUST FORMULA</div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 15, fontWeight: 700, color: 'var(--purple)', letterSpacing: '0.04em' }}>
             T = {ALPHA}·U + {BETA}·D + {GAMMA}·B
@@ -136,13 +136,13 @@ export default function TrustScore() {
 
         {/* Final score */}
         <div className="rounded-lg p-4"
-          style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.06), rgba(191,95,255,0.06))', border: '1px solid rgba(0,212,255,0.18)' }}>
+          style={{ background: 'linear-gradient(135deg, rgba(2,132,199,0.07), rgba(124,58,237,0.07))', border: '1px solid rgba(2,132,199,0.20)' }}>
           <div className="flex items-end justify-between">
             <div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', letterSpacing: '0.12em', marginBottom: 4 }}>
                 // COMPOSITE SCORE
               </div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 38, fontWeight: 800, color: 'var(--cyan)', letterSpacing: '-0.03em', textShadow: '0 0 24px rgba(0,212,255,0.5)', lineHeight: 1 }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 38, fontWeight: 800, color: 'var(--cyan)', letterSpacing: '-0.03em', textShadow: '0 0 24px rgba(2,132,199,0.4)', lineHeight: 1 }}>
                 {hasData ? avgTrust.toFixed(3) : (backendError ? 'ERR' : '—')}
               </div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: hasData ? 'var(--green)' : 'var(--text-lo)', marginTop: 4 }}>
@@ -158,7 +158,7 @@ export default function TrustScore() {
           </div>
           <div className="track mt-4" style={{ height: 5 }}>
             <div className="track-fill"
-              style={{ width: `${avgTrust * 100}%`, background: 'linear-gradient(90deg, var(--cyan), var(--purple))', boxShadow: '0 0 8px rgba(0,212,255,0.4)', transition: 'width 1s ease' }} />
+              style={{ width: `${avgTrust * 100}%`, background: 'linear-gradient(90deg, var(--cyan), var(--purple))', boxShadow: '0 0 8px rgba(2,132,199,0.30)', transition: 'width 1s ease' }} />
           </div>
         </div>
 
@@ -182,7 +182,7 @@ export default function TrustScore() {
 
       {/* Entity Registry */}
       <div className="rounded-xl overflow-hidden bracket-all"
-        style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+        style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
         <div className="card-header px-4 pt-4 pb-3" style={{ borderBottom: '1px solid var(--border-dim)' }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="2">
             <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
@@ -211,8 +211,8 @@ export default function TrustScore() {
               return (
                 <div key={dev.id}
                   className="px-4 py-3 transition-all cursor-default"
-                  style={{ borderBottom: '1px solid rgba(0,212,255,0.04)', animationDelay: `${i * 40}ms` }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,212,255,0.025)'; }}
+                  style={{ borderBottom: '1px solid rgba(0,0,0,0.18)', animationDelay: `${i * 40}ms` }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(2,132,199,0.06)'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}>
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">

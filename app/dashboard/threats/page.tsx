@@ -1,14 +1,14 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { getLiveEvents, getThreatDistribution, getCaptureStatus, type LiveEvent, type ThreatDistItem } from '../../../lib/api';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 const SEV: Record<string, { color: string; bg: string; border: string }> = {
-  critical: { color: 'var(--purple)', bg: 'rgba(191,95,255,0.07)', border: 'rgba(191,95,255,0.2)' },
-  high:     { color: 'var(--red)',    bg: 'rgba(255,45,85,0.07)',  border: 'rgba(255,45,85,0.2)' },
-  medium:   { color: 'var(--amber)',  bg: 'rgba(255,176,32,0.07)', border: 'rgba(255,176,32,0.2)' },
-  low:      { color: 'var(--cyan)',   bg: 'rgba(0,212,255,0.07)',  border: 'rgba(0,212,255,0.2)' },
+  critical: { color: 'var(--purple)', bg: 'rgba(124,58,237,0.09)', border: 'rgba(124,58,237,0.24)' },
+  high:     { color: 'var(--red)',    bg: 'rgba(220,38,38,0.09)',  border: 'rgba(220,38,38,0.24)' },
+  medium:   { color: 'var(--amber)',  bg: 'rgba(217,119,6,0.09)', border: 'rgba(217,119,6,0.24)' },
+  low:      { color: 'var(--cyan)',   bg: 'rgba(2,132,199,0.09)',  border: 'rgba(2,132,199,0.22)' },
 };
 
 export default function ThreatsPage() {
@@ -73,14 +73,14 @@ export default function ThreatsPage() {
             Threat Analysis
           </h1>
           <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-lo)', marginTop: 4 }}>
-            CICIDS2017 classification · 13 attack classes · Random Forest
+            CICIoT2023 classification · 34 attack classes · Ensemble (RF + XGBoost)
           </p>
         </div>
         <div className="tag"
           style={{
-            background: threats.length > 0 ? 'rgba(255,45,85,0.08)' : 'rgba(0,255,157,0.06)',
+            background: threats.length > 0 ? 'rgba(220,38,38,0.10)' : 'rgba(5,150,105,0.08)',
             color: threats.length > 0 ? 'var(--red)' : 'var(--green)',
-            border: `1px solid ${threats.length > 0 ? 'rgba(255,45,85,0.25)' : 'rgba(0,255,157,0.2)'}`,
+            border: `1px solid ${threats.length > 0 ? 'rgba(220,38,38,0.28)' : 'rgba(5,150,105,0.24)'}`,
             fontFamily: 'var(--font-display)', fontSize: 9, letterSpacing: '0.1em', padding: '5px 12px',
           }}>
           <span className={`pulse-dot ${threats.length > 0 ? 'pulse-red' : 'pulse-green'}`} style={{ width: 4, height: 4 }} />
@@ -98,7 +98,7 @@ export default function ThreatsPage() {
           { l: 'Blocked',       v: stats.blocked, c: 'var(--green)' },
         ].map(s => (
           <div key={s.l} className="rounded-xl p-4 bracket-all"
-            style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+            style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)', letterSpacing: '0.12em', marginBottom: 4 }}>{s.l}</div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, color: s.c, lineHeight: 1 }}>{s.v}</div>
           </div>
@@ -108,7 +108,7 @@ export default function ThreatsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
         {/* Attack distribution pie */}
         <div className="rounded-xl p-4 bracket-all"
-          style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+          style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
           <div className="card-header mb-3">
             <span className="card-title">Attack Distribution</span>
           </div>
@@ -126,7 +126,7 @@ export default function ThreatsPage() {
                     {dist.map((d, i) => <Cell key={i} fill={d.color} />)}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ background: 'rgba(0,8,18,0.95)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: 8, fontFamily: 'JetBrains Mono', fontSize: 10 }}
+                    contentStyle={{ background: 'rgba(255,255,255,0.96)', border: '1px solid rgba(2,132,199,0.22)', borderRadius: 8, fontFamily: 'JetBrains Mono', fontSize: 10 }}
                     formatter={(v, name) => [`${v} events`, name as string]}
                   />
                 </PieChart>
@@ -148,7 +148,7 @@ export default function ThreatsPage() {
 
         {/* Top attacking IPs */}
         <div className="rounded-xl p-4 bracket-all"
-          style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+          style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
           <div className="card-header mb-3">
             <span className="card-title">Top Threat Sources</span>
           </div>
@@ -181,7 +181,7 @@ export default function ThreatsPage() {
 
         {/* Severity breakdown */}
         <div className="rounded-xl p-4 bracket-all"
-          style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+          style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
           <div className="card-header mb-3">
             <span className="card-title">Severity Breakdown</span>
           </div>
@@ -211,9 +211,9 @@ export default function ThreatsPage() {
 
       {/* Full threat feed */}
       <div className="rounded-xl overflow-hidden bracket-all mb-5"
-        style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+        style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
         <div className="flex flex-wrap items-center gap-3 px-4 py-3"
-          style={{ borderBottom: '1px solid var(--border-dim)', background: 'rgba(0,5,12,0.5)' }}>
+          style={{ borderBottom: '1px solid var(--border-dim)', background: 'rgba(0,0,0,0.05)' }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--red)" strokeWidth="2">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           </svg>
@@ -224,15 +224,15 @@ export default function ThreatsPage() {
                 className="tag transition-all"
                 style={{
                   fontSize: 9, cursor: 'pointer',
-                  background: severityFilter === s ? (SEV[s]?.bg ?? 'rgba(0,212,255,0.12)') : 'rgba(255,255,255,0.03)',
+                  background: severityFilter === s ? (SEV[s]?.bg ?? 'rgba(2,132,199,0.15)') : 'rgba(0,0,0,0.10)',
                   color: severityFilter === s ? (SEV[s]?.color ?? 'var(--cyan)') : 'var(--text-lo)',
-                  border: `1px solid ${severityFilter === s ? (SEV[s]?.border ?? 'rgba(0,212,255,0.3)') : 'rgba(255,255,255,0.06)'}`,
+                  border: `1px solid ${severityFilter === s ? (SEV[s]?.border ?? 'rgba(2,132,199,0.32)') : 'rgba(0,0,0,0.20)'}`,
                 }}>
                 {s.toUpperCase()}
               </button>
             ))}
           </div>
-          <span className="ml-auto tag" style={{ background: 'rgba(255,45,85,0.06)', color: 'var(--red)', border: '1px solid rgba(255,45,85,0.15)', fontSize: 9 }}>
+          <span className="ml-auto tag" style={{ background: 'rgba(220,38,38,0.08)', color: 'var(--red)', border: '1px solid rgba(220,38,38,0.18)', fontSize: 9 }}>
             {filtered.length} events
           </span>
         </div>
@@ -246,7 +246,7 @@ export default function ThreatsPage() {
         ) : (
           <div style={{ maxHeight: 480, overflowY: 'auto', overflowX: 'auto' }}>
             <table className="w-full data-table" style={{ minWidth: 900 }}>
-              <thead style={{ position: 'sticky', top: 0, background: 'rgba(0,5,14,0.98)', zIndex: 2 }}>
+              <thead style={{ position: 'sticky', top: 0, background: 'rgba(0,0,0,0.08)', zIndex: 2 }}>
                 <tr>
                   {['Time','Source IP','Dest IP','Attack Type','Confidence','Severity','Trust','Action','Reason'].map(h => (
                     <th key={h} className="text-left">{h}</th>
@@ -287,9 +287,9 @@ export default function ThreatsPage() {
                       <td>
                         <span className="tag" style={{
                           fontSize: 9,
-                          background: e.action === 'Block' ? 'rgba(255,45,85,0.1)' : e.action === 'Alert' ? 'rgba(255,176,32,0.1)' : 'rgba(255,255,255,0.04)',
+                          background: e.action === 'Block' ? 'rgba(220,38,38,0.12)' : e.action === 'Alert' ? 'rgba(217,119,6,0.12)' : 'rgba(0,0,0,0.12)',
                           color: e.action === 'Block' ? 'var(--red)' : e.action === 'Alert' ? 'var(--amber)' : 'var(--text-lo)',
-                          border: '1px solid rgba(255,255,255,0.06)',
+                          border: '1px solid rgba(0,0,0,0.20)',
                         }}>
                           {e.action}
                         </span>
@@ -305,7 +305,7 @@ export default function ThreatsPage() {
           </div>
         )}
 
-        <div className="flex justify-between px-4 py-2" style={{ borderTop: '1px solid var(--border-dim)', background: 'rgba(0,5,12,0.4)' }}>
+        <div className="flex justify-between px-4 py-2" style={{ borderTop: '1px solid var(--border-dim)', background: 'rgba(0,0,0,0.03)' }}>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)' }}>
             {filtered.length} of {threats.length} threats shown · {events.length} total events
           </span>

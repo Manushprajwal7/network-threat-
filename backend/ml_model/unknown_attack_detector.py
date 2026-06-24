@@ -28,9 +28,11 @@ SAVED_MODELS_DIR = BASE_DIR / "saved_models"
 IF_MODEL_PATH    = SAVED_MODELS_DIR / "isolation_forest.pkl"
 
 # ── Thresholds ─────────────────────────────────────────────────────────────────
-CONFIDENCE_THRESHOLD  = 0.60   # below → unknown
+CONFIDENCE_THRESHOLD  = 0.50   # below → unknown
 ANOMALY_THRESHOLD     = 0.55   # IF decision_function > this → normal; else → anomaly
-ENTROPY_THRESHOLD     = 1.80   # above → high uncertainty (log base e)
+# CICIoT2023 has 34 classes (max entropy ln(34)≈3.53); set a high-uncertainty
+# threshold appropriate for that class count to avoid over-flagging.
+ENTROPY_THRESHOLD     = 2.70   # above → high uncertainty (nats)
 
 _cache: dict = {}
 

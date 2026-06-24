@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { getDashboardStats, getCaptureStatus } from '../lib/api';
@@ -67,14 +67,15 @@ export default function TopNavbar() {
       style={{
         left: 240,
         height: 56,
-        background: 'rgba(0,8,18,0.92)',
+        background: '#ffffff',
         borderBottom: '1px solid var(--border-dim)',
         backdropFilter: 'blur(20px)',
+        boxShadow: '0 1px 0 0 rgba(0,0,0,0.15)',
         transition: 'left 0.3s',
       }}>
 
       <div className="absolute top-0 left-0 right-0 h-px"
-        style={{ background: 'linear-gradient(90deg, transparent, rgba(0,212,255,0.5), rgba(191,95,255,0.4), transparent)' }} />
+        style={{ background: 'linear-gradient(90deg, transparent, rgba(2,132,199,0.4), rgba(124,58,237,0.3), transparent)' }} />
 
       <div className="flex items-center gap-2 ml-8 lg:ml-0 mr-4">
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--cyan)', letterSpacing: '0.1em' }}>NETSHIELD</span>
@@ -83,7 +84,7 @@ export default function TopNavbar() {
       </div>
 
       <div className="live-indicator hidden md:flex"
-        style={capturing ? undefined : { color: 'var(--text-lo)', borderColor: 'rgba(255,255,255,0.08)' }}>
+        style={capturing ? undefined : { color: 'var(--text-lo)', background: 'rgba(0,0,0,0.12)', borderColor: 'rgba(0,0,0,0.30)' }}>
         <span className={`pulse-dot ${capturing ? 'pulse-green' : 'pulse-amber'}`} style={{ width: 5, height: 5 }} />
         {capturing ? 'LIVE' : 'IDLE'}
       </div>
@@ -98,7 +99,7 @@ export default function TopNavbar() {
           { label: 'CONF',    val: metrics.conf,    color: 'var(--amber)' },
         ].map(m => (
           <div key={m.label} className="text-center px-3 py-1 rounded"
-            style={{ background: 'rgba(255,255,255,0.02)', borderLeft: `2px solid ${m.color}30` }}>
+            style={{ background: 'rgba(0,0,0,0.10)', borderLeft: `2px solid ${m.color}40` }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', letterSpacing: '0.12em', marginBottom: 1 }}>{m.label}</div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 700, color: m.color }}>{m.val}</div>
           </div>
@@ -118,7 +119,7 @@ export default function TopNavbar() {
 
       <div className="flex items-center gap-1.5">
         <button className="relative p-2 rounded-md transition-colors"
-          style={{ color: 'var(--text-lo)' }}
+          style={{ color: 'var(--text-lo)', borderRadius: '6px' }}
           onMouseEnter={e => { e.currentTarget.style.color = 'var(--cyan)'; e.currentTarget.style.background = 'var(--cyan-dim)'; }}
           onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-lo)'; e.currentTarget.style.background = 'transparent'; }}>
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
@@ -127,7 +128,7 @@ export default function TopNavbar() {
           </svg>
         </button>
         <div className="hex-badge w-8 h-8 flex items-center justify-center cursor-pointer ml-1"
-          style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(191,95,255,0.2))', border: '1px solid rgba(0,212,255,0.3)' }}>
+          style={{ background: 'linear-gradient(135deg, rgba(2,132,199,0.18), rgba(124,58,237,0.18))', border: '1px solid rgba(2,132,199,0.30)' }}>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 700, color: 'var(--cyan)' }}>LT</span>
         </div>
       </div>

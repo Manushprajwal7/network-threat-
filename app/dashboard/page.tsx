@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import KPICard from '../../components/KPICard';
@@ -51,7 +51,7 @@ function CapturePanel({
 
   return (
     <div className="rounded-xl p-4 bracket-all mb-5"
-      style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+      style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
       <div className="flex flex-wrap items-center gap-4">
 
         {/* tshark status */}
@@ -59,9 +59,9 @@ function CapturePanel({
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', letterSpacing: '0.1em' }}>TSHARK</span>
           <span className="tag"
             style={{
-              background: tsharkOk ? 'rgba(0,255,157,0.07)' : 'rgba(255,45,85,0.07)',
+              background: tsharkOk ? 'rgba(5,150,105,0.08)' : 'rgba(220,38,38,0.08)',
               color: tsharkOk ? 'var(--green)' : 'var(--red)',
-              border: `1px solid ${tsharkOk ? 'rgba(0,255,157,0.25)' : 'rgba(255,45,85,0.25)'}`,
+              border: `1px solid ${tsharkOk ? 'rgba(5,150,105,0.28)' : 'rgba(220,38,38,0.28)'}`,
               fontSize: 9,
             }}>
             <span className={`pulse-dot ${tsharkOk ? 'pulse-green' : 'pulse-red'}`} style={{ width: 4, height: 4 }} />
@@ -80,7 +80,7 @@ function CapturePanel({
             disabled={running || !tsharkOk}
             style={{
               fontFamily: 'var(--font-mono)', fontSize: 10,
-              background: 'rgba(0,5,14,0.95)', color: 'var(--text-mid)',
+              background: '#ffffff', color: 'var(--text-mid)',
               border: '1px solid var(--border-mid)', borderRadius: 6,
               padding: '4px 10px', outline: 'none', minWidth: 140,
               cursor: running ? 'not-allowed' : 'pointer',
@@ -105,9 +105,9 @@ function CapturePanel({
             style={{
               fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
               padding: '6px 18px', borderRadius: 8,
-              background: running ? 'rgba(0,255,157,0.04)' : 'rgba(0,255,157,0.1)',
+              background: running ? 'rgba(5,150,105,0.04)' : 'rgba(5,150,105,0.10)',
               color: running ? 'var(--text-lo)' : 'var(--green)',
-              border: `1px solid ${running ? 'rgba(255,255,255,0.05)' : 'rgba(0,255,157,0.3)'}`,
+              border: `1px solid ${running ? 'rgba(0,0,0,0.20)' : 'rgba(5,150,105,0.30)'}`,
               cursor: (running || !tsharkOk || !selectedIface || loading) ? 'not-allowed' : 'pointer',
               opacity: (running || !tsharkOk || !selectedIface) ? 0.45 : 1,
             }}>
@@ -120,9 +120,9 @@ function CapturePanel({
             style={{
               fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
               padding: '6px 18px', borderRadius: 8,
-              background: !running ? 'rgba(255,45,85,0.04)' : 'rgba(255,45,85,0.1)',
+              background: !running ? 'rgba(220,38,38,0.04)' : 'rgba(220,38,38,0.10)',
               color: !running ? 'var(--text-lo)' : 'var(--red)',
-              border: `1px solid ${!running ? 'rgba(255,255,255,0.05)' : 'rgba(255,45,85,0.3)'}`,
+              border: `1px solid ${!running ? 'rgba(0,0,0,0.20)' : 'rgba(220,38,38,0.30)'}`,
               cursor: (!running || loading) ? 'not-allowed' : 'pointer',
               opacity: !running ? 0.45 : 1,
             }}>
@@ -135,7 +135,7 @@ function CapturePanel({
           <div className="live-indicator"
             style={running
               ? undefined
-              : { color: 'var(--text-lo)', borderColor: 'rgba(255,255,255,0.08)' }}>
+              : { color: 'var(--text-lo)', background: 'rgba(0,0,0,0.12)', borderColor: 'rgba(0,0,0,0.15)' }}>
             <span className={`pulse-dot ${running ? 'pulse-green' : 'pulse-amber'}`} style={{ width: 5, height: 5 }} />
             {running ? 'CAPTURING' : 'STOPPED'}
           </div>
@@ -169,7 +169,7 @@ function CapturePanel({
       {/* Error / warning messages */}
       {actionError && (
         <div className="mt-3 px-3 py-2 rounded-lg"
-          style={{ background: 'rgba(255,45,85,0.06)', border: '1px solid rgba(255,45,85,0.2)' }}>
+          style={{ background: 'rgba(220,38,38,0.07)', border: '1px solid rgba(220,38,38,0.22)' }}>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--red)' }}>
             ✕ {actionError}
           </span>
@@ -177,7 +177,7 @@ function CapturePanel({
       )}
       {status?.error && (
         <div className="mt-3 px-3 py-2 rounded-lg"
-          style={{ background: 'rgba(255,45,85,0.06)', border: '1px solid rgba(255,45,85,0.2)' }}>
+          style={{ background: 'rgba(220,38,38,0.07)', border: '1px solid rgba(220,38,38,0.22)' }}>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--red)' }}>
             ⚠ {status.error}
           </span>
@@ -185,7 +185,7 @@ function CapturePanel({
       )}
       {status?.last_packet_error && !status.error && (
         <div className="mt-3 px-3 py-2 rounded-lg"
-          style={{ background: 'rgba(255,176,32,0.05)', border: '1px solid rgba(255,176,32,0.2)' }}>
+          style={{ background: 'rgba(217,119,6,0.07)', border: '1px solid rgba(217,119,6,0.22)' }}>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--amber)' }}>
             ▲ Last packet error: {status.last_packet_error}
           </span>
@@ -193,7 +193,7 @@ function CapturePanel({
       )}
       {status && !status.ml_ready && (
         <div className="mt-3 px-3 py-2 rounded-lg"
-          style={{ background: 'rgba(191,95,255,0.05)', border: '1px solid rgba(191,95,255,0.2)' }}>
+          style={{ background: 'rgba(124,58,237,0.07)', border: '1px solid rgba(124,58,237,0.22)' }}>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--purple)' }}>
             ✕ ML pipeline not loaded — check Flask server logs (python backend/api/app.py)
           </span>
@@ -202,7 +202,7 @@ function CapturePanel({
       {/* Warn if capture is running but no raw output from tshark after 5+ seconds */}
       {running && (status?.raw_packets_seen ?? 0) === 0 && (status?.uptime_seconds ?? 0) >= 5 && !status?.error && (
         <div className="mt-3 px-3 py-2 rounded-lg"
-          style={{ background: 'rgba(255,176,32,0.05)', border: '1px solid rgba(255,176,32,0.2)' }}>
+          style={{ background: 'rgba(217,119,6,0.07)', border: '1px solid rgba(217,119,6,0.22)' }}>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--amber)' }}>
             ▲ No packets from tshark yet (interface #{selectedIface}). Try a different interface number — check which adapters have traffic using: tshark -D
           </span>
@@ -211,7 +211,7 @@ function CapturePanel({
       {/* Warn if raw packets seen but none passed IP filter */}
       {running && (status?.raw_packets_seen ?? 0) > 0 && status?.packets_captured === 0 && (
         <div className="mt-3 px-3 py-2 rounded-lg"
-          style={{ background: 'rgba(0,212,255,0.04)', border: '1px solid rgba(0,212,255,0.12)' }}>
+          style={{ background: 'rgba(2,132,199,0.06)', border: '1px solid rgba(2,132,199,0.15)' }}>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--cyan)' }}>
             ◉ tshark is running ({status.raw_packets_seen} raw frames) — waiting for IP packets. Non-IP frames (ARP, 802.11) are filtered out.
           </span>
@@ -295,13 +295,13 @@ export default function DashboardPage() {
   const hasLiveData = stats?.source === 'live';
 
   function deriveThreatLevel(stats: DashboardStats | null): { label: string; color: string; border: string; bg: string } {
-    if (!stats || stats.total_packets === 0) return { label: 'UNKNOWN', color: 'var(--text-lo)', border: 'rgba(255,255,255,0.08)', bg: 'rgba(255,255,255,0.03)' };
+    if (!stats || stats.total_packets === 0) return { label: 'UNKNOWN', color: 'var(--text-lo)', border: 'rgba(0,0,0,0.15)', bg: 'rgba(0,0,0,0.10)' };
     const ratio = stats.threats_detected / Math.max(stats.total_packets, 1);
-    if (ratio === 0)          return { label: 'LOW',      color: 'var(--green)',  border: 'rgba(0,255,157,0.25)',  bg: 'rgba(0,255,157,0.07)' };
-    if (ratio < 0.01)         return { label: 'MODERATE', color: 'var(--cyan)',   border: 'rgba(0,212,255,0.25)',  bg: 'rgba(0,212,255,0.06)' };
-    if (ratio < 0.05)         return { label: 'ELEVATED', color: 'var(--amber)',  border: 'rgba(255,176,32,0.25)', bg: 'rgba(255,176,32,0.07)' };
-    if (ratio < 0.15)         return { label: 'HIGH',     color: '#ff8c42',       border: 'rgba(255,140,66,0.25)', bg: 'rgba(255,140,66,0.06)' };
-    return                     { label: 'CRITICAL',  color: 'var(--red)',    border: 'rgba(255,45,85,0.25)',  bg: 'rgba(255,45,85,0.07)' };
+    if (ratio === 0)          return { label: 'LOW',      color: 'var(--green)',  border: 'rgba(5,150,105,0.28)',  bg: 'rgba(5,150,105,0.08)' };
+    if (ratio < 0.01)         return { label: 'MODERATE', color: 'var(--cyan)',   border: 'rgba(2,132,199,0.28)',  bg: 'rgba(2,132,199,0.07)' };
+    if (ratio < 0.05)         return { label: 'ELEVATED', color: 'var(--amber)',  border: 'rgba(217,119,6,0.28)',  bg: 'rgba(217,119,6,0.08)' };
+    if (ratio < 0.15)         return { label: 'HIGH',     color: '#ea6c1a',       border: 'rgba(234,108,26,0.28)', bg: 'rgba(234,108,26,0.07)' };
+    return                     { label: 'CRITICAL',  color: 'var(--red)',    border: 'rgba(220,38,38,0.28)',  bg: 'rgba(220,38,38,0.08)' };
   }
   const threatLevel = deriveThreatLevel(stats);
 
@@ -349,7 +349,7 @@ export default function DashboardPage() {
       value: stats?.model_confidence && stats.model_confidence > 0
         ? `${(stats.model_confidence * 100).toFixed(1)}%`
         : '—',
-      subtitle: 'Random Forest · live',
+      subtitle: 'Ensemble · live',
       accentColor: 'var(--cyan)', dimColor: 'var(--cyan-dim)',
       icon: IcoConf,
     },
@@ -360,21 +360,21 @@ export default function DashboardPage() {
         {/* Page header */}
         <div className="flex items-start justify-between mb-6">
           <div>
-            <div className="section-label mb-2">Security Operations Center</div>
+            <div className="section-label mb-2">Network Threat Detection</div>
             <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800, color: 'var(--text-hi)', letterSpacing: '0.03em', lineHeight: 1 }}>
-              SOC Dashboard
+              IoT Threat Detection Dashboard
             </h1>
             <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-lo)', marginTop: 4 }}>
-              CICIDS2017 · Random Forest · Live tshark capture · Multi-level protection
+              CICIoT2023 · XGBoost GPU (71.51% Macro F1) · 34 Attack Classes · Live Network Monitor
             </p>
           </div>
           <div className="hidden md:flex items-center gap-2">
             {/* Backend connection badge */}
             <div className="tag"
               style={{
-                background: backendOnline === null ? 'rgba(255,255,255,0.03)' : backendOnline ? 'rgba(0,255,157,0.07)' : 'rgba(255,45,85,0.07)',
+                background: backendOnline === null ? 'rgba(0,0,0,0.10)' : backendOnline ? 'rgba(5,150,105,0.08)' : 'rgba(220,38,38,0.08)',
                 color: backendOnline === null ? 'var(--text-lo)' : backendOnline ? 'var(--green)' : 'var(--red)',
-                border: `1px solid ${backendOnline === null ? 'rgba(255,255,255,0.06)' : backendOnline ? 'rgba(0,255,157,0.25)' : 'rgba(255,45,85,0.25)'}`,
+                border: `1px solid ${backendOnline === null ? 'rgba(0,0,0,0.25)' : backendOnline ? 'rgba(5,150,105,0.28)' : 'rgba(220,38,38,0.28)'}`,
                 fontFamily: 'var(--font-display)', fontSize: 9, letterSpacing: '0.1em', padding: '5px 10px',
               }}>
               <span className={`pulse-dot ${backendOnline === null ? 'pulse-amber' : backendOnline ? 'pulse-green' : 'pulse-red'}`} style={{ width: 4, height: 4 }} />
@@ -426,25 +426,25 @@ export default function DashboardPage() {
 
         {/* ML model info footer */}
         <div className="rounded-xl p-4 bracket-all"
-          style={{ background: 'rgba(3,10,22,0.85)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+          style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
           <div className="card-header">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="2">
               <rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/>
             </svg>
-            <span className="card-title">ML Model — Random Forest Classifier</span>
+            <span className="card-title">ML Detection — Ensemble (Random Forest + XGBoost)</span>
             <span className="ml-auto" style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)' }}>
-              CICIDS2017 trained · 78 features · live inference
+              CICIoT2023 trained · 46 features · live flow inference
             </span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
-              { l: 'Dataset',     v: 'CICIDS2017',  c: 'var(--cyan)' },
-              { l: 'Classes',     v: '13 attacks',  c: 'var(--purple)' },
-              { l: 'Features',    v: '78 flow',     c: 'var(--green)' },
-              { l: 'Estimators',  v: 'n=200 trees', c: 'var(--amber)' },
+              { l: 'Dataset',     v: 'CICIoT2023',   c: 'var(--cyan)' },
+              { l: 'Classes',     v: '34 attacks',   c: 'var(--purple)' },
+              { l: 'Features',    v: '46 flow',      c: 'var(--green)' },
+              { l: 'Ensemble',    v: 'RF + XGBoost', c: 'var(--amber)' },
             ].map(m => (
               <div key={m.l} className="text-center p-3 rounded-lg"
-                style={{ background: 'rgba(255,255,255,0.018)', border: `1px solid ${m.c}18` }}>
+                style={{ background: 'rgba(0,0,0,0.08)', border: `1px solid ${m.c}30` }}>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 800, color: m.c, letterSpacing: '-0.01em' }}>
                   {m.v}
                 </div>
@@ -455,10 +455,11 @@ export default function DashboardPage() {
             ))}
           </div>
           <div className="mt-3 px-3 py-2 rounded"
-            style={{ background: 'rgba(0,212,255,0.03)', border: '1px solid rgba(0,212,255,0.08)' }}>
+            style={{ background: 'rgba(2,132,199,0.05)', border: '1px solid rgba(2,132,199,0.12)' }}>
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)' }}>
-              // Live feature extraction is a per-packet approximation of CICFlowMeter flow-level statistics.
-              For production accuracy, replace with full CICFlowMeter integration. Model confidence shown is live inference average.
+              // Live packets are aggregated into 5-tuple flows every 4s, converted to CICIoT2023 features,
+              scored by the model ensemble (confidence-weighted vote) + Isolation-Forest unknown detection,
+              then trust-scored and routed through the security decision engine. Confidence shown is live ensemble average.
             </span>
           </div>
         </div>

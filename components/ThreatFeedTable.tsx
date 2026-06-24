@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { getLiveEvents, type LiveEvent } from '../lib/api';
@@ -6,19 +6,19 @@ import { getLiveEvents, type LiveEvent } from '../lib/api';
 type Sev = 'benign' | 'low' | 'medium' | 'high' | 'critical';
 
 const SEV: Record<Sev, { color: string; bg: string; border: string; dot: string }> = {
-  benign:   { color: 'var(--green)',  bg: 'rgba(0,255,157,0.08)',  border: 'rgba(0,255,157,0.2)',  dot: 'pulse-green' },
-  low:      { color: 'var(--cyan)',   bg: 'rgba(0,212,255,0.08)',  border: 'rgba(0,212,255,0.2)',  dot: 'pulse-cyan' },
-  medium:   { color: 'var(--amber)',  bg: 'rgba(255,176,32,0.08)', border: 'rgba(255,176,32,0.2)', dot: 'pulse-amber' },
-  high:     { color: 'var(--red)',    bg: 'rgba(255,45,85,0.08)',  border: 'rgba(255,45,85,0.2)',  dot: 'pulse-red' },
-  critical: { color: 'var(--purple)', bg: 'rgba(191,95,255,0.08)', border: 'rgba(191,95,255,0.2)', dot: 'pulse-purple' },
+  benign:   { color: 'var(--green)',  bg: 'rgba(5,150,105,0.08)',   border: 'rgba(5,150,105,0.22)',  dot: 'pulse-green' },
+  low:      { color: 'var(--cyan)',   bg: 'rgba(2,132,199,0.08)',   border: 'rgba(2,132,199,0.22)',  dot: 'pulse-cyan' },
+  medium:   { color: 'var(--amber)',  bg: 'rgba(217,119,6,0.08)',   border: 'rgba(217,119,6,0.22)',  dot: 'pulse-amber' },
+  high:     { color: 'var(--red)',    bg: 'rgba(220,38,38,0.08)',   border: 'rgba(220,38,38,0.22)',  dot: 'pulse-red' },
+  critical: { color: 'var(--purple)', bg: 'rgba(124,58,237,0.08)',  border: 'rgba(124,58,237,0.22)', dot: 'pulse-purple' },
 };
 
 const ACT: Record<string, { color: string; bg: string }> = {
-  Allow:      { color: 'var(--green)',  bg: 'rgba(0,255,157,0.07)' },
-  Alert:      { color: 'var(--amber)',  bg: 'rgba(255,176,32,0.07)' },
-  Restrict:   { color: 'var(--cyan)',   bg: 'rgba(0,212,255,0.07)' },
-  Quarantine: { color: '#ff8c42',       bg: 'rgba(255,140,66,0.07)' },
-  Block:      { color: 'var(--red)',    bg: 'rgba(255,45,85,0.08)' },
+  Allow:      { color: 'var(--green)',  bg: 'rgba(5,150,105,0.08)' },
+  Alert:      { color: 'var(--amber)',  bg: 'rgba(217,119,6,0.08)' },
+  Restrict:   { color: 'var(--cyan)',   bg: 'rgba(2,132,199,0.08)' },
+  Quarantine: { color: '#ea6c1a',       bg: 'rgba(234,108,26,0.08)' },
+  Block:      { color: 'var(--red)',    bg: 'rgba(220,38,38,0.09)' },
 };
 
 type Row = LiveEvent & { _isNew?: boolean };
@@ -83,11 +83,11 @@ export default function ThreatFeedTable() {
 
   return (
     <div className="rounded-xl overflow-hidden bracket-all"
-      style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+      style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
 
       {/* Header */}
       <div className="flex flex-wrap items-center gap-3 px-4 py-3"
-        style={{ borderBottom: '1px solid var(--border-dim)', background: 'rgba(0,5,12,0.6)' }}>
+        style={{ borderBottom: '1px solid var(--border-dim)', background: 'rgba(0,0,0,0.05)' }}>
         <div className="flex items-center gap-2.5">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="2">
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
@@ -100,7 +100,7 @@ export default function ThreatFeedTable() {
             </div>
           )}
           {backendError && (
-            <div className="live-indicator" style={{ color: 'var(--red)', borderColor: 'rgba(255,45,85,0.3)' }}>
+            <div className="live-indicator" style={{ color: 'var(--red)', background: 'rgba(220,38,38,0.07)', borderColor: 'rgba(220,38,38,0.28)' }}>
               <span className="pulse-dot pulse-red" style={{ width: 5, height: 5 }} />
               OFFLINE
             </div>
@@ -117,7 +117,7 @@ export default function ThreatFeedTable() {
                   fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase',
                   background: active ? (s ? s.bg : 'var(--cyan-dim)') : 'transparent',
                   color: active ? (s ? s.color : 'var(--cyan)') : 'var(--text-lo)',
-                  border: `1px solid ${active ? (s ? s.border : 'rgba(0,212,255,0.3)') : 'transparent'}`,
+                  border: `1px solid ${active ? (s ? s.border : 'rgba(2,132,199,0.30)') : 'transparent'}`,
                 }}>
                 {f}
               </button>
@@ -159,7 +159,7 @@ export default function ThreatFeedTable() {
       ) : (
         <div style={{ maxHeight: 400, overflowY: 'auto', overflowX: 'auto' }}>
           <table className="w-full data-table" style={{ minWidth: 900 }}>
-            <thead style={{ position: 'sticky', top: 0, background: 'rgba(0,5,14,0.98)', zIndex: 2 }}>
+            <thead style={{ position: 'sticky', top: 0, background: 'rgba(0,0,0,0.08)', zIndex: 2 }}>
               <tr>
                 {['Timestamp', 'Source IP', 'Destination IP', 'Proto', 'Attack Type', 'Confidence', 'Trust Score', 'Decision'].map(h => (
                   <th key={h} className="text-left">{h}</th>
@@ -176,7 +176,7 @@ export default function ThreatFeedTable() {
                 return (
                   <tr key={row.id}
                     style={{
-                      background: isNew ? 'rgba(0,212,255,0.04)' : 'transparent',
+                      background: isNew ? 'rgba(2,132,199,0.06)' : 'transparent',
                       transition: 'background 0.6s ease',
                       animation: isNew ? 'data-in 0.3s ease both' : 'none',
                       opacity: i > 20 ? Math.max(0.3, 1 - (i - 20) * 0.05) : 1,
@@ -190,7 +190,7 @@ export default function ThreatFeedTable() {
                     <td style={{ color: 'var(--text-mid)', fontWeight: 500 }}>{row.source_ip ?? '?'}</td>
                     <td style={{ color: 'var(--text-mid)' }}>{row.dest_ip ?? '?'}</td>
                     <td>
-                      <span className="tag" style={{ background: 'rgba(255,255,255,0.04)', color: 'var(--text-lo)', border: '1px solid rgba(255,255,255,0.06)', padding: '2px 6px' }}>
+                      <span className="tag" style={{ background: 'rgba(0,0,0,0.12)', color: 'var(--text-lo)', border: '1px solid rgba(0,0,0,0.20)', padding: '2px 6px' }}>
                         {row.protocol}
                       </span>
                     </td>
@@ -234,12 +234,12 @@ export default function ThreatFeedTable() {
 
       {/* Footer */}
       <div className="flex items-center justify-between px-4 py-2"
-        style={{ borderTop: '1px solid var(--border-dim)', background: 'rgba(0,5,12,0.4)' }}>
+        style={{ borderTop: '1px solid var(--border-dim)', background: 'rgba(0,0,0,0.03)' }}>
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)' }}>
-          {filtered.length} events · 3s refresh · CICIDS2017
+          {filtered.length} events · 4s refresh · CICIoT2023
         </span>
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--cyan)' }}>
-          RF Classifier · live inference
+          Ensemble (RF + XGBoost) · live inference
         </span>
       </div>
     </div>

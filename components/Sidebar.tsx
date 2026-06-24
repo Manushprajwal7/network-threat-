@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -17,6 +17,7 @@ const NAV = [
   { href: '/dashboard/evaluation', label: 'Evaluation', icon: 'M9 11l3 3L22 4 M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11' },
   { href: '/dashboard/simulation',      label: 'Sim Lab',    icon: 'M8 3H5a2 2 0 0 0-2 2v3 M21 8V5a2 2 0 0 0-2-2h-3 M3 16v3a2 2 0 0 0 2 2h3 M16 21h3a2 2 0 0 0 2-2v-3 M12 8v8 M8 12h8' },
   { href: '/dashboard/research-results',label: 'Research',   icon: 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 1 1 3-3h7z' },
+  { href: '/results', label: 'Results',  icon: 'M3 3v18h18 M18 9l-5 5-2-2-5 5', exact: true },
 ];
 
 
@@ -62,14 +63,14 @@ export default function Sidebar() {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div className="fixed inset-0 z-40 lg:hidden"
-          style={{ background: 'rgba(0,5,8,0.75)', backdropFilter: 'blur(4px)' }}
+          style={{ background: 'rgba(0,0,0,0.30)', backdropFilter: 'blur(4px)' }}
           onClick={() => setMobileOpen(false)} />
       )}
 
       {/* Mobile toggle */}
       <button onClick={() => setMobileOpen(!mobileOpen)}
         className="fixed top-3.5 left-4 z-50 p-2 rounded-md lg:hidden"
-        style={{ background: 'rgba(0,212,255,0.08)', border: '1px solid var(--border-mid)', color: 'var(--cyan)' }}>
+        style={{ background: 'rgba(2,132,199,0.08)', border: '1px solid var(--border-mid)', color: 'var(--cyan)' }}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
         </svg>
@@ -80,8 +81,9 @@ export default function Sidebar() {
         ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
         style={{
           width: W,
-          background: 'linear-gradient(180deg, #000c1a 0%, #000810 100%)',
+          background: '#ffffff',
           borderRight: '1px solid var(--border-dim)',
+          boxShadow: '1px 0 0 0 rgba(0,0,0,0.15)',
         }}>
 
         {/* Top scan line */}
@@ -96,7 +98,7 @@ export default function Sidebar() {
               <div className="relative w-8 h-8 flex-shrink-0">
                 {/* Hex background */}
                 <div className="hex-badge w-8 h-8 flex items-center justify-center"
-                  style={{ background: 'linear-gradient(135deg, rgba(0,212,255,0.2), rgba(191,95,255,0.2))', border: '1px solid rgba(0,212,255,0.3)' }}>
+                  style={{ background: 'linear-gradient(135deg, rgba(2,132,199,0.18), rgba(124,58,237,0.18))', border: '1px solid rgba(2,132,199,0.30)' }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="2">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                   </svg>
@@ -114,7 +116,7 @@ export default function Sidebar() {
           )}
           {collapsed && (
             <div className="mx-auto hex-badge w-8 h-8 flex items-center justify-center"
-              style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.25)' }}>
+              style={{ background: 'rgba(2,132,199,0.10)', border: '1px solid rgba(2,132,199,0.28)' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="2">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               </svg>
@@ -135,7 +137,7 @@ export default function Sidebar() {
         {/* System status strip */}
         {!collapsed && (
           <div className="mx-3 mt-3 px-3 py-2 rounded-md"
-            style={{ background: 'rgba(0,255,157,0.05)', border: '1px solid rgba(0,255,157,0.12)' }}>
+            style={{ background: 'rgba(5,150,105,0.07)', border: '1px solid rgba(5,150,105,0.18)' }}>
             <div className="flex items-center gap-2 mb-0.5">
               <span className="pulse-dot pulse-green" />
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--green)', letterSpacing: '0.1em' }}>
@@ -159,7 +161,7 @@ export default function Sidebar() {
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-150 group"
                 style={{
-                  background: isActive ? 'linear-gradient(90deg, rgba(0,212,255,0.1), transparent)' : 'transparent',
+                  background: isActive ? 'linear-gradient(90deg, rgba(2,132,199,0.10), transparent)' : 'transparent',
                   borderLeft: isActive ? '2px solid var(--cyan)' : '2px solid transparent',
                   color: isActive ? 'var(--cyan)' : 'var(--text-lo)',
                 }}>
@@ -214,7 +216,7 @@ export default function Sidebar() {
             {/* Analyst info */}
             <div className="flex items-center gap-2.5 mt-3 px-1">
               <div className="hex-badge w-8 h-8 flex items-center justify-center flex-shrink-0"
-                style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.2)' }}>
+                style={{ background: 'rgba(2,132,199,0.10)', border: '1px solid rgba(2,132,199,0.22)' }}>
                 <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, color: 'var(--cyan)' }}>LT</span>
               </div>
               <div>

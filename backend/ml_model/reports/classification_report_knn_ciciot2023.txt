@@ -1,0 +1,43 @@
+Classification Report - KNN
+Dataset: CICIoT2023
+======================================================================
+                         precision    recall  f1-score   support
+
+       Backdoor_Malware     0.0000    0.0000    0.0000        89
+          BenignTraffic     0.0688    0.0439    0.0536     27709
+       BrowserHijacking     0.0000    0.0000    0.0000       134
+       CommandInjection     0.0000    0.0000    0.0000       119
+ DDoS-ACK_Fragmentation     0.0000    0.0000    0.0000      7292
+        DDoS-HTTP_Flood     0.0000    0.0000    0.0000       709
+        DDoS-ICMP_Flood     0.0000    0.0000    0.0000    180447
+DDoS-ICMP_Fragmentation     0.0000    0.0000    0.0000     11402
+      DDoS-PSHACK_Flood     0.0000    0.0000    0.0000    103326
+       DDoS-RSTFINFlood     0.0000    0.0000    0.0000    101819
+         DDoS-SYN_Flood     0.0000    0.0000    0.0000    102208
+         DDoS-SlowLoris     0.0000    0.0000    0.0000       622
+DDoS-SynonymousIP_Flood     0.0000    0.0000    0.0000     90480
+         DDoS-TCP_Flood     0.0000    0.0000    0.0000    113735
+         DDoS-UDP_Flood     0.0000    0.0000    0.0000    136717
+ DDoS-UDP_Fragmentation     0.0000    0.0000    0.0000      7224
+           DNS_Spoofing     0.0000    0.0000    0.0000      4570
+   DictionaryBruteForce     0.0000    0.0000    0.0000       319
+         DoS-HTTP_Flood     0.0000    0.0000    0.0000      1805
+          DoS-SYN_Flood     0.0000    0.0000    0.0000     51116
+          DoS-TCP_Flood     0.0000    0.0000    0.0000     67697
+          DoS-UDP_Flood     0.0000    0.0000    0.0000     83627
+       MITM-ArpSpoofing     0.0066    0.9695    0.0132      7840
+     Mirai-greeth_flood     0.0000    0.0000    0.0000     24934
+      Mirai-greip_flood     0.0000    0.0000    0.0000     19279
+         Mirai-udpplain     0.0000    0.0000    0.0000     22536
+    Recon-HostDiscovery     0.0000    0.0000    0.0000      3331
+           Recon-OSScan     0.0000    0.0000    0.0000      2433
+        Recon-PingSweep     0.0000    0.0000    0.0000        53
+         Recon-PortScan     0.0000    0.0000    0.0000      2082
+           SqlInjection     0.0000    0.0000    0.0000       148
+       Uploading_Attack     0.0000    0.0000    0.0000        33
+      VulnerabilityScan     0.0000    0.0000    0.0000       913
+                    XSS     0.0000    0.0000    0.0000       103
+
+               accuracy                         0.0075   1176851
+              macro avg     0.0022    0.0298    0.0020   1176851
+           weighted avg     0.0017    0.0075    0.0013   1176851

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
@@ -25,8 +25,8 @@ const SIM_CARDS: Array<{
     type:   'dos',
     label:  'DoS Simulation',
     icon:   'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
-    color:  '#ffb020',
-    glow:   'rgba(255,176,32,0.2)',
+    color:  '#d97706',
+    glow:   'rgba(217,119,6,0.24)',
     desc:   'Generates synthetic high-rate request events to localhost test endpoint only.',
     safety: 'Target: 127.0.0.1 only — rate limited',
   },
@@ -34,8 +34,8 @@ const SIM_CARDS: Array<{
     type:   'portscan',
     label:  'PortScan Simulation',
     icon:   'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z',
-    color:  '#00d4ff',
-    glow:   'rgba(0,212,255,0.2)',
+    color:  '#0284c7',
+    glow:   'rgba(2,132,199,0.22)',
     desc:   'TCP connect probes to 127.0.0.1 ports 8000–8020. No external scanning.',
     safety: 'Localhost ports 8000–8020 only',
   },
@@ -43,8 +43,8 @@ const SIM_CARDS: Array<{
     type:   'bruteforce',
     label:  'Brute Force Simulation',
     icon:   'M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4 M10 17l5-5-5-5 M13.8 12H3',
-    color:  '#ff2d55',
-    glow:   'rgba(255,45,85,0.2)',
+    color:  '#dc2626',
+    glow:   'rgba(220,38,38,0.24)',
     desc:   'Repeated failed-login event generation against a mock local endpoint. No real passwords tested.',
     safety: 'Mock endpoint only — no real credentials',
   },
@@ -52,8 +52,8 @@ const SIM_CARDS: Array<{
     type:   'botnet',
     label:  'Botnet Behavior Simulation',
     icon:   'M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z M12 8v4l3 3',
-    color:  '#bf5fff',
-    glow:   'rgba(191,95,255,0.2)',
+    color:  '#7c3aed',
+    glow:   'rgba(124,58,237,0.24)',
     desc:   'Periodic synthetic beacon events to dummy local addresses. No real C2 traffic.',
     safety: 'Synthetic only — no real network traffic',
   },
@@ -61,19 +61,19 @@ const SIM_CARDS: Array<{
     type:   'unknown',
     label:  'Unknown Threat Simulation',
     icon:   'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01 M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z',
-    color:  '#00ff9d',
-    glow:   'rgba(0,255,157,0.2)',
+    color:  '#059669',
+    glow:   'rgba(5,150,105,0.24)',
     desc:   'Anomalous synthetic feature vectors outside training distribution. Tests unknown threat detection.',
     safety: 'Synthetic anomalous features only',
   },
 ];
 
 const RISK_COLOR: Record<string, string> = {
-  Low: '#00ff9d', Medium: '#ffb020', High: '#ff8c42', Critical: '#ff2d55',
+  Low: '#059669', Medium: '#d97706', High: '#ea6c1a', Critical: '#dc2626',
 };
 const ACTION_COLOR: Record<string, string> = {
-  Allow: '#00ff9d', Restrict: '#ffb020', Alert: '#ff8c42',
-  Quarantine: '#ff2d55', Block: '#bf5fff',
+  Allow: '#059669', Restrict: '#d97706', Alert: '#ea6c1a',
+  Quarantine: '#dc2626', Block: '#7c3aed',
 };
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
@@ -95,7 +95,7 @@ function Badge({ color, children }: { color: string; children: React.ReactNode }
 function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
     <div className={`rounded-xl p-4 ${className}`} style={{
-      background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)',
+      background: '#ffffff', border: '1px solid #000000', boxShadow: '0 1px 4px rgba(0,0,0,0.15)',
       backdropFilter: 'blur(16px)',
     }}>
       {children}
@@ -126,7 +126,7 @@ export default function SimulationPage() {
   const [duration, setDuration]       = useState(30);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const showAlert = (msg: string, color = '#00ff9d') => {
+  const showAlert = (msg: string, color = '#059669') => {
     setAlert({ msg, color });
     setTimeout(() => setAlert(null), 4000);
   };
@@ -161,13 +161,14 @@ export default function SimulationPage() {
           return updated;
         });
 
-        // Auto-block logic: if Critical events pile up
-        const critCount = e.events.filter(ev => ev.risk_level === 'Critical').length;
-        if (critCount >= 5 && !blocked.find(b => b.ip === '127.0.0.1')) {
+        // Auto-block logic: block the attacker if Critical events pile up
+        const critEvents = e.events.filter(ev => ev.risk_level === 'Critical');
+        const attackerIp = critEvents.slice(-1)[0]?.source_ip;
+        if (critEvents.length >= 5 && attackerIp && !blocked.find(b => b.ip === attackerIp)) {
           try {
-            await blockEntity('127.0.0.1', `Auto-block: ${critCount} critical simulation events`);
+            await blockEntity(attackerIp, `Auto-block: ${critEvents.length} critical simulation events`);
             await refreshBlocked();
-            showAlert('Entity blocked by decision engine — 127.0.0.1', '#ff2d55');
+            showAlert(`Entity blocked by decision engine — ${attackerIp}`, '#dc2626');
           } catch { /* ignore */ }
         }
       }
@@ -199,10 +200,10 @@ export default function SimulationPage() {
         showAlert(`${type.toUpperCase()} simulation started — ${duration}s`);
         await refreshStatus();
       } else {
-        showAlert(r.error ?? 'Failed to start', '#ff2d55');
+        showAlert(r.error ?? 'Failed to start', '#dc2626');
       }
     } catch (e: unknown) {
-      showAlert(String(e), '#ff2d55');
+      showAlert(String(e), '#dc2626');
     } finally {
       setLoading(null);
     }
@@ -258,7 +259,7 @@ export default function SimulationPage() {
             ATTACK SIMULATION LAB
           </h1>
           <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-mid)', marginTop: 2 }}>
-            Topology-Aware Multi-Level Protection Framework — Research Demonstration
+            Topology-Aware Multi-Level Protection · scored live by the CICIoT2023 ensemble (RF + XGBoost) + unknown detection
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -266,23 +267,23 @@ export default function SimulationPage() {
             <div style={{
               display: 'flex', alignItems: 'center', gap: 8,
               padding: '8px 14px', borderRadius: 8,
-              background: 'rgba(255,45,85,0.08)',
-              border: '1px solid rgba(255,45,85,0.3)',
+              background: 'rgba(220,38,38,0.10)',
+              border: '1px solid rgba(220,38,38,0.32)',
             }}>
-              <span className="pulse-dot" style={{ background: '#ff2d55', animation: 'pulse-red 1s infinite' }} />
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#ff2d55' }}>
+              <span className="pulse-dot" style={{ background: '#dc2626', animation: 'pulse-red 1s infinite' }} />
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#dc2626' }}>
                 {status.sim_type?.toUpperCase()} ACTIVE — {status.remaining_seconds}s
               </span>
             </div>
           )}
           <a
             href={getResearchReportCsvUrl()}
-            target="_blank" rel="noreferrer"
+            download="research-report.csv"
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
               padding: '8px 16px', borderRadius: 8,
-              background: 'rgba(0,212,255,0.08)',
-              border: '1px solid rgba(0,212,255,0.25)',
+              background: 'rgba(2,132,199,0.10)',
+              border: '1px solid rgba(2,132,199,0.28)',
               color: 'var(--cyan)',
               fontFamily: 'var(--font-mono)', fontSize: 11,
               textDecoration: 'none', cursor: 'pointer',
@@ -299,15 +300,15 @@ export default function SimulationPage() {
       {/* ── Safety notice ─────────────────────────────────────────────── */}
       <div style={{
         marginBottom: 20, padding: '10px 16px', borderRadius: 8,
-        background: 'rgba(255,176,32,0.05)',
-        border: '1px solid rgba(255,176,32,0.2)',
+        background: 'rgba(217,119,6,0.07)',
+        border: '1px solid rgba(217,119,6,0.24)',
         display: 'flex', alignItems: 'center', gap: 10,
       }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffb020" strokeWidth="2">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2">
           <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z M12 9v4 M12 17h.01"/>
         </svg>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#ffb020' }}>
-          SAFETY: All simulations target 127.0.0.1 (localhost) only. No external networks are scanned or attacked. No real exploits, payloads, or credentials are used. Events are synthetic for research demonstration.
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#d97706' }}>
+          SAFETY: Events are synthetic — no real packets are sent to any host (attacker/victim IPs are documentation-range labels only; the sole real action is a safe localhost port probe). Each event is scored by the live ensemble and appears across the Dashboard, Threat Feed, Topology, Trust and Decisions in real time.
         </span>
       </div>
 
@@ -315,9 +316,9 @@ export default function SimulationPage() {
       <div className="grid grid-cols-4 gap-3 mb-5">
         {[
           { label: 'Events Generated', value: status?.events_generated ?? 0, color: 'var(--cyan)' },
-          { label: 'Critical Events',  value: criticalEvents, color: '#ff2d55' },
-          { label: 'Unknown Threats',  value: unknownEvents,  color: '#00ff9d' },
-          { label: 'Blocked Entities', value: blocked.length, color: '#bf5fff' },
+          { label: 'Critical Events',  value: criticalEvents, color: '#dc2626' },
+          { label: 'Unknown Threats',  value: unknownEvents,  color: '#059669' },
+          { label: 'Blocked Entities', value: blocked.length, color: '#7c3aed' },
         ].map(k => (
           <Card key={k.label}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', letterSpacing: '0.12em', marginBottom: 4 }}>
@@ -346,8 +347,8 @@ export default function SimulationPage() {
                   style={{
                     flex: 1, padding: '6px 0', borderRadius: 6, cursor: 'pointer',
                     fontFamily: 'var(--font-mono)', fontSize: 11,
-                    background: duration === d ? 'rgba(0,212,255,0.15)' : 'transparent',
-                    border: duration === d ? '1px solid rgba(0,212,255,0.4)' : '1px solid var(--border-dim)',
+                    background: duration === d ? 'rgba(2,132,199,0.18)' : 'transparent',
+                    border: duration === d ? '1px solid rgba(2,132,199,0.40)' : '1px solid var(--border-dim)',
                     color: duration === d ? 'var(--cyan)' : 'var(--text-mid)',
                   }}
                 >
@@ -363,7 +364,7 @@ export default function SimulationPage() {
             return (
               <div key={card.type} style={{
                 borderRadius: 10, padding: 14,
-                background: isActive ? `${card.glow}` : 'rgba(3,10,22,0.90)',
+                background: isActive ? `${card.glow}` : '#ffffff',
                 border: `1px solid ${isActive ? card.color + '50' : 'var(--border-dim)'}`,
                 transition: 'all 0.2s',
                 boxShadow: isActive ? `0 0 16px ${card.glow}` : 'none',
@@ -396,9 +397,9 @@ export default function SimulationPage() {
 
                 <div style={{
                   marginBottom: 10, padding: '4px 8px', borderRadius: 4,
-                  background: 'rgba(0,255,157,0.05)',
+                  background: 'rgba(5,150,105,0.07)',
                   border: '1px solid rgba(0,255,157,0.15)',
-                  fontFamily: 'var(--font-mono)', fontSize: 9, color: '#00ff9d',
+                  fontFamily: 'var(--font-mono)', fontSize: 9, color: '#059669',
                 }}>
                   SAFETY: {card.safety}
                 </div>
@@ -410,7 +411,7 @@ export default function SimulationPage() {
                     style={{
                       flex: 1, padding: '7px 0', borderRadius: 6, cursor: status?.running ? 'not-allowed' : 'pointer',
                       fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600,
-                      background: status?.running ? 'rgba(255,255,255,0.03)' : `${card.color}18`,
+                      background: status?.running ? 'rgba(0,0,0,0.10)' : `${card.color}18`,
                       border: `1px solid ${status?.running ? 'var(--border-dim)' : card.color + '50'}`,
                       color: status?.running ? 'var(--text-lo)' : card.color,
                       transition: 'all 0.15s',
@@ -425,7 +426,7 @@ export default function SimulationPage() {
                         fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600,
                         background: 'rgba(255,45,85,0.12)',
                         border: '1px solid rgba(255,45,85,0.4)',
-                        color: '#ff2d55',
+                        color: '#dc2626',
                       }}
                     >
                       STOP
@@ -455,7 +456,7 @@ export default function SimulationPage() {
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', marginBottom: 4 }}>KNOWN / UNKNOWN</div>
                   <div style={{
                     fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 700,
-                    color: latestEvent.known_or_unknown === 'Unknown' ? '#ff2d55' : '#00ff9d',
+                    color: latestEvent.known_or_unknown === 'Unknown' ? '#dc2626' : '#059669',
                   }}>
                     {latestEvent.known_or_unknown ?? '—'}
                   </div>
@@ -477,7 +478,7 @@ export default function SimulationPage() {
                 </div>
                 <div>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', marginBottom: 4 }}>ANOMALY SCORE</div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: latestEvent.anomaly_score && latestEvent.anomaly_score > 0.5 ? '#ff2d55' : 'var(--text-hi)' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: latestEvent.anomaly_score && latestEvent.anomaly_score > 0.5 ? '#dc2626' : 'var(--text-hi)' }}>
                     {latestEvent.anomaly_score != null ? latestEvent.anomaly_score.toFixed(3) : '—'}
                   </div>
                 </div>
@@ -485,7 +486,7 @@ export default function SimulationPage() {
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', marginBottom: 4 }}>TRUST SCORE</div>
                   <div style={{
                     fontFamily: 'var(--font-mono)', fontSize: 13,
-                    color: (latestEvent.trust_score ?? 100) < 40 ? '#ff2d55' : (latestEvent.trust_score ?? 100) < 70 ? '#ffb020' : '#00ff9d',
+                    color: (latestEvent.trust_score ?? 100) < 40 ? '#dc2626' : (latestEvent.trust_score ?? 100) < 70 ? '#d97706' : '#059669',
                   }}>
                     {latestEvent.trust_score ?? '—'} / 100
                   </div>
@@ -494,13 +495,13 @@ export default function SimulationPage() {
 
               {/* Risk badge row */}
               <div className="flex gap-2 mt-3">
-                <Badge color={RISK_COLOR[latestEvent.risk_level] ?? '#ffb020'}>
+                <Badge color={RISK_COLOR[latestEvent.risk_level] ?? '#d97706'}>
                   RISK: {latestEvent.risk_level}
                 </Badge>
-                <Badge color="#00d4ff">
+                <Badge color="#0284c7">
                   SIM: {latestEvent.sim_type?.toUpperCase()}
                 </Badge>
-                <Badge color="#00ff9d">
+                <Badge color="#059669">
                   LOCAL SIMULATION ONLY
                 </Badge>
               </div>
@@ -515,18 +516,18 @@ export default function SimulationPage() {
                 <AreaChart data={trustHistory} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="trustGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor="#00d4ff" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#00d4ff" stopOpacity={0.0} />
+                      <stop offset="5%"  stopColor="#0284c7" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#0284c7" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,212,255,0.06)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(2,132,199,0.08)" />
                   <XAxis dataKey="time" tick={{ fontSize: 9, fill: 'var(--text-lo)', fontFamily: 'var(--font-mono)' }} />
                   <YAxis domain={[0, 100]} tick={{ fontSize: 9, fill: 'var(--text-lo)', fontFamily: 'var(--font-mono)' }} />
                   <Tooltip
-                    contentStyle={{ background: '#000c1a', border: '1px solid var(--border-mid)', borderRadius: 6, fontSize: 11 }}
+                    contentStyle={{ background: '#f8fafc', border: '1px solid var(--border-mid)', borderRadius: 6, fontSize: 11 }}
                     labelStyle={{ color: 'var(--text-mid)', fontFamily: 'var(--font-mono)' }}
                   />
-                  <Area type="monotone" dataKey="trust" stroke="#00d4ff" fill="url(#trustGrad)" strokeWidth={1.5} dot={false} />
+                  <Area type="monotone" dataKey="trust" stroke="#0284c7" fill="url(#trustGrad)" strokeWidth={1.5} dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
             </Card>
@@ -554,19 +555,19 @@ export default function SimulationPage() {
                   </thead>
                   <tbody>
                     {events.slice(0, 40).map((evt, i) => (
-                      <tr key={evt.id} style={{ borderBottom: '1px solid rgba(0,212,255,0.04)', background: i % 2 === 0 ? 'transparent' : 'rgba(0,212,255,0.015)' }}>
+                      <tr key={evt.id} style={{ borderBottom: '1px solid rgba(2,132,199,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(0,212,255,0.015)' }}>
                         <td style={{ padding: '4px 8px', color: 'var(--text-lo)' }}>{new Date(evt.timestamp).toLocaleTimeString()}</td>
                         <td style={{ padding: '4px 8px', color: 'var(--cyan)' }}>{evt.sim_type?.toUpperCase()}</td>
                         <td style={{ padding: '4px 8px', color: 'var(--text-hi)' }}>{evt.predicted_attack ?? evt.attack_type}</td>
                         <td style={{ padding: '4px 8px' }}>
-                          <span style={{ color: RISK_COLOR[evt.risk_level] ?? '#ffb020' }}>{evt.risk_level}</span>
+                          <span style={{ color: RISK_COLOR[evt.risk_level] ?? '#d97706' }}>{evt.risk_level}</span>
                         </td>
                         <td style={{ padding: '4px 8px' }}>
                           <span style={{ color: ACTION_COLOR[evt.security_action ?? ''] ?? 'var(--text-mid)' }}>
                             {evt.security_action ?? '—'}
                           </span>
                         </td>
-                        <td style={{ padding: '4px 8px', color: (evt.trust_score ?? 100) < 40 ? '#ff2d55' : 'var(--text-mid)' }}>
+                        <td style={{ padding: '4px 8px', color: (evt.trust_score ?? 100) < 40 ? '#dc2626' : 'var(--text-mid)' }}>
                           {evt.trust_score ?? '—'}
                         </td>
                       </tr>
@@ -588,7 +589,7 @@ export default function SimulationPage() {
               Decision Engine — Quarantine & Block Register
             </div>
           </div>
-          <Badge color="#bf5fff">SIMULATION MODE</Badge>
+          <Badge color="#7c3aed">SIMULATION MODE</Badge>
         </div>
         {blocked.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--text-lo)', fontFamily: 'var(--font-mono)', fontSize: 11 }}>
@@ -605,24 +606,24 @@ export default function SimulationPage() {
             </thead>
             <tbody>
               {blocked.map(b => (
-                <tr key={b.ip} style={{ borderBottom: '1px solid rgba(0,212,255,0.04)' }}>
-                  <td style={{ padding: '8px 10px', color: '#ff2d55', fontWeight: 600 }}>{b.ip}</td>
+                <tr key={b.ip} style={{ borderBottom: '1px solid rgba(2,132,199,0.06)' }}>
+                  <td style={{ padding: '8px 10px', color: '#dc2626', fontWeight: 600 }}>{b.ip}</td>
                   <td style={{ padding: '8px 10px', color: 'var(--text-mid)', maxWidth: 280 }}>{b.reason}</td>
                   <td style={{ padding: '8px 10px' }}>
-                    <Badge color={ACTION_COLOR[b.action] ?? '#ff2d55'}>{b.action}</Badge>
+                    <Badge color={ACTION_COLOR[b.action] ?? '#dc2626'}>{b.action}</Badge>
                   </td>
                   <td style={{ padding: '8px 10px', color: 'var(--text-hi)' }}>{b.count}</td>
                   <td style={{ padding: '8px 10px', color: 'var(--text-lo)' }}>{new Date(b.timestamp).toLocaleString()}</td>
                   <td style={{ padding: '8px 10px' }}>
-                    <Badge color="#bf5fff">{b.mode}</Badge>
+                    <Badge color="#7c3aed">{b.mode}</Badge>
                   </td>
                   <td style={{ padding: '8px 10px' }}>
                     <button onClick={() => handleUnblock(b.ip)}
                       style={{
                         padding: '4px 10px', borderRadius: 4, cursor: 'pointer',
-                        background: 'rgba(0,255,157,0.08)',
-                        border: '1px solid rgba(0,255,157,0.25)',
-                        color: '#00ff9d', fontSize: 10,
+                        background: 'rgba(5,150,105,0.10)',
+                        border: '1px solid rgba(5,150,105,0.28)',
+                        color: '#059669', fontSize: 10,
                       }}
                     >
                       Unblock
@@ -648,15 +649,15 @@ export default function SimulationPage() {
             <SLabel>// ATTACK TIMELINE — CONFIDENCE & RISK LEVEL</SLabel>
             <ResponsiveContainer width="100%" height={120}>
               <LineChart data={timeline} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,212,255,0.06)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(2,132,199,0.08)" />
                 <XAxis dataKey="seq" tick={{ fontSize: 9, fill: 'var(--text-lo)', fontFamily: 'var(--font-mono)' }} />
                 <YAxis yAxisId="conf" domain={[0, 100]} tick={{ fontSize: 9, fill: 'var(--text-lo)' }} />
                 <YAxis yAxisId="risk" orientation="right" domain={[0, 4]} tick={{ fontSize: 9, fill: 'var(--text-lo)' }} />
                 <Tooltip
-                  contentStyle={{ background: '#000c1a', border: '1px solid var(--border-mid)', borderRadius: 6, fontSize: 10 }}
+                  contentStyle={{ background: '#f8fafc', border: '1px solid var(--border-mid)', borderRadius: 6, fontSize: 10 }}
                 />
-                <Line yAxisId="conf" type="monotone" dataKey="conf" stroke="#00d4ff" strokeWidth={1.5} dot={false} name="Confidence %" />
-                <Line yAxisId="risk" type="monotone" dataKey="risk" stroke="#ff2d55" strokeWidth={1.5} dot={false} name="Risk Level" />
+                <Line yAxisId="conf" type="monotone" dataKey="conf" stroke="#0284c7" strokeWidth={1.5} dot={false} name="Confidence %" />
+                <Line yAxisId="risk" type="monotone" dataKey="risk" stroke="#dc2626" strokeWidth={1.5} dot={false} name="Risk Level" />
               </LineChart>
             </ResponsiveContainer>
           </Card>

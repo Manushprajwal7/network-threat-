@@ -1,12 +1,21 @@
 """
-CaptureManager — orchestrates live packet capture, ML inference, and event storage.
+CaptureManager — orchestrates the live, topology-aware monitoring pipeline:
 
-Key fixes vs. original:
-- Uses tshark subprocess (not PyShark) via the new packet_sniffer.py
-- Resolves interface name → numeric index before passing to tshark (-i 1, -i 2, ...)
-- ML pipeline imported at module level — import errors are visible immediately
-- Errors in _on_packet logged at WARNING (not DEBUG) so they appear in the console
-- Pre-warms Random Forest on start() so the first packet isn't slow
+    PACKET_CAPTURE → FEATURE_EXTRACTION → ML_DETECTION
+                   → TRUST_SCORE → SECURITY_DECISION → TOPOLOGY → DASHBOARD
+
+Design
+------
+- A tshark-backed PacketSniffer runs in a background thread and pushes every
+  parsed packet into a FlowAggregator (no per-packet ML).
+- A separate interval thread wakes every BATCH_INTERVAL seconds, snapshots all
+  flows that saw traffic, and processes them as a batch:
+      flow → CICIoT2023 features → ensemble detection → trust → decision
+           → topology update → stored event.
+- If a window has no packets, nothing is fabricated — the state stays empty.
+
+All dashboard getters read from real analysed events / the live topology graph.
+No hardcoded packets, fake flows, or mock values anywhere.
 """
 
 import datetime
@@ -21,47 +30,41 @@ from typing import Optional
 
 log = logging.getLogger(__name__)
 
-MAX_EVENTS = 500
+MAX_EVENTS = 800
+BATCH_INTERVAL = 4.0   # seconds between batch analyses (requirement: 3–5s)
+
 _backend_dir = Path(__file__).resolve().parent.parent
 if str(_backend_dir) not in sys.path:
     sys.path.insert(0, str(_backend_dir))
 
-# Pre-import ML pipeline at module load so errors surface immediately
+# Pre-import the pipeline so import errors surface immediately at startup.
 try:
-    from api.threat_detector import detect as _detect_fn
+    from api.threat_detector import analyze_flow as _analyze_flow
     from packet_capture.feature_extractor import extract_features as _extract_fn
+    from packet_capture.flow_aggregator import FlowAggregator
+    from api.topology_manager import get_topology_manager
     _ML_READY = True
-    log.info("ML pipeline imports OK")
-except Exception as _imp_err:
-    _detect_fn = None   # type: ignore
-    _extract_fn = None  # type: ignore
+    log.info("[INIT] Live pipeline imports OK")
+except Exception as _imp_err:  # pragma: no cover
+    _analyze_flow = None        # type: ignore
+    _extract_fn = None          # type: ignore
+    FlowAggregator = None       # type: ignore
+    get_topology_manager = None  # type: ignore
     _ML_READY = False
-    log.error(f"ML pipeline import failed: {_imp_err}")
+    log.error(f"[INIT] Live pipeline import failed: {_imp_err}")
 
 
 def _resolve_interface(name: str) -> str:
-    """
-    Given a user-selected interface name or index, return the tshark
-    interface index (e.g. "1") for the most reliable -i argument on Windows.
-
-    Falls back to the original string if no match is found.
-    """
-    # If already a numeric index, use as-is
     if name.strip().isdigit():
         return name.strip()
-
     try:
         from packet_capture.interface_utils import list_interfaces
-        ifaces = list_interfaces()
-        for iface in ifaces:
+        for iface in list_interfaces():
             if iface.get("name") == name or iface.get("device") == name:
-                idx = iface.get("index", "")
-                if idx:
-                    return idx
+                if iface.get("index"):
+                    return iface["index"]
     except Exception as e:
         log.warning(f"Interface lookup failed: {e}")
-
-    # Return the original — tshark may accept friendly names on some systems
     return name
 
 
@@ -69,15 +72,19 @@ class CaptureManager:
     def __init__(self):
         self._lock = threading.RLock()
         self._running = False
-        self._thread: Optional[threading.Thread] = None
         self._sniffer = None
-        self._interface: Optional[str] = None          # resolved (index)
-        self._interface_friendly: Optional[str] = None  # original name for display
+        self._capture_thread: Optional[threading.Thread] = None
+        self._batch_thread: Optional[threading.Thread] = None
+        self._interface: Optional[str] = None
+        self._interface_friendly: Optional[str] = None
+
+        self._aggregator = FlowAggregator() if _ML_READY else None
+        self._topology = get_topology_manager() if _ML_READY else None
 
         self._events: deque = deque(maxlen=MAX_EVENTS)
-        self._packets_captured = 0   # IP packets that ran through the ML pipeline
-        self._events_analyzed = 0    # events successfully added to the queue
-        self._packets_failed = 0     # packets where ML pipeline threw an exception
+        self._packets_processed = 0   # real packets folded into analysed flows
+        self._flows_analyzed = 0
+        self._flows_failed = 0
         self._start_time: Optional[float] = None
         self._error: Optional[str] = None
         self._last_error: Optional[str] = None
@@ -89,7 +96,7 @@ class CaptureManager:
             return {"ok": False, "error": "ML pipeline not ready — check server logs"}
 
         resolved = _resolve_interface(interface)
-        log.info(f"Interface '{interface}' resolved to '{resolved}'")
+        log.info(f"[PACKET_CAPTURE] Interface '{interface}' resolved to '{resolved}'")
 
         with self._lock:
             if self._running:
@@ -98,18 +105,24 @@ class CaptureManager:
             self._interface_friendly = interface
             self._error = None
             self._last_error = None
-            self._packets_captured = 0
-            self._events_analyzed = 0
-            self._packets_failed = 0
+            self._packets_processed = 0
+            self._flows_analyzed = 0
+            self._flows_failed = 0
+            self._events.clear()
+            self._aggregator.reset()
+            self._topology.reset()
             self._running = True
             self._start_time = time.time()
 
-        # Pre-warm the Random Forest so first real packet isn't slow
         threading.Thread(target=self._prewarm, daemon=True, name="model-prewarm").start()
 
-        self._thread = threading.Thread(target=self._run, daemon=True, name="packet-capture")
-        self._thread.start()
-        log.info(f"Capture started on '{interface}' (index={resolved})")
+        self._capture_thread = threading.Thread(target=self._run_capture, daemon=True, name="packet-capture")
+        self._capture_thread.start()
+
+        self._batch_thread = threading.Thread(target=self._run_batches, daemon=True, name="batch-analyzer")
+        self._batch_thread.start()
+
+        log.info(f"[PACKET_CAPTURE] Capture started on '{interface}' (index={resolved})")
         return {"ok": True, "interface": interface, "resolved": resolved}
 
     def stop(self) -> dict:
@@ -120,11 +133,138 @@ class CaptureManager:
             if self._sniffer:
                 self._sniffer.stop()
 
-        if self._thread and self._thread.is_alive():
-            self._thread.join(timeout=4)
+        if self._capture_thread and self._capture_thread.is_alive():
+            self._capture_thread.join(timeout=4)
+        if self._batch_thread and self._batch_thread.is_alive():
+            self._batch_thread.join(timeout=BATCH_INTERVAL + 2)
 
-        log.info("Capture stopped")
+        log.info("[PACKET_CAPTURE] Capture stopped")
         return {"ok": True}
+
+    # ── Capture + batch threads ─────────────────────────────────────────────────
+
+    def _run_capture(self):
+        from packet_capture.packet_sniffer import PacketSniffer
+        self._sniffer = PacketSniffer(
+            interface=self._interface,
+            packet_callback=self._on_packet,
+        )
+        self._sniffer.start()   # blocks until stop()
+        if self._sniffer.error:
+            with self._lock:
+                self._error = self._sniffer.error
+                self._running = False
+            log.error(f"[PACKET_CAPTURE] Sniffer stopped with error: {self._sniffer.error}")
+        else:
+            with self._lock:
+                self._running = False
+
+    def _on_packet(self, packet_info: dict):
+        """Sniffer callback — buffer the packet into its flow (no ML here)."""
+        try:
+            self._aggregator.add_packet(packet_info)
+        except Exception as exc:
+            with self._lock:
+                self._last_error = f"[aggregate] {type(exc).__name__}: {exc}"
+
+    def _run_batches(self):
+        """Every BATCH_INTERVAL seconds, analyse all flows seen in the window."""
+        while True:
+            time.sleep(BATCH_INTERVAL)
+            with self._lock:
+                if not self._running:
+                    break
+            try:
+                self._process_window()
+            except Exception as exc:
+                with self._lock:
+                    self._last_error = f"[batch] {type(exc).__name__}: {exc}"
+                log.warning(f"[BATCH] window processing failed: {exc}")
+
+    def _process_window(self):
+        flows = self._aggregator.collect_window()
+        if not flows:
+            return
+
+        risk_index = self._topology.risk_index()
+        log.info(f"[FEATURE_EXTRACTION] Processing {len(flows)} flows from capture window")
+
+        analyzed = 0
+        for flow in flows:
+            try:
+                features = _extract_fn(flow)
+                src = flow.get("src_ip") or "unknown"
+                topo_risk = risk_index.get(src, "Low")
+
+                result = _analyze_flow(features, entity_id=str(src), topology_risk=topo_risk)
+                event = self._build_event(flow, result)
+
+                self._topology.update_flow(event)   # TOPOLOGY stage
+                with self._lock:
+                    self._events.append(event)
+                    self._packets_processed += int(flow.get("packet_count") or 0)
+                    self._flows_analyzed += 1
+                analyzed += 1
+            except Exception as exc:
+                with self._lock:
+                    self._flows_failed += 1
+                    self._last_error = f"[analyze] {type(exc).__name__}: {exc}"
+                log.warning(f"[ML_DETECTION] flow analysis failed: {exc}")
+
+        if analyzed:
+            log.info(f"[ML_DETECTION] Analysed {analyzed} flows "
+                     f"(total flows={self._flows_analyzed}, packets={self._packets_processed})")
+
+    def _build_event(self, flow: dict, result: dict) -> dict:
+        label = str(result.get("predicted_label", "Unknown"))
+        flow_bytes = int(sum(flow.get("all_sizes") or []))
+        return {
+            "id": f"EVT-{uuid.uuid4().hex[:8].upper()}",
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
+            "timestamp_unix": float(flow.get("last_ts") or time.time()),
+            "source_ip": flow.get("src_ip"),
+            "dest_ip": flow.get("dst_ip"),
+            "source_port": flow.get("src_port"),
+            "dest_port": flow.get("dst_port"),
+            "protocol": flow.get("protocol", "UNKNOWN"),
+            "packet_length": flow_bytes,                 # total flow bytes (compat field)
+            "flow_packets": int(flow.get("packet_count") or 0),
+            "flow_bytes": flow_bytes,
+            "flow_duration": round(float(flow.get("duration") or 0.0), 4),
+            # Detection
+            "predicted_label": label,
+            "confidence": float(result.get("confidence_score", 0.0)),
+            "risk_level": str(result.get("risk_level", "Low")),
+            "is_threat": bool(result.get("is_attack")),
+            "known_or_unknown": str(result.get("known_or_unknown", "Known")),
+            "anomaly_score": float(result.get("anomaly_score", 0.0)),
+            "agreement": float(result.get("agreement", 0.0)),
+            "per_model": result.get("per_model", []),
+            "models_used": result.get("model_used", "ensemble"),
+            # Trust
+            "trust_score": float(result.get("trust_score", 100.0)),
+            "trust_level": str(result.get("trust_level", "High Trust")),
+            "user_trust": float(result.get("user_trust", 100.0)),
+            "device_trust": float(result.get("device_trust", 100.0)),
+            "behavior_trust": float(result.get("behavior_trust", 100.0)),
+            # Decision
+            "action": str(result.get("action", "Allow")),
+            "reason": str(result.get("reason", "")),
+            "policy_level": str(result.get("policy_level", "INFO")),
+            "severity": _risk_to_severity(str(result.get("risk_level", "Low"))),
+        }
+
+    def _prewarm(self):
+        try:
+            from ml_model.ensemble_detector import get_ensemble_members
+            from ml_model.predict import build_feature_row, predict_proba_full
+            members = get_ensemble_members()
+            row = build_feature_row({"Number": 1, "Rate": 1.0})
+            for m in members:
+                predict_proba_full(m, row)
+            log.info(f"[INIT] Ensemble pre-warmed: {members}")
+        except Exception as e:
+            log.warning(f"[INIT] Pre-warm failed (will load on first batch): {e}")
 
     # ── Status ────────────────────────────────────────────────────────────────
 
@@ -133,14 +273,17 @@ class CaptureManager:
         tshark_ok, tshark_info = check_tshark_installed()
         with self._lock:
             raw = getattr(self._sniffer, "raw_count", 0) if self._sniffer else 0
+            active_flows = self._aggregator.active_flow_count() if self._aggregator else 0
             return {
                 "is_running": self._running,
                 "selected_interface": self._interface_friendly or self._interface,
                 "resolved_interface": self._interface,
-                "packets_captured": self._packets_captured,
-                "events_analyzed": self._events_analyzed,
-                "packets_failed": self._packets_failed,
+                "packets_captured": self._packets_processed,
+                "events_analyzed": self._flows_analyzed,
+                "packets_failed": self._flows_failed,
+                "active_flows": active_flows,
                 "raw_packets_seen": raw,
+                "batch_interval_s": BATCH_INTERVAL,
                 "tshark_available": tshark_ok,
                 "tshark_path": tshark_info if tshark_ok else None,
                 "tshark_error": tshark_info if not tshark_ok else None,
@@ -157,18 +300,20 @@ class CaptureManager:
         with self._lock:
             sample = list(self._events)[-3:] if self._events else []
             raw = getattr(self._sniffer, "raw_count", 0) if self._sniffer else 0
+            active = self._aggregator.active_flow_count() if self._aggregator else 0
         return {
             "ml_ready": _ML_READY,
             "events_in_queue": len(list(self._events)),
-            "packets_captured": self._packets_captured,
-            "events_analyzed": self._events_analyzed,
-            "packets_failed": self._packets_failed,
+            "packets_captured": self._packets_processed,
+            "events_analyzed": self._flows_analyzed,
+            "packets_failed": self._flows_failed,
+            "active_flows": active,
             "raw_packets_seen": raw,
             "last_error": self._last_error,
             "sample_events": sample,
         }
 
-    # ── Data getters ──────────────────────────────────────────────────────────
+    # ── Data getters ────────────────────────────────────────────────────────────
 
     def get_events(self, limit: int = 50) -> list:
         with self._lock:
@@ -178,24 +323,19 @@ class CaptureManager:
     def get_dashboard_stats(self) -> dict:
         with self._lock:
             events = list(self._events)
-            packets = self._packets_captured
+            packets = self._packets_processed
+            active_flows = self._aggregator.active_flow_count() if self._aggregator else 0
 
         if not events:
             return {
-                "total_packets": packets,
-                "active_flows": 0,
-                "threats_detected": 0,
-                "average_trust_score": 0.0,
-                "blocked_connections": 0,
-                "model_confidence": 0.0,
-                "benign_count": 0,
-                "attack_count": 0,
-                "critical_count": 0,
-                "high_risk_count": 0,
-                "source": "live",
+                "total_packets": packets, "active_flows": active_flows,
+                "threats_detected": 0, "average_trust_score": 0.0,
+                "blocked_connections": 0, "model_confidence": 0.0,
+                "benign_count": 0, "attack_count": 0,
+                "critical_count": 0, "high_risk_count": 0, "source": "live",
             }
 
-        threats   = [e for e in events if e.get("predicted_label", "").upper() != "BENIGN"]
+        threats   = [e for e in events if e.get("is_threat")]
         blocked   = [e for e in events if e.get("action") in ("Block", "Quarantine")]
         criticals = [e for e in events if e.get("risk_level") == "Critical"]
         high_risk = [e for e in events if e.get("risk_level") in ("High", "Critical")]
@@ -208,7 +348,7 @@ class CaptureManager:
 
         return {
             "total_packets": packets,
-            "active_flows": len(unique_srcs),
+            "active_flows": max(active_flows, len(unique_srcs)),
             "threats_detected": len(threats),
             "average_trust_score": round(avg_trust / 100.0, 3),
             "blocked_connections": len(blocked),
@@ -232,8 +372,9 @@ class CaptureManager:
         total = sum(counts.values())
         _COLORS = {
             "BENIGN": "#00ff9d", "DoS": "#ff2d55", "DDoS": "#bf5fff",
-            "PortScan": "#00d4ff", "Botnet": "#ff8c42", "Web Attack": "#f87171",
-            "Brute Force": "#ec4899", "Infiltration": "#a78bfa", "Heartbleed": "#c0392b",
+            "Mirai": "#ff8c42", "Recon": "#00d4ff", "Scan": "#00d4ff",
+            "Spoofing": "#f87171", "BruteForce": "#ec4899", "Injection": "#a78bfa",
+            "XSS": "#fbbf24", "Backdoor": "#c0392b", "MITM": "#fb7185",
         }
         def _color(lbl):
             for k, v in _COLORS.items():
@@ -297,10 +438,8 @@ class CaptureManager:
             {
                 "id": e.get("id", ""),
                 "severity": _risk_to_severity(e.get("risk_level", "Low")),
-                "message": (
-                    e.get("reason")
-                    or f"{e.get('predicted_label','Unknown')} from {e.get('source_ip','?')}"
-                ),
+                "message": (e.get("reason")
+                            or f"{e.get('predicted_label','Unknown')} from {e.get('source_ip','?')}"),
                 "time": e.get("timestamp", ""),
                 "acked": False,
             }
@@ -318,139 +457,39 @@ class CaptureManager:
             if mins_ago > 11:
                 continue
             slot = 11 - mins_ago
-            if slot not in buckets:
-                buckets[slot] = {"normal": 0, "threats": 0, "packets": 0}
-            if e.get("predicted_label", "").upper() == "BENIGN":
-                buckets[slot]["normal"] += 1
+            b = buckets.setdefault(slot, {"normal": 0, "threats": 0, "packets": 0})
+            if e.get("is_threat"):
+                b["threats"] += 1
             else:
-                buckets[slot]["threats"] += 1
-            buckets[slot]["packets"] += 1
+                b["normal"] += 1
+            b["packets"] += int(e.get("flow_packets") or 1)
         result = []
         for i in range(12):
             b = buckets.get(i, {"normal": 0, "threats": 0, "packets": 0})
             mins_ago = 11 - i
             result.append({
                 "time": f"-{mins_ago}m" if mins_ago > 0 else "now",
-                "normal": b["normal"],
-                "threats": b["threats"],
-                "packets": b["packets"],
+                "normal": b["normal"], "threats": b["threats"], "packets": b["packets"],
             })
         return result
 
     def get_network_flows(self, limit: int = 25) -> list:
         events = self.get_events(limit)
-        return [
-            {
+        flows = []
+        for i, e in enumerate(events):
+            dur = float(e.get("flow_duration") or 0.0)
+            flows.append({
                 "id": e.get("id", f"F-{i:05d}"),
                 "srcIP": e.get("source_ip") or "?",
                 "dstIP": e.get("dest_ip") or "?",
                 "protocol": e.get("protocol") or "?",
-                "packetCount": 1,
-                "flowDuration": "00:00:01",
-                "bytes": f"{e.get('packet_length', 0)} B",
+                "packetCount": int(e.get("flow_packets") or 1),
+                "flowDuration": _fmt_duration(dur),
+                "bytes": _fmt_bytes(int(e.get("flow_bytes") or 0)),
                 "status": _action_to_status(e.get("action", "Allow")),
                 "attackType": e.get("predicted_label") or "BENIGN",
-            }
-            for i, e in enumerate(events)
-        ]
-
-    def get_topology(self) -> dict:
-        """Return network topology: nodes (IPs) and edges (connections) from captured events."""
-        with self._lock:
-            events = list(self._events)
-        if not events:
-            return {"nodes": [], "edges": [], "total_events": 0}
-
-        _RANK = {"Low": 0, "Medium": 1, "High": 2, "Critical": 3}
-        _RISK = {0: "Low", 1: "Medium", 2: "High", 3: "Critical"}
-        node_data: dict = {}
-        edge_data: dict = {}
-
-        def _ensure_node(ip: str):
-            if ip not in node_data:
-                node_data[ip] = {
-                    "id": ip, "packet_count": 0, "threat_count": 0,
-                    "trust_sum": 0.0, "trust_n": 0,
-                    "risk_rank": 0, "protocols": set(), "actions": set(),
-                }
-
-        for e in events:
-            src = e.get("source_ip")
-            dst = e.get("dest_ip")
-            proto = e.get("protocol") or "UNKNOWN"
-            risk = e.get("risk_level", "Low")
-            trust = float(e.get("trust_score", 100.0))
-            pkt_len = int(e.get("packet_length") or 0)
-            label = (e.get("predicted_label") or "BENIGN").upper()
-            action = e.get("action", "Allow")
-            is_threat = label not in ("BENIGN", "")
-
-            if src:
-                _ensure_node(src)
-                nd = node_data[src]
-                nd["packet_count"] += 1
-                nd["trust_sum"] += trust
-                nd["trust_n"] += 1
-                nd["protocols"].add(proto)
-                nd["actions"].add(action)
-                if is_threat:
-                    nd["threat_count"] += 1
-                r = _RANK.get(risk, 0)
-                if r > nd["risk_rank"]:
-                    nd["risk_rank"] = r
-
-            if dst:
-                _ensure_node(dst)
-                node_data[dst]["packet_count"] += 1
-                node_data[dst]["protocols"].add(proto)
-
-            if src and dst:
-                key = f"{src}|{dst}"
-                if key not in edge_data:
-                    edge_data[key] = {
-                        "source": src, "target": dst,
-                        "count": 0, "protocols": set(),
-                        "bytes": 0, "has_threat": False,
-                    }
-                ed = edge_data[key]
-                ed["count"] += 1
-                ed["protocols"].add(proto)
-                ed["bytes"] += pkt_len
-                if is_threat:
-                    ed["has_threat"] = True
-
-        nodes = []
-        for ip, nd in node_data.items():
-            avg_trust = nd["trust_sum"] / nd["trust_n"] if nd["trust_n"] > 0 else 100.0
-            nodes.append({
-                "id": ip,
-                "packet_count": nd["packet_count"],
-                "threat_count": nd["threat_count"],
-                "trust_score": round(avg_trust, 1),
-                "risk_level": _RISK[nd["risk_rank"]],
-                "protocols": list(nd["protocols"])[:5],
-                "actions": list(nd["actions"])[:3],
-                "is_local": _is_private_ip(ip),
             })
-
-        nodes.sort(key=lambda x: (-int(x["is_local"]), -x["packet_count"]))
-
-        edges = [
-            {
-                "source": ed["source"], "target": ed["target"],
-                "count": ed["count"],
-                "protocols": list(ed["protocols"])[:3],
-                "bytes": ed["bytes"],
-                "has_threat": ed["has_threat"],
-            }
-            for ed in sorted(edge_data.values(), key=lambda x: -x["count"])
-        ]
-
-        return {
-            "nodes": nodes[:60],
-            "edges": edges[:120],
-            "total_events": len(events),
-        }
+        return flows
 
     def get_security_decisions(self) -> dict:
         with self._lock:
@@ -461,97 +500,64 @@ class CaptureManager:
             if action in counts:
                 counts[action] += 1
         total = sum(counts.values()) or 1
-        return {
-            key: {"count": val, "percentage": round(val / total * 100, 1)}
-            for key, val in counts.items()
-        }
+        return {k: {"count": v, "percentage": round(v / total * 100, 1)} for k, v in counts.items()}
 
-    # ── Internal ──────────────────────────────────────────────────────────────
+    # ── Topology (delegated to the stateful TopologyManager) ─────────────────────
 
-    def _prewarm(self):
-        """Load the Random Forest model into memory before capture starts."""
+    def get_topology(self) -> dict:
+        if not self._topology:
+            return {"nodes": [], "edges": [], "total_events": 0}
+        return self._topology.get_topology()
+
+    def get_risky_nodes(self) -> dict:
+        if not self._topology:
+            return {"risky_nodes": [], "count": 0}
+        return self._topology.get_risky_nodes()
+
+    # ── Simulation injection ─────────────────────────────────────────────────────
+
+    def inject_simulated_flow(self, *, src_ip: str, dst_ip: str, src_port: int,
+                              dst_port: int, protocol: str, features: dict,
+                              packet_count: int, byte_count: int,
+                              sim_type: str) -> Optional[dict]:
+        """
+        Run a synthetic (simulation) flow through the full detection pipeline so
+        it shows up live across the dashboard / topology / trust / decisions.
+        No real packets are sent — only the analysed event is recorded.
+        Returns the enriched event (or None if the pipeline is unavailable).
+        """
+        if not _ML_READY or self._topology is None:
+            return None
         try:
-            from ml_model.predict import predict_threat
-            predict_threat({"Destination Port": 80, "Total Fwd Packets": 1}, "random_forest")
-            log.info("Random Forest model pre-warmed OK")
-        except Exception as e:
-            log.warning(f"Model pre-warm failed (will load on first packet): {e}")
-
-    def _run(self):
-        from packet_capture.packet_sniffer import PacketSniffer
-        self._sniffer = PacketSniffer(
-            interface=self._interface,
-            packet_callback=self._on_packet,
-        )
-        self._sniffer.start()
-
-        # Capture stopped — check if the sniffer recorded an error
-        if self._sniffer.error:
-            with self._lock:
-                self._error = self._sniffer.error
-                self._running = False
-            log.error(f"Sniffer stopped with error: {self._sniffer.error}")
-        else:
-            with self._lock:
-                self._running = False
-
-    def _on_packet(self, packet_info: dict):
-        """Process one captured IP packet through the full ML pipeline."""
-        step = "init"
-        try:
-            if not _ML_READY:
-                raise RuntimeError("ML pipeline not loaded")
-
-            step = "feature_extraction"
-            features = _extract_fn(packet_info)
-
-            step = "ml_detection"
-            result = _detect_fn(
-                flow_features=features,
-                model_name="random_forest",
-                entity_id=str(packet_info.get("src_ip") or "unknown"),
-            )
-
-            step = "build_event"
-            event = {
-                "id": f"EVT-{uuid.uuid4().hex[:8].upper()}",
-                "timestamp": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
-                "timestamp_unix": float(packet_info.get("timestamp") or time.time()),
-                "source_ip": packet_info.get("src_ip"),
-                "dest_ip": packet_info.get("dst_ip"),
-                "source_port": packet_info.get("src_port"),
-                "dest_port": packet_info.get("dst_port"),
-                "protocol": packet_info.get("protocol", "UNKNOWN"),
-                "packet_length": int(packet_info.get("packet_length") or 0),
-                "predicted_label": str(result.get("predicted_label", "Unknown")),
-                "confidence": float(result.get("confidence_score", 0.0)),
-                "risk_level": str(result.get("risk_level", "Low")),
-                "trust_score": float(result.get("trust_score", 100.0)),
-                "trust_level": str(result.get("trust_level", "High Trust")),
-                "user_trust": float(result.get("user_trust", 100.0)),
-                "device_trust": float(result.get("device_trust", 100.0)),
-                "behavior_trust": float(result.get("behavior_trust", 100.0)),
-                "action": str(result.get("action", "Allow")),
-                "reason": str(result.get("reason", "")),
-                "policy_level": str(result.get("policy_level", "INFO")),
-                "severity": _risk_to_severity(str(result.get("risk_level", "Low"))),
+            topo_risk = self._topology.risk_index().get(src_ip, "Low")
+            result = _analyze_flow(features, entity_id=str(src_ip), topology_risk=topo_risk)
+            pkts = max(1, int(packet_count))
+            per_pkt = max(1, int(byte_count) // pkts)
+            flow = {
+                "protocol": protocol, "src_ip": src_ip, "dst_ip": dst_ip,
+                "src_port": src_port, "dst_port": dst_port,
+                "duration": 0.05, "last_ts": time.time(),
+                "packet_count": pkts,
+                "all_sizes": [per_pkt] * pkts,
             }
+            event = self._build_event(flow, result)
+            event["simulated"] = True
+            event["sim_type"] = sim_type
 
-            step = "store"
+            self._topology.update_flow(event)
             with self._lock:
                 self._events.append(event)
-                self._packets_captured += 1
-                self._events_analyzed += 1
-
+                self._packets_processed += pkts
+                self._flows_analyzed += 1
+            return event
         except Exception as exc:
             with self._lock:
-                self._packets_captured += 1
-                self._packets_failed += 1
-                self._last_error = f"[{step}] {type(exc).__name__}: {exc}"
-            log.warning(f"Packet analysis failed at step '{step}': {exc}")
+                self._last_error = f"[sim_inject] {type(exc).__name__}: {exc}"
+            log.warning(f"[SECURITY_DECISION] simulated flow injection failed: {exc}")
+            return None
 
 
-# ── Singleton ──────────────────────────────────────────────────────────────────
+# ── Singleton ────────────────────────────────────────────────────────────────
 
 _manager = CaptureManager()
 
@@ -573,11 +579,15 @@ def _action_to_entity_status(action: str) -> str:
     return {"Allow": "online", "Restrict": "online", "Alert": "alerted",
             "Quarantine": "quarantined", "Block": "blocked"}.get(action, "online")
 
-def _is_private_ip(ip: str) -> bool:
-    import ipaddress
-    try:
-        clean = ip.split("%")[0]
-        addr = ipaddress.ip_address(clean)
-        return bool(addr.is_private or addr.is_link_local or addr.is_loopback)
-    except ValueError:
-        return False
+def _fmt_duration(seconds: float) -> str:
+    if seconds <= 0:
+        return "00:00:00"
+    h = int(seconds // 3600); m = int((seconds % 3600) // 60); s = int(seconds % 60)
+    return f"{h:02d}:{m:02d}:{s:02d}"
+
+def _fmt_bytes(n: int) -> str:
+    if n >= 1_000_000:
+        return f"{n/1_000_000:.1f} MB"
+    if n >= 1_000:
+        return f"{n/1_000:.1f} KB"
+    return f"{n} B"

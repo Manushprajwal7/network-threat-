@@ -1,20 +1,20 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { getNetworkFlows, getCaptureStatus, getTrafficTrend, type NetworkFlow, type CaptureStatus } from '../../../lib/api';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 
 const STATUS_CFG: Record<string, { color: string; bg: string; label: string }> = {
-  allowed:    { color: 'var(--green)',  bg: 'rgba(0,255,157,0.07)',  label: 'ALLOWED' },
-  blocked:    { color: 'var(--red)',    bg: 'rgba(255,45,85,0.07)',  label: 'BLOCKED' },
-  alerted:    { color: 'var(--amber)',  bg: 'rgba(255,176,32,0.07)', label: 'ALERTED' },
-  quarantined:{ color: '#ff8c42',       bg: 'rgba(255,140,66,0.07)', label: 'QUARANTINE' },
-  restricted: { color: 'var(--cyan)',   bg: 'rgba(0,212,255,0.07)',  label: 'RESTRICTED' },
+  allowed:    { color: 'var(--green)',  bg: 'rgba(5,150,105,0.09)',  label: 'ALLOWED' },
+  blocked:    { color: 'var(--red)',    bg: 'rgba(220,38,38,0.09)',  label: 'BLOCKED' },
+  alerted:    { color: 'var(--amber)',  bg: 'rgba(217,119,6,0.09)', label: 'ALERTED' },
+  quarantined:{ color: '#ea6c1a',       bg: 'rgba(255,140,66,0.07)', label: 'QUARANTINE' },
+  restricted: { color: 'var(--cyan)',   bg: 'rgba(2,132,199,0.09)',  label: 'RESTRICTED' },
 };
 
 const PROTO_COLORS: Record<string, string> = {
   TCP: 'var(--cyan)', UDP: 'var(--purple)', ICMP: 'var(--amber)',
-  DNS: 'var(--green)', HTTP: '#ff8c42', HTTPS: '#00d4ff', UNKNOWN: 'var(--text-lo)',
+  DNS: 'var(--green)', HTTP: '#ea6c1a', HTTPS: '#0284c7', UNKNOWN: 'var(--text-lo)',
 };
 
 export default function MonitorPage() {
@@ -82,9 +82,9 @@ export default function MonitorPage() {
         <div className="flex items-center gap-2">
           <div className="tag"
             style={{
-              background: status?.is_running ? 'rgba(0,255,157,0.07)' : 'rgba(255,255,255,0.03)',
+              background: status?.is_running ? 'rgba(5,150,105,0.09)' : 'rgba(0,0,0,0.10)',
               color: status?.is_running ? 'var(--green)' : 'var(--text-lo)',
-              border: `1px solid ${status?.is_running ? 'rgba(0,255,157,0.25)' : 'rgba(255,255,255,0.06)'}`,
+              border: `1px solid ${status?.is_running ? 'rgba(5,150,105,0.28)' : 'rgba(0,0,0,0.20)'}`,
               fontFamily: 'var(--font-display)', fontSize: 9, letterSpacing: '0.1em', padding: '5px 10px',
             }}>
             <span className={`pulse-dot ${status?.is_running ? 'pulse-green' : 'pulse-amber'}`} style={{ width: 4, height: 4 }} />
@@ -102,7 +102,7 @@ export default function MonitorPage() {
           { l: 'Uptime',           v: status?.uptime_seconds ? `${status.uptime_seconds}s` : '—', c: 'var(--amber)' },
         ].map(s => (
           <div key={s.l} className="rounded-xl p-4 bracket-all"
-            style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+            style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)', letterSpacing: '0.12em', marginBottom: 4 }}>{s.l}</div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800, color: s.c, lineHeight: 1 }}>{s.v}</div>
           </div>
@@ -112,7 +112,7 @@ export default function MonitorPage() {
       {/* Traffic trend chart */}
       {trend.length > 0 && (
         <div className="rounded-xl p-4 bracket-all mb-5"
-          style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+          style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
           <div className="card-header mb-3">
             <span className="card-title">Traffic Trend — 12m Rolling Window</span>
           </div>
@@ -120,22 +120,22 @@ export default function MonitorPage() {
             <AreaChart data={trend} margin={{ top: 5, right: 10, left: -30, bottom: 0 }}>
               <defs>
                 <linearGradient id="gNorm" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#00d4ff" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#00d4ff" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#0284c7" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#0284c7" stopOpacity={0}/>
                 </linearGradient>
                 <linearGradient id="gThreat" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#ff2d55" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#ff2d55" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#dc2626" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#dc2626" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <XAxis dataKey="time" tick={{ fontFamily: 'JetBrains Mono', fontSize: 9, fill: '#4a5a6a' }} />
               <YAxis tick={{ fontFamily: 'JetBrains Mono', fontSize: 9, fill: '#4a5a6a' }} />
               <Tooltip
-                contentStyle={{ background: 'rgba(0,8,18,0.95)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: 8, fontFamily: 'JetBrains Mono', fontSize: 11 }}
-                labelStyle={{ color: '#00d4ff' }} itemStyle={{ color: '#8b9aaa' }}
+                contentStyle={{ background: 'rgba(255,255,255,0.96)', border: '1px solid rgba(2,132,199,0.22)', borderRadius: 8, fontFamily: 'JetBrains Mono', fontSize: 11 }}
+                labelStyle={{ color: '#0284c7' }} itemStyle={{ color: '#8b9aaa' }}
               />
-              <Area type="monotone" dataKey="normal" stroke="#00d4ff" strokeWidth={1.5} fill="url(#gNorm)" name="Normal" />
-              <Area type="monotone" dataKey="threats" stroke="#ff2d55" strokeWidth={1.5} fill="url(#gThreat)" name="Threats" />
+              <Area type="monotone" dataKey="normal" stroke="#0284c7" strokeWidth={1.5} fill="url(#gNorm)" name="Normal" />
+              <Area type="monotone" dataKey="threats" stroke="#dc2626" strokeWidth={1.5} fill="url(#gThreat)" name="Threats" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -144,7 +144,7 @@ export default function MonitorPage() {
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-5 mb-5">
         {/* Protocol breakdown */}
         <div className="rounded-xl p-4 bracket-all"
-          style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+          style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
           <div className="card-header mb-3">
             <span className="card-title">Protocol Mix</span>
           </div>
@@ -175,11 +175,11 @@ export default function MonitorPage() {
 
         {/* Flow table */}
         <div className="xl:col-span-3 rounded-xl overflow-hidden bracket-all"
-          style={{ background: 'rgba(3,10,22,0.90)', border: '1px solid var(--border-dim)', backdropFilter: 'blur(16px)' }}>
+          style={{ background: '#ffffff', border: '1px solid #000000', backdropFilter: 'blur(16px)', boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }}>
 
           {/* Filters */}
           <div className="flex flex-wrap items-center gap-2 px-4 py-3"
-            style={{ borderBottom: '1px solid var(--border-dim)', background: 'rgba(0,5,12,0.5)' }}>
+            style={{ borderBottom: '1px solid var(--border-dim)', background: 'rgba(0,0,0,0.05)' }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2">
               <circle cx="12" cy="12" r="2"/>
               <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
@@ -191,9 +191,9 @@ export default function MonitorPage() {
                   className="tag transition-all"
                   style={{
                     fontSize: 9, cursor: 'pointer',
-                    background: filter === s ? 'rgba(0,212,255,0.12)' : 'rgba(255,255,255,0.03)',
+                    background: filter === s ? 'rgba(2,132,199,0.15)' : 'rgba(0,0,0,0.10)',
                     color: filter === s ? 'var(--cyan)' : 'var(--text-lo)',
-                    border: `1px solid ${filter === s ? 'rgba(0,212,255,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                    border: `1px solid ${filter === s ? 'rgba(2,132,199,0.32)' : 'rgba(0,0,0,0.20)'}`,
                   }}>
                   {s.toUpperCase()}
                 </button>
@@ -205,9 +205,9 @@ export default function MonitorPage() {
                   className="tag transition-all"
                   style={{
                     fontSize: 9, cursor: 'pointer',
-                    background: protoFilter === p ? 'rgba(191,95,255,0.12)' : 'rgba(255,255,255,0.03)',
+                    background: protoFilter === p ? 'rgba(124,58,237,0.15)' : 'rgba(0,0,0,0.10)',
                     color: protoFilter === p ? 'var(--purple)' : 'var(--text-lo)',
-                    border: `1px solid ${protoFilter === p ? 'rgba(191,95,255,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                    border: `1px solid ${protoFilter === p ? 'rgba(124,58,237,0.32)' : 'rgba(0,0,0,0.20)'}`,
                   }}>
                   {p.toUpperCase()}
                 </button>
@@ -224,7 +224,7 @@ export default function MonitorPage() {
           ) : (
             <div style={{ maxHeight: 520, overflowY: 'auto', overflowX: 'auto' }}>
               <table className="w-full data-table" style={{ minWidth: 760 }}>
-                <thead style={{ position: 'sticky', top: 0, background: 'rgba(0,5,14,0.98)', zIndex: 2 }}>
+                <thead style={{ position: 'sticky', top: 0, background: 'rgba(0,0,0,0.08)', zIndex: 2 }}>
                   <tr>
                     {['Flow ID','Source IP','Dest IP','Proto','Bytes','Attack Type','Action'].map(h => (
                       <th key={h} className="text-left">{h}</th>
@@ -239,7 +239,7 @@ export default function MonitorPage() {
                       <tr key={flow.id}
                         style={{
                           animation: isNew ? 'data-in 0.3s ease both' : 'none',
-                          background: isNew ? 'rgba(0,212,255,0.025)' : 'transparent',
+                          background: isNew ? 'rgba(2,132,199,0.05)' : 'transparent',
                           opacity: i > 40 ? Math.max(0.3, 1 - (i - 40) * 0.02) : 1,
                         }}>
                         <td style={{ color: 'var(--text-lo)', fontFamily: 'var(--font-mono)', fontSize: 10 }}>
@@ -250,9 +250,9 @@ export default function MonitorPage() {
                         <td style={{ color: 'var(--text-mid)' }}>{flow.dstIP}</td>
                         <td>
                           <span className="tag" style={{
-                            background: 'rgba(255,255,255,0.04)', fontSize: 9,
+                            background: 'rgba(0,0,0,0.12)', fontSize: 9,
                             color: PROTO_COLORS[flow.protocol] ?? 'var(--text-lo)',
-                            border: '1px solid rgba(255,255,255,0.06)',
+                            border: '1px solid rgba(0,0,0,0.20)',
                           }}>
                             {flow.protocol}
                           </span>
@@ -279,7 +279,7 @@ export default function MonitorPage() {
             </div>
           )}
 
-          <div className="flex justify-between px-4 py-2" style={{ borderTop: '1px solid var(--border-dim)', background: 'rgba(0,5,12,0.4)' }}>
+          <div className="flex justify-between px-4 py-2" style={{ borderTop: '1px solid var(--border-dim)', background: 'rgba(0,0,0,0.03)' }}>
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)' }}>
               {filtered.length} of {flows.length} flows shown · 3s refresh
             </span>

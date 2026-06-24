@@ -256,6 +256,7 @@ def _parse_line(line: str) -> Optional[dict]:
             "src_port":      src_port,
             "dst_port":      dst_port,
             "protocol":      protocol,
+            "proto_num":     proto_num,
             "packet_length": _safe_int(parts[_F_FRAMELEN]) or 0,
             "ttl":           _safe_int(parts[_F_TTL]),
             "tcp_flags":     _decode_tcp_flags(flags_raw) if flags_raw else None,

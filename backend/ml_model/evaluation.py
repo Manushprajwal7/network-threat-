@@ -15,9 +15,21 @@ All outputs go to backend/ml_model/reports/
 
 import logging
 import time
+import warnings
 from pathlib import Path
 
 import numpy as np
+
+warnings.filterwarnings(
+    "ignore",
+    message=r".*sklearn\.utils\.parallel\.delayed.*",
+    category=UserWarning,
+)
+warnings.filterwarnings(
+    "ignore",
+    message=r".*make it possible to propagate the scikit-learn configuration.*",
+    category=UserWarning,
+)
 import pandas as pd
 import matplotlib
 matplotlib.use("Agg")

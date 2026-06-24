@@ -1,4 +1,4 @@
-import Sidebar from '../../components/Sidebar';
+﻿import Sidebar from '../../components/Sidebar';
 import TopNavbar from '../../components/TopNavbar';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -7,12 +7,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="fixed inset-0 pointer-events-none z-0">
         <div style={{
           position: 'absolute', top: '15%', left: '30%', width: 600, height: 400,
-          background: 'radial-gradient(ellipse, rgba(0,212,255,0.04) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse, rgba(2,132,199,0.06) 0%, transparent 70%)',
           transform: 'translate(-50%,-50%)',
         }} />
         <div style={{
           position: 'absolute', top: '70%', right: '10%', width: 400, height: 300,
-          background: 'radial-gradient(ellipse, rgba(191,95,255,0.035) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse, rgba(124,58,237,0.05) 0%, transparent 70%)',
         }} />
       </div>
       <Sidebar />

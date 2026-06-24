@@ -31,14 +31,29 @@ research_bp = Blueprint("research", __name__)
 _BASE        = Path(__file__).resolve().parent.parent
 _REPORTS_DIR = _BASE / "ml_model" / "reports"
 
-_MISSING_HINT = "Run: cd backend && python ml_model/train_research_models.py"
+_MISSING_HINT = "Run: cd backend && python ml_model/train_ciciot2023_models.py"
 
 MODEL_DISPLAY = {
     "xgboost_research":       "XGBoost",
     "random_forest_research": "Random Forest",
     "cnn_research":           "CNN",
     "lstm_research":          "LSTM",
+    "random_forest":          "Random Forest",
+    "xgboost":                "XGBoost",
+    "decision_tree":          "Decision Tree",
+    "logistic_regression":    "Logistic Regression",
+    "svm":                    "SVM",
+    "knn":                    "KNN",
+    "naive_bayes":            "Naive Bayes",
 }
+
+
+def _detect_dataset() -> str:
+    """Detect which dataset is currently being used based on available reports."""
+    ciciot_file = _REPORTS_DIR / "model_comparison_ciciot2023.csv"
+    if ciciot_file.exists():
+        return "CICIoT2023"
+    return "CICIDS2017"
 
 
 def _now() -> str:
@@ -83,9 +98,17 @@ def _clean_class_name(name: str) -> str:
 
 @research_bp.route("/api/research/model-comparison", methods=["GET"])
 def model_comparison():
-    rows = _read_csv("model_comparison_research.csv")
+    dataset = _detect_dataset()
+
+    # Try dataset-specific file first, then fallback
+    if dataset == "CICIoT2023":
+        rows = _read_csv("model_comparison_ciciot2023.csv")
+    else:
+        rows = _read_csv("model_comparison_research.csv")
+
     if rows is None:
-        return jsonify({"error": "model_comparison_research.csv not found", "hint": _MISSING_HINT, "models": []}), 404
+        return jsonify({"error": "model_comparison CSV not found", "hint": _MISSING_HINT, "models": []}), 404
+
     rows_sorted = sorted(rows, key=lambda r: float(r.get("macro_f1") or 0), reverse=True)
     for i, row in enumerate(rows_sorted):
         raw_name            = row.get("model_name") or row.get("model", "")
@@ -93,22 +116,47 @@ def model_comparison():
         row["display_name"] = MODEL_DISPLAY.get(raw_name, raw_name)
         row["rank"]         = i + 1
     best = rows_sorted[0] if rows_sorted else {}
+
+    # Dataset-specific metadata
+    dataset_info = {
+        "CICIDS2017": {
+            "num_features": 77,
+            "num_classes": 15,
+            "metric_note": "Macro-F1 and ADR are the primary metrics. Accuracy is inflated by dominant BENIGN class.",
+        },
+        "CICIoT2023": {
+            "num_features": 46,
+            "num_classes": 34,
+            "metric_note": "Macro-F1 and ADR are the primary metrics for threat detection. Balanced accuracy across all 34 IoT attack types.",
+        }
+    }
+    info = dataset_info.get(dataset, dataset_info["CICIoT2023"])
+
     return jsonify({
         "models": rows_sorted, "count": len(rows_sorted),
         "best_model": best.get("display_name"), "best_macro_f1": best.get("macro_f1"),
         "best_adr": best.get("attack_detection_rate"), "best_accuracy": best.get("accuracy"),
-        "split_mode": best.get("split_mode", "temporal"), "dataset": "CICIDS2017",
-        "num_features": 77, "num_classes": 15,
-        "metric_note": "Macro-F1 and ADR are the primary metrics for CICIDS2017. Accuracy is inflated by dominant BENIGN class.",
+        "split_mode": "train/val/test" if dataset == "CICIoT2023" else "temporal",
+        "dataset": dataset,
+        "num_features": info["num_features"],
+        "num_classes": info["num_classes"],
+        "metric_note": info["metric_note"],
         "timestamp": _now(),
     })
 
 
 @research_bp.route("/api/research/per-class-metrics", methods=["GET"])
 def per_class_metrics():
-    rows = _read_csv("per_class_metrics.csv")
+    dataset = _detect_dataset()
+
+    # Try dataset-specific file first
+    if dataset == "CICIoT2023":
+        rows = _read_csv("per_class_metrics_ciciot2023.csv")
+    else:
+        rows = _read_csv("per_class_metrics.csv")
+
     if rows is None:
-        return jsonify({"error": "per_class_metrics.csv not found", "hint": _MISSING_HINT, "classes": []}), 404
+        return jsonify({"error": "per_class_metrics CSV not found", "hint": _MISSING_HINT, "classes": []}), 404
     for row in rows:
         row["class"]        = _clean_class_name(str(row.get("class", "")))
         raw_model           = row.get("model", "")
@@ -139,9 +187,16 @@ def per_class_metrics():
 
 @research_bp.route("/api/research/latency-report", methods=["GET"])
 def latency_report():
-    rows = _read_csv("latency_report.csv")
+    dataset = _detect_dataset()
+
+    # Try dataset-specific file first
+    if dataset == "CICIoT2023":
+        rows = _read_csv("latency_report_ciciot2023.csv")
+    else:
+        rows = _read_csv("latency_report.csv")
+
     if rows is None:
-        return jsonify({"error": "latency_report.csv not found", "hint": _MISSING_HINT, "latency": []}), 404
+        return jsonify({"error": "latency_report CSV not found", "hint": _MISSING_HINT, "latency": []}), 404
     for row in rows:
         raw_model           = row.get("model", "")
         row["display_name"] = MODEL_DISPLAY.get(raw_model, raw_model)
@@ -159,7 +214,14 @@ def latency_report():
 
 @research_bp.route("/api/research/summary", methods=["GET"])
 def research_summary():
-    path = _REPORTS_DIR / "research_summary.txt"
+    dataset = _detect_dataset()
+
+    # Try dataset-specific file first
+    if dataset == "CICIoT2023":
+        path = _REPORTS_DIR / "research_summary_ciciot2023.txt"
+    else:
+        path = _REPORTS_DIR / "research_summary.txt"
+
     if not path.exists():
         return jsonify({"error": "research_summary.txt not found", "hint": _MISSING_HINT, "content": None}), 404
     return jsonify({"content": path.read_text(encoding="utf-8", errors="replace"), "timestamp": _now()})
@@ -167,21 +229,36 @@ def research_summary():
 
 @research_bp.route("/api/research/confusion-matrix/<model_name>", methods=["GET"])
 def confusion_matrix(model_name: str):
+    dataset = _detect_dataset()
+
+    # Map model names (CICIoT2023 uses plain names, old research uses _research suffix)
     name_map = {
         "xgboost": "xgboost_research", "random_forest": "random_forest_research",
         "cnn": "cnn_research", "lstm": "lstm_research",
     }
     internal_name = name_map.get(model_name, model_name)
-    path = _REPORTS_DIR / f"confusion_matrix_{internal_name}.png"
+
+    # Try dataset-specific paths
+    if dataset == "CICIoT2023":
+        # CICIoT2023 has a per-model confusion matrix file
+        internal_name = model_name
+        path = _REPORTS_DIR / f"confusion_matrix_{model_name}_ciciot2023.png"
+        if not path.exists():
+            path = _REPORTS_DIR / "confusion_matrix_ciciot2023.png"
+    else:
+        path = _REPORTS_DIR / f"confusion_matrix_{internal_name}.png"
+
     if not path.exists():
+        # Fallback to generic confusion_matrix.png
         fallback = _REPORTS_DIR / "confusion_matrix.png"
         if fallback.exists():
             path = fallback
             internal_name = "random_forest"
         else:
             return jsonify({"available": False, "model": model_name, "hint": _MISSING_HINT, "image_base64": None}), 404
+
     data = path.read_bytes()
-    b64  = base64.b64encode(data).decode("ascii")
+    b64 = base64.b64encode(data).decode("ascii")
     return jsonify({
         "available": True, "model": internal_name,
         "display_name": MODEL_DISPLAY.get(internal_name, internal_name),
@@ -191,6 +268,18 @@ def confusion_matrix(model_name: str):
 
 @research_bp.route("/api/research/confusion-matrix-list", methods=["GET"])
 def confusion_matrix_list():
+    dataset = _detect_dataset()
+    if dataset == "CICIoT2023":
+        models = ["xgboost", "random_forest", "decision_tree",
+                  "logistic_regression", "svm", "knn", "naive_bayes"]
+        result = []
+        for m in models:
+            path = _REPORTS_DIR / f"confusion_matrix_{m}_ciciot2023.png"
+            result.append({"model": m, "display_name": MODEL_DISPLAY.get(m, m),
+                           "available": path.exists(),
+                           "size_bytes": path.stat().st_size if path.exists() else 0})
+        return jsonify({"matrices": result, "timestamp": _now()})
+
     models = ["xgboost_research", "random_forest_research", "cnn_research", "lstm_research"]
     result = []
     for m in models:
@@ -210,34 +299,58 @@ def leakage_report():
 
 @research_bp.route("/api/research/export/model-comparison-csv", methods=["GET"])
 def export_model_comparison_csv():
-    path = _REPORTS_DIR / "model_comparison_research.csv"
+    dataset = _detect_dataset()
+
+    if dataset == "CICIoT2023":
+        path = _REPORTS_DIR / "model_comparison_ciciot2023.csv"
+        filename = "model_comparison_ciciot2023.csv"
+    else:
+        path = _REPORTS_DIR / "model_comparison_research.csv"
+        filename = "model_comparison_research_CICIDS2017.csv"
+
     if not path.exists():
         return jsonify({"error": "File not found", "hint": _MISSING_HINT}), 404
     resp = make_response(path.read_text(encoding="utf-8"))
     resp.headers["Content-Type"]        = "text/csv"
-    resp.headers["Content-Disposition"] = "attachment; filename=model_comparison_research_CICIDS2017.csv"
+    resp.headers["Content-Disposition"] = f"attachment; filename={filename}"
     return resp
 
 
 @research_bp.route("/api/research/export/per-class-csv", methods=["GET"])
 def export_per_class_csv():
-    path = _REPORTS_DIR / "per_class_metrics.csv"
+    dataset = _detect_dataset()
+
+    if dataset == "CICIoT2023":
+        path = _REPORTS_DIR / "per_class_metrics_ciciot2023.csv"
+        filename = "per_class_metrics_ciciot2023.csv"
+    else:
+        path = _REPORTS_DIR / "per_class_metrics.csv"
+        filename = "per_class_metrics_CICIDS2017.csv"
+
     if not path.exists():
         return jsonify({"error": "File not found", "hint": _MISSING_HINT}), 404
     resp = make_response(path.read_text(encoding="utf-8"))
     resp.headers["Content-Type"]        = "text/csv"
-    resp.headers["Content-Disposition"] = "attachment; filename=per_class_metrics_CICIDS2017.csv"
+    resp.headers["Content-Disposition"] = f"attachment; filename={filename}"
     return resp
 
 
 @research_bp.route("/api/research/export/summary-txt", methods=["GET"])
 def export_summary_txt():
-    path = _REPORTS_DIR / "research_summary.txt"
+    dataset = _detect_dataset()
+
+    if dataset == "CICIoT2023":
+        path = _REPORTS_DIR / "research_summary_ciciot2023.txt"
+        filename = "research_summary_ciciot2023.txt"
+    else:
+        path = _REPORTS_DIR / "research_summary.txt"
+        filename = "research_summary_CICIDS2017.txt"
+
     if not path.exists():
         return jsonify({"error": "File not found", "hint": _MISSING_HINT}), 404
     resp = make_response(path.read_text(encoding="utf-8"))
     resp.headers["Content-Type"]        = "text/plain"
-    resp.headers["Content-Disposition"] = "attachment; filename=research_summary_CICIDS2017.txt"
+    resp.headers["Content-Disposition"] = f"attachment; filename={filename}"
     return resp
 
 
@@ -255,3 +368,50 @@ def export_confusion_matrix_png(model_name: str):
     resp.headers["Content-Type"]        = "image/png"
     resp.headers["Content-Disposition"] = f"attachment; filename=confusion_matrix_{internal_name}.png"
     return resp
+
+
+@research_bp.route("/api/research/feature-importance", methods=["GET"])
+def feature_importance():
+    import joblib
+    saved_models_dir = _BASE / "ml_model" / "saved_models"
+    feature_cols_path = saved_models_dir / "feature_columns.pkl"
+
+    feature_names = None
+    if feature_cols_path.exists():
+        try:
+            feature_names = joblib.load(feature_cols_path)
+            if hasattr(feature_names, "tolist"):
+                feature_names = feature_names.tolist()
+        except Exception as e:
+            log.warning("Could not load feature_columns.pkl: %s", e)
+
+    result = []
+    for model_key in ("xgboost", "random_forest", "xgboost_research", "random_forest_research"):
+        path = saved_models_dir / f"{model_key}.pkl"
+        if not path.exists():
+            continue
+        try:
+            model = joblib.load(path)
+            if not hasattr(model, "feature_importances_"):
+                continue
+            importances = model.feature_importances_
+            names = feature_names if feature_names is not None else [f"Feature_{i}" for i in range(len(importances))]
+            pairs = sorted(enumerate(importances), key=lambda x: x[1], reverse=True)
+            top20 = [
+                {"rank": rank + 1, "name": names[idx] if idx < len(names) else f"Feature_{idx}",
+                 "importance": round(float(val), 6), "pct": round(float(val) * 100, 3)}
+                for rank, (idx, val) in enumerate(pairs[:20])
+            ]
+            result.append({
+                "model": model_key,
+                "display_name": MODEL_DISPLAY.get(model_key, model_key),
+                "top20": top20,
+                "total_features": len(importances),
+            })
+        except Exception as e:
+            log.warning("Feature importance extraction failed for %s: %s", model_key, e)
+
+    if not result:
+        return jsonify({"error": "Could not extract feature importances. Ensure models are trained.", "hint": _MISSING_HINT, "models": []}), 404
+
+    return jsonify({"models": result, "count": len(result), "timestamp": _now()})
