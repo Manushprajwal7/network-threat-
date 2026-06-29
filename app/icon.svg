@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="NetShield">
+  <defs>
+    <linearGradient id="shield" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0ea5e9"/>
+      <stop offset="1" stop-color="#0369a1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Shield body -->
+  <path d="M32 3 L56 12 V31 C56 47 45 56 32 61 C19 56 8 47 8 31 V12 Z"
+        fill="url(#shield)" stroke="#04263b" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- Network edges -->
+  <g stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" opacity="0.92">
+    <line x1="32" y1="23" x2="21" y2="40"/>
+    <line x1="32" y1="23" x2="43" y2="40"/>
+    <line x1="21" y1="40" x2="43" y2="40"/>
+  </g>
+
+  <!-- Network nodes -->
+  <g fill="#ffffff">
+    <circle cx="32" cy="23" r="5.4"/>
+    <circle cx="21" cy="40" r="4.8"/>
+    <circle cx="43" cy="40" r="4.8"/>
+  </g>
+  <circle cx="32" cy="23" r="2.3" fill="#0369a1"/>
+</svg>

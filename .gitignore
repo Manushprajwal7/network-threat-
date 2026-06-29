@@ -36,6 +36,14 @@ yarn-error.log*
 # vercel
 .vercel
 
+# python
+__pycache__/
+*.py[cod]
+
+# ml training caches (intermediate artifacts, can be large)
+backend/ml_model/saved_models/_deep_cache/
+backend/ml_model/saved_models/_unknown_cache/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

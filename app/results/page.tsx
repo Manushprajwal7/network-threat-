@@ -73,7 +73,7 @@ export default function ResultsPage() {
 
   return (
     <div style={{ display: 'flex', gap: 0, maxWidth: '100%' }}>
-      <aside style={{
+      <aside className="no-print" style={{
         position: 'sticky', top: 0, height: '100vh', overflowY: 'auto',
         width: 200, flexShrink: 0, padding: '24px 0',
         background: '#f8fafc', borderRight: '1px solid #e2e8f0',
@@ -94,7 +94,7 @@ export default function ResultsPage() {
         ))}
       </aside>
 
-      <main style={{ flex: 1, minWidth: 0, padding: '32px 28px', overflowX: 'hidden' }}>
+      <main id="report-content" style={{ flex: 1, minWidth: 0, padding: '32px 28px', overflowX: 'hidden' }}>
         <div style={{ marginBottom: 36 }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--cyan)', letterSpacing: '.18em', marginBottom: 8 }}>
             RESULTS &amp; DISCUSSION — CICIoT2023 — TRAIN/VAL/TEST SPLIT
@@ -123,7 +123,7 @@ export default function ResultsPage() {
         <S12ConfusionMatrix mxData={mxData} mxTab={mxTab} setMxTab={setMxTab} mxBusy={mxBusy} />
         <S13Findings />
         <S14Contributions />
-        <S15Export exportUrls={researchExportUrls} cmp={cmp} />
+        <S15Export exportUrls={researchExportUrls} cmp={cmp} pc={pc} lat={lat} feat={feat} />
       </main>
     </div>
   );

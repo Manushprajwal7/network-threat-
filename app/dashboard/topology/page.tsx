@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { getTopology, getNetworks, getNetworkTopology, getRiskyNodes, getCaptureStatus, type TopologyNode, type TopologyEdge, type RiskyNode, type NetworkInfo } from '../../../lib/api';
+import { getTopology, getNetworks, getRiskyNodes, getCaptureStatus, type TopologyNode, type TopologyEdge, type RiskyNode, type NetworkInfo } from '../../../lib/api';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -25,6 +25,29 @@ function protoColor(protocols: string[]) {
 }
 function nodeR(n: PhysNode) {
   return Math.max(9, Math.min(28, 9 + Math.log10(n.packet_count + 1) * 7));
+}
+
+// ── CIDR helper (IPv4 only) ────────────────────────────────────────────────────
+
+function ipInCidr(ip: string, cidr: string): boolean {
+  try {
+    const clean = ip.split('%')[0];
+    const [range, bitsStr] = cidr.split('/');
+    const bits = bitsStr !== undefined ? parseInt(bitsStr, 10) : 32;
+    const toNum = (s: string) => s.split('.').reduce((acc, b) => (acc * 256) + parseInt(b, 10), 0);
+    if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(clean) || !/^\d{1,3}(\.\d{1,3}){3}$/.test(range)) return false;
+    if (bits === 0) return true;
+    const mask = bits === 32 ? 0xFFFFFFFF : ~(0xFFFFFFFF >>> bits) >>> 0;
+    return (toNum(clean) & mask) === (toNum(range) & mask);
+  } catch { return false; }
+}
+
+// Derive the /24 subnet a (IPv4) node belongs to, e.g. "10.0.0.7" → "10.0.0.0/24".
+// Returns null for non-IPv4 IDs (IPv6, hostnames) so they can be grouped separately.
+function ipv4Slash24(ip: string): string | null {
+  const clean = ip.split('%')[0];
+  const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.\d{1,3}$/.exec(clean);
+  return m ? `${m[1]}.${m[2]}.${m[3]}.0/24` : null;
 }
 
 // ── Physics ───────────────────────────────────────────────────────────────────
@@ -74,7 +97,7 @@ function mergeNodes(prev: PhysNode[], fresh: TopologyNode[], W: number, H: numbe
 
 // ── SVG-only tooltip (avoids foreignObject issues) ────────────────────────────
 
-const LABEL_COL = 'rgba(168,194,222,0.80)';   // light label text for the dark canvas
+const LABEL_COL = 'rgba(71,85,105,0.95)';   // dark slate label text for the light canvas
 
 function NodeTooltip({ node, W, H }: { node: PhysNode; W: number; H: number }) {
   const col = RISK_COL[node.risk_level] ?? '#059669';
@@ -86,16 +109,16 @@ function NodeTooltip({ node, W, H }: { node: PhysNode; W: number; H: number }) {
 
   const rows: Array<{ label: string; value: string; color: string }> = [
     { label: 'IP', value: shortIp(node.id), color: col },
-    { label: 'Scope', value: node.is_local ? 'LOCAL' : 'EXTERNAL', color: node.is_local ? '#0284c7' : '#9966cc' },
+    { label: 'Scope', value: node.is_local ? 'LOCAL' : 'EXTERNAL', color: node.is_local ? '#0284c7' : '#7c3aed' },
     { label: 'Sent', value: sent.toLocaleString(), color: '#0284c7' },
     { label: 'Received', value: recv.toLocaleString(), color: '#0284c7' },
-    { label: 'Threats', value: node.threat_count.toString(), color: node.threat_count > 0 ? '#ff5577' : LABEL_COL },
-    { label: 'Trust', value: `${node.trust_score}%`, color: node.trust_score >= 80 ? '#22c79b' : node.trust_score >= 50 ? '#f0a73a' : '#ff5577' },
+    { label: 'Threats', value: node.threat_count.toString(), color: node.threat_count > 0 ? '#dc2626' : LABEL_COL },
+    { label: 'Trust', value: `${node.trust_score}%`, color: node.trust_score >= 80 ? '#059669' : node.trust_score >= 50 ? '#d97706' : '#dc2626' },
     { label: 'Risk', value: node.risk_level, color: col },
     { label: 'Status', value: (node.status ?? 'active').toUpperCase(), color: statusColor(node.status) },
   ];
-  if (topAttack) rows.push({ label: 'Attack', value: topAttack, color: '#ff8c42' });
-  node.protocols.slice(0, 2).forEach(p => rows.push({ label: 'Proto', value: p, color: PROTO_COL[p] ?? '#aab' }));
+  if (topAttack) rows.push({ label: 'Attack', value: topAttack, color: '#ea580c' });
+  node.protocols.slice(0, 2).forEach(p => rows.push({ label: 'Proto', value: p, color: PROTO_COL[p] ?? '#64748b' }));
 
   const tipW = 232, lineH = 16, padTop = 14;
   const tipH = padTop + rows.length * lineH + 6;
@@ -105,7 +128,7 @@ function NodeTooltip({ node, W, H }: { node: PhysNode; W: number; H: number }) {
   return (
     <g style={{ pointerEvents: 'none' }}>
       <rect x={tx} y={ty} width={tipW} height={tipH} rx={8}
-        fill="rgba(2,8,20,0.97)" stroke={`${col}66`} strokeWidth={1}/>
+        fill="rgba(255,255,255,0.98)" stroke={`${col}88`} strokeWidth={1.25}/>
       {rows.map((row, i) => (
         <g key={i}>
           <text x={tx + 11} y={ty + padTop + 2 + i * lineH}
@@ -128,11 +151,11 @@ function shortIp(ip: string) {
 }
 function statusColor(status?: string) {
   switch (status) {
-    case 'blocked':      return '#ff5577';
-    case 'quarantined':  return '#bf5fff';
-    case 'alerted':      return '#f0a73a';
-    case 'restricted':   return '#f0a73a';
-    default:             return '#22c79b';
+    case 'blocked':      return '#dc2626';
+    case 'quarantined':  return '#7c3aed';
+    case 'alerted':      return '#d97706';
+    case 'restricted':   return '#d97706';
+    default:             return '#059669';
   }
 }
 
@@ -193,25 +216,70 @@ export default function TopologyPage() {
   const [loading,      setLoading]      = useState(true);
   const [riskyNodes,   setRiskyNodes]   = useState<RiskyNode[]>([]);
   const [networks,     setNetworks]     = useState<NetworkInfo[]>([]);
-  const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
 
-  // Fetch networks on mount
+  // Network + subnet selection state — both default to "All" (user picks explicitly).
+  const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);  // null = All Networks
+  const [activeSubnet,    setActiveSubnet]    = useState('');                     // '' = All Subnets
+
+  const selectedNetworkInfo = networks.find(n => n.id === selectedNetwork) ?? null;
+
+  // Annotate each configured network with how many *live* nodes actually fall in
+  // it, so the user never picks an empty network and blanks the map.
+  const networksWithCounts = networks.map(net => ({
+    ...net,
+    count: displayNodes.filter(n => ipInCidr(n.id, net.subnet)).length,
+  }));
+
+  // Subnets the user can pick from are derived from the ACTUAL nodes present
+  // (their /24 buckets), not from static config — guaranteeing every option has
+  // nodes. When a network is selected, only show /24s that fall within it.
+  const availableSubnets = (() => {
+    const counts = new Map<string, number>();
+    for (const n of displayNodes) {
+      if (selectedNetworkInfo && !ipInCidr(n.id, selectedNetworkInfo.subnet)) continue;
+      const s = ipv4Slash24(n.id);
+      if (s) counts.set(s, (counts.get(s) ?? 0) + 1);
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([subnet, count]) => ({
+        subnet,
+        label: `${subnet} · ${count} node${count === 1 ? '' : 's'}`,
+      }));
+  })();
+
+  // Picking a network does NOT auto-apply a subnet — it just narrows the subnet
+  // options and clears any previously chosen subnet so the user selects again.
+  function handleNetworkChange(netId: string | null) {
+    setSelectedNetwork(netId);
+    setActiveSubnet('');
+  }
+
+  // User explicitly selects the subnet to filter by ('' = All Subnets).
+  function handleSubnetChange(cidr: string) {
+    setActiveSubnet(cidr);
+  }
+
+  // Clear back to "All Networks, All Subnets".
+  function clearFilters() {
+    setSelectedNetwork(null);
+    setActiveSubnet('');
+  }
+
+  // Fetch networks on mount — default is "All Networks" (null)
   useEffect(() => {
     getNetworks().then(data => {
       setNetworks(data.networks);
-      if (data.networks.length > 0) setSelectedNetwork(data.networks[0].id);
     }).catch(() => {
       setNetworks([]);
-      setSelectedNetwork(null);
     });
   }, []);
 
-  // stable — no state/dims deps, reads dims via ref
+  // Always fetch ALL topology — filtering is done client-side via activeSubnet
   const fetchData = useCallback(async () => {
     try {
-      const topoPromise = selectedNetwork ? getNetworkTopology(selectedNetwork) : getTopology();
       const [topo, status, risky] = await Promise.all([
-        topoPromise, getCaptureStatus(), getRiskyNodes().catch(() => null),
+        getTopology(), getCaptureStatus(), getRiskyNodes().catch(() => null),
       ]);
       setFetchError(null);
       setCapturing(status.is_running);
@@ -229,7 +297,7 @@ export default function TopologyPage() {
     } finally {
       setLoading(false);
     }
-  }, [selectedNetwork]); // stable — empty deps
+  }, []); // no deps — always fetches all topology
 
   useEffect(() => {
     fetchData();
@@ -247,7 +315,12 @@ export default function TopologyPage() {
   const [filterRisk,    setFilterRisk]    = useState('all');
   const [showExternal, setShowExternal]  = useState(true);
 
+  // Effective CIDR to filter by: an explicitly chosen subnet wins; otherwise
+  // fall back to the selected network's own subnet. Empty = no spatial filter.
+  const filterCidr = activeSubnet || selectedNetworkInfo?.subnet || '';
+
   const visibleNodes = displayNodes.filter(n => {
+    if (filterCidr && !ipInCidr(n.id, filterCidr)) return false;
     if (!showExternal && !n.is_local) return false;
     if (filterRisk !== 'all' && n.risk_level !== filterRisk) return false;
     return true;
@@ -297,38 +370,145 @@ export default function TopologyPage() {
         </div>
       </div>
 
-      {/* Network selector */}
-      {networks.length > 0 && (
-        <div className="mb-4">
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)', letterSpacing: '0.1em', marginBottom: 8 }}>
-            SELECT NETWORK
+      {/* Network & Subnet Selector Panel */}
+      <div className="rounded-xl mb-4 p-4"
+        style={{ background: 'rgba(255,255,255,0.97)', border: '1px solid #000000', boxShadow: '0 1px 4px rgba(0,0,0,0.12)' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-lo)',
+          letterSpacing: '0.12em', marginBottom: 12 }}>
+          NETWORK &amp; SUBNET FILTER
+        </div>
+        <div className="flex flex-wrap items-end gap-4">
+
+          {/* Network dropdown */}
+          <div style={{ flex: '1 1 200px', minWidth: 180 }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)',
+              letterSpacing: '0.1em', marginBottom: 5 }}>NETWORK</div>
+            <select
+              value={selectedNetwork ?? ''}
+              onChange={e => handleNetworkChange(e.target.value || null)}
+              style={{
+                width: '100%',
+                fontFamily: 'var(--font-ui)', fontSize: 12,
+                padding: '8px 12px', borderRadius: 8,
+                background: 'rgba(2,132,199,0.06)',
+                border: '1px solid rgba(2,132,199,0.30)',
+                color: 'var(--text-hi)',
+                cursor: 'pointer', outline: 'none',
+                appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%230284c7' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 10px center',
+                paddingRight: 32,
+              }}
+            >
+              <option value="">All Networks (unfiltered)</option>
+              {networksWithCounts.map(net => (
+                <option key={net.id} value={net.id} disabled={net.count === 0}>
+                  {net.name} · {net.count} node{net.count === 1 ? '' : 's'}
+                  {net.count === 0 ? ' (none live)' : ''}
+                </option>
+              ))}
+            </select>
+            {selectedNetworkInfo && (
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)', marginTop: 4 }}>
+                {selectedNetworkInfo.description} · {selectedNetworkInfo.type}
+              </div>
+            )}
           </div>
-          <div className="flex flex-wrap gap-2">
-            {networks.map(net => (
+
+          {/* Subnet dropdown */}
+          <div style={{ flex: '1 1 200px', minWidth: 180 }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)',
+              letterSpacing: '0.1em', marginBottom: 5 }}>SUBNET</div>
+            <select
+              value={activeSubnet}
+              onChange={e => handleSubnetChange(e.target.value)}
+              style={{
+                width: '100%',
+                fontFamily: 'var(--font-mono)', fontSize: 11,
+                padding: '8px 12px', borderRadius: 8,
+                background: 'rgba(2,132,199,0.06)',
+                border: '1px solid rgba(2,132,199,0.30)',
+                color: 'var(--text-hi)',
+                cursor: 'pointer', outline: 'none',
+                appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%230284c7' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 10px center',
+                paddingRight: 32,
+              }}
+            >
+              <option value="">All Subnets</option>
+              {availableSubnets.map(s => (
+                <option key={s.subnet} value={s.subnet}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)', marginTop: 4 }}>
+              {filterCidr
+                ? `${visibleNodes.length} node${visibleNodes.length === 1 ? '' : 's'} in ${filterCidr}`
+                : 'No subnet filter — showing all nodes'}
+            </div>
+          </div>
+
+          {/* Clear button */}
+          <div className="flex gap-2" style={{ paddingBottom: 22 }}>
+            <button
+              onClick={clearFilters}
+              disabled={selectedNetwork === null && activeSubnet === ''}
+              style={{
+                fontFamily: 'var(--font-display)', fontSize: 9, letterSpacing: '0.1em',
+                padding: '8px 14px', borderRadius: 7,
+                cursor: selectedNetwork === null && activeSubnet === '' ? 'default' : 'pointer',
+                opacity: selectedNetwork === null && activeSubnet === '' ? 0.45 : 1,
+                background: 'rgba(0,0,0,0.05)', border: '1px solid var(--border-dim)',
+                color: 'var(--text-lo)',
+              }}
+            >
+              CLEAR
+            </button>
+          </div>
+        </div>
+
+        {/* Network quick-select chips */}
+        {networks.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-3" style={{ borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: 10 }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 8, color: 'var(--text-lo)',
+              letterSpacing: '0.1em', alignSelf: 'center' }}>QUICK SELECT:</span>
+            <button
+              onClick={() => handleNetworkChange(null)}
+              style={{
+                fontFamily: 'var(--font-mono)', fontSize: 8, padding: '3px 9px', borderRadius: 5,
+                cursor: 'pointer', transition: 'all 0.15s',
+                background: selectedNetwork === null ? 'rgba(2,132,199,0.12)' : 'transparent',
+                border: `1px solid ${selectedNetwork === null ? 'rgba(2,132,199,0.40)' : 'var(--border-dim)'}`,
+                color: selectedNetwork === null ? 'var(--cyan)' : 'var(--text-lo)',
+              }}
+            >
+              ALL
+            </button>
+            {networksWithCounts.map(net => (
               <button
                 key={net.id}
-                onClick={() => {
-                  setSelectedNetwork(net.id);
-                  setLoading(true);
-                }}
+                onClick={() => net.count > 0 && handleNetworkChange(net.id)}
+                disabled={net.count === 0}
                 style={{
-                  fontFamily: 'var(--font-ui)', fontSize: 11,
-                  padding: '8px 14px', borderRadius: 8, cursor: 'pointer',
-                  background: selectedNetwork === net.id ? 'rgba(2,132,199,0.15)' : 'rgba(0,0,0,0.10)',
+                  fontFamily: 'var(--font-mono)', fontSize: 8, padding: '3px 9px', borderRadius: 5,
+                  cursor: net.count === 0 ? 'not-allowed' : 'pointer', transition: 'all 0.15s',
+                  opacity: net.count === 0 ? 0.4 : 1,
+                  background: selectedNetwork === net.id ? 'rgba(2,132,199,0.12)' : 'transparent',
                   border: `1px solid ${selectedNetwork === net.id ? 'rgba(2,132,199,0.40)' : 'var(--border-dim)'}`,
-                  color: selectedNetwork === net.id ? 'var(--cyan)' : 'var(--text-mid)',
-                  transition: 'all 0.2s',
+                  color: selectedNetwork === net.id ? 'var(--cyan)' : 'var(--text-lo)',
                 }}
+                title={`${net.subnet} · ${net.count} live node${net.count === 1 ? '' : 's'}`}
               >
-                <div style={{ fontWeight: 600 }}>{net.name}</div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, opacity: 0.7 }}>
-                  {net.subnet}
-                </div>
+                {net.name} ({net.count})
               </button>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Error banner */}
       {fetchError && (
@@ -401,8 +581,9 @@ export default function TopologyPage() {
           ref={containerRef}
           className="flex-1 rounded-xl relative"
           style={{
-            background: 'rgba(0,4,12,0.97)',
+            background: 'linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%)',
             border: '1px solid #000000',
+            boxShadow: 'inset 0 1px 6px rgba(15,23,42,0.06)',
             minHeight: 560,
             overflow: 'hidden',
           }}>
@@ -410,37 +591,69 @@ export default function TopologyPage() {
           {/* Grid background */}
           <div className="absolute inset-0 pointer-events-none" style={{
             backgroundImage:
-              'linear-gradient(rgba(2,132,199,0.05) 1px, transparent 1px),' +
-              'linear-gradient(90deg, rgba(2,132,199,0.05) 1px, transparent 1px)',
+              'linear-gradient(rgba(2,132,199,0.08) 1px, transparent 1px),' +
+              'linear-gradient(90deg, rgba(2,132,199,0.08) 1px, transparent 1px)',
             backgroundSize: '40px 40px',
           }} />
 
-          {/* Empty / loading overlay */}
-          {(loading || displayNodes.length === 0) && (
+          {/* Empty / loading overlay — only shown when there are no nodes to render */}
+          {displayNodes.length === 0 && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3"
               style={{ pointerEvents: 'none' }}>
-              {loading ? (
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-lo)' }}>
-                  Loading topology…
-                </div>
-              ) : (
-                <>
-                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none"
-                    stroke="rgba(2,132,199,0.28)" strokeWidth="1">
-                    <circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/>
-                    <circle cx="19" cy="19" r="3"/>
-                    <line x1="12" y1="8" x2="7" y2="16"/>
-                    <line x1="12" y1="8" x2="17" y2="16"/>
-                  </svg>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-lo)', textAlign: 'center' }}>
-                    {fetchError
-                      ? 'API error — see banner above'
-                      : capturing
-                        ? 'Building topology from live traffic…'
-                        : 'Start packet capture to build the graph'}
-                  </div>
-                </>
-              )}
+              <svg width="44" height="44" viewBox="0 0 24 24" fill="none"
+                stroke="rgba(2,132,199,0.28)" strokeWidth="1">
+                <circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/>
+                <circle cx="19" cy="19" r="3"/>
+                <line x1="12" y1="8" x2="7" y2="16"/>
+                <line x1="12" y1="8" x2="17" y2="16"/>
+              </svg>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-lo)', textAlign: 'center', lineHeight: 1.7 }}>
+                {loading
+                  ? 'Loading topology…'
+                  : fetchError
+                    ? 'API error — see banner above'
+                    : capturing
+                      ? 'Building topology from live traffic…'
+                      : <>
+                          No nodes detected yet.<br/>
+                          <span style={{ fontSize: 10, opacity: 0.7 }}>
+                            Start live capture or run a simulation to generate traffic.
+                          </span>
+                        </>}
+              </div>
+            </div>
+          )}
+
+          {/* Filter matched nothing — distinct from "no data at all" so the user
+              understands the blank canvas is a filter, not a broken graph. */}
+          {displayNodes.length > 0 && visibleNodes.length === 0 && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3"
+              style={{ pointerEvents: 'none' }}>
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                stroke="rgba(217,119,6,0.55)" strokeWidth="1.4">
+                <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/>
+                <line x1="8" y1="11" x2="14" y2="11"/>
+              </svg>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-mid)',
+                textAlign: 'center', lineHeight: 1.7 }}>
+                No nodes match this filter.<br/>
+                <span style={{ fontSize: 10, color: 'var(--text-lo)' }}>
+                  {filterCidr
+                    ? `Nothing in ${filterCidr}${filterRisk !== 'all' ? ` at ${filterRisk} risk` : ''}.`
+                    : 'Adjust the risk / external filters.'}
+                </span>
+              </div>
+              <button
+                onClick={() => { clearFilters(); setFilterRisk('all'); setShowExternal(true); }}
+                style={{
+                  pointerEvents: 'auto',
+                  fontFamily: 'var(--font-display)', fontSize: 9, letterSpacing: '0.1em',
+                  padding: '6px 14px', borderRadius: 7, cursor: 'pointer',
+                  background: 'rgba(2,132,199,0.08)', border: '1px solid rgba(2,132,199,0.30)',
+                  color: 'var(--cyan)',
+                }}>
+                CLEAR FILTERS
+              </button>
             </div>
           )}
 
@@ -461,7 +674,7 @@ export default function TopologyPage() {
               {/* Directional arrowheads (src → dst) */}
               <marker id="arrow-normal" viewBox="0 0 10 10" refX="9" refY="5"
                 markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                <path d="M0,0 L10,5 L0,10 z" fill="rgba(140,160,210,0.85)" />
+                <path d="M0,0 L10,5 L0,10 z" fill="rgba(71,85,105,0.85)" />
               </marker>
               <marker id="arrow-threat" viewBox="0 0 10 10" refX="9" refY="5"
                 markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
@@ -490,7 +703,7 @@ export default function TopologyPage() {
                   x1={x1} y1={y1} x2={x2} y2={y2}
                   stroke={col}
                   strokeWidth={lit ? sw + 1.5 : sw}
-                  strokeOpacity={lit ? 1 : 0.32}
+                  strokeOpacity={lit ? 1 : 0.45}
                   strokeDasharray={e.has_threat ? '5 4' : '4 9'}
                   strokeDashoffset={dashOffset}
                   markerEnd={`url(#${e.has_threat ? 'arrow-threat' : 'arrow-normal'})`}
@@ -537,10 +750,10 @@ export default function TopologyPage() {
 
                   {/* Body */}
                   <circle cx={node.x} cy={node.y} r={r}
-                    fill={`${col}${node.is_local ? '20' : '10'}`}
+                    fill={`${col}${node.is_local ? '26' : '14'}`}
                     stroke={col}
                     strokeWidth={lit ? 2.5 : 1.5}
-                    strokeOpacity={lit ? 1 : 0.65}
+                    strokeOpacity={lit ? 1 : 0.8}
                     filter={lit || node.threat_count > 0 ? `url(#g-${node.risk_level})` : undefined}
                   />
 
@@ -552,7 +765,7 @@ export default function TopologyPage() {
                   {node.threat_count > 0 && (
                     <g>
                       <circle cx={node.x + r * 0.68} cy={node.y - r * 0.68} r={5.5}
-                        fill="#dc2626" stroke="rgba(0,4,12,0.9)" strokeWidth={1.5}/>
+                        fill="#dc2626" stroke="rgba(255,255,255,0.95)" strokeWidth={1.5}/>
                       <text x={node.x + r * 0.68} y={node.y - r * 0.68 + 4}
                         textAnchor="middle"
                         style={{ fill: '#fff', fontFamily: 'monospace', fontSize: 7, fontWeight: 700,
@@ -567,13 +780,13 @@ export default function TopologyPage() {
                     <text x={node.x} y={node.y + r + 13}
                       textAnchor="middle"
                       style={{
-                        fill: lit ? col : 'rgba(186,206,230,0.78)',
+                        fill: lit ? col : 'rgba(51,65,85,0.92)',
                         fontFamily: 'monospace',
                         fontSize: lit ? 10 : 8,
-                        fontWeight: lit ? 700 : 400,
+                        fontWeight: lit ? 700 : 500,
                         paintOrder: 'stroke',
-                        stroke: 'rgba(0,4,12,0.85)',
-                        strokeWidth: 2.4,
+                        stroke: 'rgba(255,255,255,0.92)',
+                        strokeWidth: 2.6,
                         pointerEvents: 'none',
                       }}>
                       {node.id.length > 20
@@ -594,7 +807,7 @@ export default function TopologyPage() {
           {/* Watermark */}
           <div className="absolute bottom-2 left-3" style={{
             fontFamily: 'monospace', fontSize: 8,
-            color: 'rgba(2,132,199,0.18)', pointerEvents: 'none', letterSpacing: '0.1em',
+            color: 'rgba(2,132,199,0.30)', pointerEvents: 'none', letterSpacing: '0.1em',
           }}>
             NETSHIELD · FORCE GRAPH
           </div>

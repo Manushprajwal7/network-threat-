@@ -141,6 +141,26 @@ def train_xgboost(X_train: np.ndarray, y_train: np.ndarray,
             "y_test": y_test, "train_time": train_time, "pred_time": pred_t}
 
 
+# ── Training-history persistence ───────────────────────────────────────────────
+
+def _save_history(model_key: str, history) -> None:
+    """Persist Keras per-epoch training history (accuracy/loss) to JSON so the
+    research UI / paper figures can plot real learning curves."""
+    import json
+    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    # history.history maps metric name -> list of per-epoch floats
+    hist = {k: [float(v) for v in vals] for k, vals in history.history.items()}
+    out = {
+        "model": model_key,
+        "epochs": len(next(iter(hist.values()))) if hist else 0,
+        "history": hist,
+    }
+    path = REPORTS_DIR / f"training_history_{model_key}.json"
+    with open(path, "w") as f:
+        json.dump(out, f, indent=2)
+    log.info(f"  Saved training history → {path}")
+
+
 # ── CNN ───────────────────────────────────────────────────────────────────────
 
 def train_cnn(X_train: np.ndarray, y_train: np.ndarray,
@@ -188,7 +208,7 @@ def train_cnn(X_train: np.ndarray, y_train: np.ndarray,
     ]
 
     t0 = time.perf_counter()
-    model.fit(
+    history = model.fit(
         X_tr_3d, y_train,
         epochs          = 50,
         batch_size      = 512,
@@ -199,6 +219,8 @@ def train_cnn(X_train: np.ndarray, y_train: np.ndarray,
     )
     train_time = time.perf_counter() - t0
     log.info(f"  Train time: {train_time:.2f}s")
+
+    _save_history("cnn_research", history)
 
     t1     = time.perf_counter()
     y_proba = model.predict(X_te_3d, verbose=0)
@@ -268,7 +290,7 @@ def train_lstm(X_train: np.ndarray, y_train: np.ndarray,
     ]
 
     t0 = time.perf_counter()
-    model.fit(
+    history = model.fit(
         X_tr_seq, y_train,
         epochs          = 40,
         batch_size      = 512,
@@ -279,6 +301,8 @@ def train_lstm(X_train: np.ndarray, y_train: np.ndarray,
     )
     train_time = time.perf_counter() - t0
     log.info(f"  Train time: {train_time:.2f}s")
+
+    _save_history("lstm_research", history)
 
     t1      = time.perf_counter()
     y_proba = model.predict(X_te_seq, verbose=0)

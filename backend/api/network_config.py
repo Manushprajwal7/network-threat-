@@ -9,35 +9,36 @@ import ipaddress
 import threading
 from typing import List, Dict, Optional
 
-# Default networks — adjust to your environment
+# Default networks — subnets match simulation-generated IPs so filters work out of the box.
+# Simulation victims use 10.0.0.x; attackers use 203.0.113.x / 198.51.100.x / 192.0.2.x.
 DEFAULT_NETWORKS = [
     {
-        "name": "LAN - Main Office",
-        "id": "lan-main",
-        "subnet": "192.168.1.0/24",
-        "description": "Main office local network",
+        "name": "Internal Network",
+        "id": "internal",
+        "subnet": "10.0.0.0/24",
+        "description": "Internal hosts & simulation victims (10.0.0.x)",
         "type": "internal",
     },
     {
-        "name": "DMZ - Web Servers",
-        "id": "dmz-web",
-        "subnet": "192.168.10.0/24",
-        "description": "DMZ with web-facing servers",
-        "type": "dmz",
-    },
-    {
-        "name": "LAN - Branch Office",
-        "id": "lan-branch",
-        "subnet": "10.0.1.0/24",
-        "description": "Branch office local network",
+        "name": "LAN / Office",
+        "id": "lan-office",
+        "subnet": "192.168.0.0/16",
+        "description": "Local area network — all 192.168.x.x",
         "type": "internal",
     },
     {
-        "name": "Internal - Database",
-        "id": "internal-db",
-        "subnet": "10.0.10.0/24",
-        "description": "Database servers network",
-        "type": "internal",
+        "name": "External Attackers",
+        "id": "external-dos",
+        "subnet": "203.0.113.0/24",
+        "description": "Simulated DoS / brute-force sources (203.0.113.x)",
+        "type": "external",
+    },
+    {
+        "name": "External Scanners",
+        "id": "external-scan",
+        "subnet": "198.51.100.0/24",
+        "description": "Simulated port-scan / unknown threat sources (198.51.100.x)",
+        "type": "external",
     },
 ]
 

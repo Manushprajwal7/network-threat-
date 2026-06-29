@@ -356,17 +356,30 @@ def export_summary_txt():
 
 @research_bp.route("/api/research/export/confusion-matrix/<model_name>", methods=["GET"])
 def export_confusion_matrix_png(model_name: str):
-    name_map = {
-        "xgboost": "xgboost_research", "random_forest": "random_forest_research",
-        "cnn": "cnn_research", "lstm": "lstm_research",
-    }
-    internal_name = name_map.get(model_name, model_name)
-    path = _REPORTS_DIR / f"confusion_matrix_{internal_name}.png"
+    dataset = _detect_dataset()
+
+    if dataset == "CICIoT2023":
+        # CICIoT2023 stores per-model PNGs with a dataset suffix.
+        filename = f"confusion_matrix_{model_name}_ciciot2023.png"
+        path = _REPORTS_DIR / filename
+        if not path.exists():
+            # Fallback to the combined matrix if a per-model file is missing.
+            path = _REPORTS_DIR / "confusion_matrix_ciciot2023.png"
+            filename = "confusion_matrix_ciciot2023.png"
+    else:
+        name_map = {
+            "xgboost": "xgboost_research", "random_forest": "random_forest_research",
+            "cnn": "cnn_research", "lstm": "lstm_research",
+        }
+        internal_name = name_map.get(model_name, model_name)
+        filename = f"confusion_matrix_{internal_name}.png"
+        path = _REPORTS_DIR / filename
+
     if not path.exists():
         return jsonify({"error": "File not found", "hint": _MISSING_HINT}), 404
     resp = make_response(path.read_bytes())
     resp.headers["Content-Type"]        = "image/png"
-    resp.headers["Content-Disposition"] = f"attachment; filename=confusion_matrix_{internal_name}.png"
+    resp.headers["Content-Disposition"] = f"attachment; filename={filename}"
     return resp
 
 
@@ -415,3 +428,61 @@ def feature_importance():
         return jsonify({"error": "Could not extract feature importances. Ensure models are trained.", "hint": _MISSING_HINT, "models": []}), 404
 
     return jsonify({"models": result, "count": len(result), "timestamp": _now()})
+
+
+@research_bp.route("/api/research/unknown-threat-results", methods=["GET"])
+def unknown_threat_results():
+    """Serve the Unknown Threat Detection package (Section 5.6).
+
+    Reads the real artifacts produced by:
+        python ml_model/evaluate_unknown_threats.py
+    Returns the per-strategy metrics, the unknown holdout classes, the
+    summary text, and base64-encoded figures.
+    """
+    unknown_hint = "Run: cd backend && python ml_model/evaluate_unknown_threats.py"
+
+    rows = _read_csv("unknown_threat_results.csv")
+    if rows is None:
+        return jsonify({
+            "error": "unknown_threat_results.csv not found",
+            "hint": unknown_hint, "metrics": [],
+        }), 404
+
+    summary_path = _REPORTS_DIR / "unknown_threat_summary.txt"
+    summary_text = summary_path.read_text(encoding="utf-8", errors="replace") \
+        if summary_path.exists() else None
+
+    # Figures: report availability + base64 payload for inline display.
+    figure_files = {
+        "anomaly_score_distribution": "anomaly_score_distribution.png",
+        "known_vs_unknown_detection": "known_vs_unknown_detection.png",
+        "unknown_confusion_matrix":   "unknown_confusion_matrix.png",
+    }
+    figures = {}
+    for key, fname in figure_files.items():
+        fpath = _REPORTS_DIR / fname
+        entry = {"filename": fname, "path": str(fpath), "available": fpath.exists()}
+        if fpath.exists():
+            entry["image_base64"] = base64.b64encode(fpath.read_bytes()).decode("ascii")
+            entry["size_bytes"] = fpath.stat().st_size
+        figures[key] = entry
+
+    # Unknown classes: prefer the summary's authoritative list, fall back to default.
+    unknown_classes = [
+        "Backdoor_Malware", "BrowserHijacking", "CommandInjection",
+        "SqlInjection", "XSS", "Uploading_Attack", "Recon-PingSweep",
+    ]
+
+    primary = next((r for r in rows if str(r.get("approach", "")).startswith("A_")), rows[0])
+
+    return jsonify({
+        "dataset": "CICIoT2023",
+        "evaluation": "Known-vs-Unknown Holdout",
+        "unknown_classes": unknown_classes,
+        "metrics": rows,                # all strategies (A and B)
+        "primary_metrics": primary,     # Isolation Forest holdout
+        "summary_text": summary_text,
+        "figures": figures,
+        "hint": unknown_hint,
+        "timestamp": _now(),
+    })

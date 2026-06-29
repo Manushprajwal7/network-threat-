@@ -1,0 +1,51 @@
+============================================================
+UNKNOWN THREAT DETECTION SUMMARY
+============================================================
+Dataset: CICIoT2023
+Evaluation: Known-vs-Unknown Holdout
+Isolation Forest contamination rate: 0.05
+
+Unknown Classes:
+  * Backdoor_Malware
+  * BrowserHijacking
+  * CommandInjection
+  * SqlInjection
+  * XSS
+  * Uploading_Attack
+  * Recon-PingSweep
+
+------------------------------------------------------------
+Strategy A — Isolation Forest Holdout (primary)
+------------------------------------------------------------
+  UTDR:                       88.51%
+  Precision:                  1.01%
+  Recall:                     88.51%
+  F1-Score:                   1.99%
+  FPR:                        5.02%
+  TPR:                        88.51%
+  Accuracy:                   94.98%
+  Anomaly Detection Accuracy: 91.75%
+  Known Traffic Accuracy:     94.98%
+  Unknown Traffic Accuracy:   88.51%
+  Known Samples:              1,176,172
+  Unknown Samples:            679
+  Average Known Anomaly Score:   0.8808
+  Average Unknown Anomaly Score: 1.0000
+
+------------------------------------------------------------
+Strategy B — XGBoost Confidence (<0.60) OR IF Anomaly
+------------------------------------------------------------
+  UTDR:                       95.14%
+  Precision:                  1.06%
+  Recall:                     95.14%
+  F1-Score:                   2.09%
+  FPR:                        5.15%
+  TPR:                        95.14%
+  Accuracy:                   94.85%
+  Anomaly Detection Accuracy: 95.00%
+
+Note: Isolation Forest trained on KNOWN traffic only; the 7
+unknown classes were never seen during IF training. XGBoost
+confidence is from the full 34-class model. All values are
+computed from real model outputs on the CICIoT2023 test set.
+============================================================
