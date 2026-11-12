@@ -160,8 +160,9 @@ $P_{\text{opt}}$ (Global Optimum) & [Allow, Allow, Restrict, Restrict, Block, Bl
 $P_1$ (Conservative Default) & [Allow, Alert, Restrict, Quarantine, Quarantine, Block] & +423,686 & +1,149,600 & +786,643 & 0.00\% & 29.90\% & 0.00\% & Rank 44 of 70 \\
 $P_{2\text{-tier}}$ (Canonical 1-to-1) & [Allow, Alert, Restrict, Quarantine, Block, Block] & +963,686 & +2,856,000 & +1,909,843 & 0.00\% & 29.90\% & 100.00\% & Rank 9 of 70 \\
 $P_2$ (Aggressive Baseline) & [Allow, Restrict, Quarantine, Block, Block, Block] & +907,520 & +2,856,000 & +1,881,760 & 29.90\% & 9.86\% & 100.00\% & Rank 28 of 70 \\
-$P_{\text{XGB}}$ (Pure Flow Classifier) & Per-Flow Classifier (Confidence Gated) & +1,479,900 & +2,887,550 & +2,183,725 & 0.47\% & 0.00\% & 0.50\% & Unranked (0.47\% FPR) \\
-$P_{\text{hybrid}}$ (Posture + Benign Veto) & Tiered Posture + Flow Veto ($L_4$) & +977,208 & +2,899,150 & +1,931,108 & 0.00\% & 29.90\% & 38.89\% & Dominates Static \\
+$P_{\text{XGB, gated}}$ & Flow Classifier ($c \ge 0.90$) & +1,479,900 & +2,887,550 & +2,183,725 & 0.47\% & 0.00\% & 0.42\% & Unranked (0.47\% FPR) \\
+$P_{\text{XGB, ungated}}$ & Flow Classifier (argmax) & +1,360,450 & +2,928,000 & +2,144,225 & 9.46\% & 0.00\% & 9.46\% & Unranked (9.46\% FPR) \\
+$P_{\text{hybrid}}$ (Posture + Benign Veto) & Tiered Posture + Flow Veto ($L_4$) & +977,208 & +2,899,150 & +1,938,179 & 0.00\% & 29.90\% & 38.89\% & Dominates Static \\
 \bottomrule
 \end{tabular}
 \end{table*}"""
@@ -195,6 +196,28 @@ Total / Overall & 60,000 & 100.00\% & 37.51 & 13.00\% & 17.00\% & 9.00\% & 31.00
 body = replace_table_by_label(body, "tab:per_family", tab9_new_code)
 
 # -------------------------------------------------------------
+# Patch 7b: Table 11 Replacement
+# -------------------------------------------------------------
+tab11_new_code = r"""\begin{table*}[t]
+\caption{Comparative evaluation of static response policies vs. dynamic online adaptive switching across dual traffic regimes in Operational Cost Units (OCU, Experiment E16).}
+\label{tab:dynamic_switcher}
+\centering
+\small
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Controller Architecture} & \textbf{Balanced Net} & \textbf{Attack-Heavy Net} & \textbf{Combined Net} & \textbf{Bal Block FPR} & \textbf{Bal Quar FPR} & \textbf{Atk Block FPR} \\
+\midrule
+Static $P_{\text{opt}}$ (Recommended Rank 1) & +985,534 & +2,856,000 & +1,920,767 & 0.00\% & 0.00\% & 100.00\% \\
+Static $P_1$ (Default Safe) & +423,686 & +1,149,600 & +786,643 & 0.00\% & 29.90\% & 0.00\% \\
+Static $P_{2\text{-tier}}$ (Canonical 1-to-1) & +963,686 & +2,856,000 & +1,909,843 & 0.00\% & 29.90\% & 100.00\% \\
+Static $P_2$ (Aggressive Baseline) & +907,520 & +2,856,000 & +1,881,760 & 29.90\% & 9.86\% & 100.00\% \\
+Dynamic Adaptive Switcher (E9/E16) & +963,466 & +2,856,000 & +1,909,733 & 0.00\% & 29.90\% & 100.00\% \\
+\bottomrule
+\end{tabular}
+\end{table*}"""
+body = replace_table_by_label(body, "tab:dynamic_switcher", tab11_new_code)
+
+# -------------------------------------------------------------
 # Patch 8: Unstratified Shuffled Stream Text (C9, C16)
 # -------------------------------------------------------------
 body = body.replace(
@@ -215,8 +238,12 @@ body = body.replace(
 # -------------------------------------------------------------
 body = body.replace(
     r"online regime switching offers no incremental net benefit over static containment, confirming that well-calibrated static policies can achieve optimal protection without the added algorithmic complexity of dynamic switching.",
-    r"this dynamic switcher (+1,909,733 combined OCU; +963,466 balanced) is strictly dominated by static cost-optimal policy $P_{\text{opt}}$ (+1,920,767 combined OCU; +985,534 balanced) and static hybrid architecture $P_{\text{hybrid}}$ (+1,931,108 combined OCU), as well as on unstratified traffic (+212,663 OCU for $P_{\text{opt}}$). Consequently, online regime switching between heuristic tiers provides no incremental benefit over static cost-optimal containment; future work should investigate adaptive threshold switching between $P_{\text{opt}}$ and $P_{\text{hybrid}}$."
+    r"this dynamic switcher (+1,909,733 combined OCU; +963,466 balanced) is strictly dominated by static cost-optimal policy $P_{\text{opt}}$ (+1,920,767 combined OCU; +985,534 balanced) and static hybrid architecture $P_{\text{hybrid}}$ (+1,938,179 combined OCU), as well as on unstratified traffic (+212,663 OCU for $P_{\text{opt}}$). Consequently, online regime switching between heuristic tiers provides no incremental benefit over static cost-optimal containment; future work should investigate adaptive threshold switching between $P_{\text{opt}}$ and $P_{\text{hybrid}}$."
 )
+
+# Patch Beta equation and backslash ref
+body = body.replace(r"\mathrm{B}(\alpha, \beta)", r"B(\alpha, \beta)")
+body = body.replace(r"Table~\\ref{tab:l5_population}", r"Table~\ref{tab:l5_population}")
 
 # Replace remaining instances of "published" where referring to baseline
 body = re.sub(r'published baseline', 'prior baseline submission', body, flags=re.IGNORECASE)

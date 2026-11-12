@@ -12,7 +12,7 @@ E10,Barabasi-Albert Graph Calibration,42,"N=120, m=2 Graph",experiments/E10_tarp
 E11,Wilson Score Confidence Intervals,42,Posture Distributions,experiments/E11_wilson_ci/results.csv,"Non-degenerate binomial Wilson 95% CIs for extreme 0/n and n/n bounds (Tab 5, Tab 6)"
 E12,Anomaly Score Sign Convention,42,60k Validation Flows,experiments/E12_score_sign/results.csv,Validates -score_samples convention (higher = more anomalous; footnote Sec 3.3)
 E13,Table 4 / Figure 3 Reconciliation,42,60k Attack-Heavy Stream,experiments/E13_table4_figure3/results.csv,"Reconciles C0*-C4* trust distributions (C4*: 91.34% Critical, 7.89% Very Low, Tab 4, Fig 3)"
-E14,Per-Family Action & Trust Audit,42,"60k Multi-State (30,118 Attack)",experiments/E14_per_family/results.csv,"Reconciles Tab 9 across all 8 families (Web trust 19.04; benign Alert 34.13%, Quar 30.10%, Block 0.00%)"
+E14,Per-Family Action & Trust Audit,42,"60k Multi-State (30,118 Attack)",experiments/E14_per_family/results.csv,"Reconciles Tab 9 across all 8 families (Web trust 19.04; benign Alert 34.47%, Quar 29.90%, Block 0.00%)"
 E15,5-Seed Trust AUC & Net Benefit,"13, 42, 99, 123, 2024",Dual 60k Streams,experiments/E15_five_seed_trust/results.csv,"Dual-regime trust AUC (0.9990 balanced, 0.9855 attack-heavy); +1,909,278+/-1,127 OCU (Sec 4.1.2)"
 E16,Dynamic Switcher Reconciliation,42,Dual 60k Evaluation Streams,experiments/E16_dynamic_switcher/results.csv,"Dynamic switcher within 0.006% (110 OCU rounding) of static P2-tier (+1,909,733 OCU, Tab 11)"
 E17,Core-Hub L5 Population Verification,42,100k Flows (R >= 0.75),experiments/E17_l5_population/results.csv,"Confirms 100% L5 escalation under flood and 0% under benign traffic (Sec 4.2.3, Tab 12)"

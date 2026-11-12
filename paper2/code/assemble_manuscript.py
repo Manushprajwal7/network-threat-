@@ -619,7 +619,7 @@ def parse_and_insert_text(raw_text):
         elif stripped == "<<<TABLE_13>>>":
             add_table_booktabs(13, "Sensitivity analysis across seven ADTM component weight parameterizations on the 60,000-flow multi-state evaluation stream (Experiment E4 / E19).",
                                "paper2/tables/tab13_adtm_weight_sensitivity.csv",
-                               col_widths=[1.2, 0.45, 0.45, 0.45, 0.45, 0.55, 0.5, 0.5, 0.5, 0.5, 0.5, 0.8])
+                               col_widths=[1.5, 1.6, 0.9, 0.85, 0.95, 1.0])
             continue
         elif stripped == "<<<TABLE_14>>>":
             add_table_booktabs(14, "Posture synthesis threshold sensitivity sweep and monotonicity boundary audit across the 60,000-flow multi-state evaluation stream (Experiment E5 / E20).",
@@ -753,7 +753,7 @@ for part in results_parts:
                           "Action-level precision profiles across enforcement tiers under published baseline P0 and proposed policy P2-tier.")
         
     elif "Table 8 compares the primary candidate architectures" in part:
-        add_table_booktabs(8, "Master policy performance comparison across candidate decision architectures evaluated on 60,000-flow multi-state and attack-heavy streams in Operational Cost Units (OCU). Global optimum policy P_opt achieves Rank 1 (+1,920,767 OCU combined, with 0.00% Block FPR and 0.00% Quarantine FPR on balanced streams; on attack-heavy streams, P_opt incurs 100% Block FPR). Canonical policy P2-tier ranks 9th of 70 admissible mappings overall (+1,909,843 OCU combined, a 2.43x gain over P1, while Pareto-dominated by 8 policies that eliminate its 29.90% benign Quarantine disruption). Microscopic hybrid policy P_hybrid achieves the highest combined benefit (+1,931,108 OCU) by vetoing 880 benign flows in Level L4, reducing flood Block FPR to 38.89% while incurring 29.90% Quarantine FPR on balanced traffic.",
+        add_table_booktabs(8, "Master policy performance comparison across candidate decision architectures evaluated on 60,000-flow multi-state and attack-heavy streams in Operational Cost Units (OCU). Global optimum policy P_opt achieves Rank 1 (+1,920,767 OCU combined, with 0.00% Block FPR and 0.00% Quarantine FPR on balanced streams; on attack-heavy streams, P_opt incurs 100% Block FPR). Canonical policy P2-tier ranks 9th of 70 admissible mappings overall (+1,909,843 OCU combined, a 2.43x gain over P1, while Pareto-dominated by 8 policies that eliminate its 29.90% benign Quarantine disruption). Microscopic hybrid policy P_hybrid achieves the highest combined benefit (+1,938,179 OCU) by vetoing 880 benign flows in Level L4, reducing flood Block FPR to 38.89% while incurring 29.90% Quarantine FPR on balanced traffic.",
                            "paper2/tables/tab8_master_policy.csv",
                            col_widths=[1.1, 1.3, 0.65, 0.65, 0.65, 0.55, 0.55, 0.55, 1.1])
         
@@ -777,7 +777,7 @@ for part in results_parts:
                            "paper2/tables/tab10_cost_sensitivity.csv",
                            col_widths=[0.7, 1.4, 1.2, 1.3, 1.2, 1.3])
         add_figure_inline(10, "paper2/figures/O3_cost_matrix_heatmap.png",
-                          "Operational net benefit sensitivity trajectories across false-blocking penalty scaling factors lambda in [0.2, 5.0].")
+                          "Operational net benefit sensitivity trajectories across false-blocking penalty scaling factors lambda in [0.2, 50.0].")
 
 
 # -------------------------------------------------------------

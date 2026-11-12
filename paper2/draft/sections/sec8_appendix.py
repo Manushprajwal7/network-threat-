@@ -22,12 +22,12 @@ APPENDIX C: ADTM COMPONENT WEIGHT SENSITIVITY ANALYSIS (EXPERIMENTS E4 AND E19)
 
 Experiment E4/E19 evaluated seven distinct component weight allocations across the 60,000-flow multi-state evaluation stream, as compiled in Table 13:
 1. Baseline (Authoritative): (0.40, 0.35, 0.15, 0.10) => Trust AUC = 0.9991, Net Benefit = +1,909,733 OCU
-2. Class-Heavy: (0.60, 0.20, 0.10, 0.10) => Trust AUC = 0.9993, Net Benefit = +1,911,268 OCU
-3. Anomaly-Heavy: (0.20, 0.60, 0.10, 0.10) => Trust AUC = 0.9988, Net Benefit = +1,909,733 OCU
-4. Topo-Heavy: (0.25, 0.25, 0.40, 0.10) => Trust AUC = 0.9989, Net Benefit = +1,909,733 OCU
+2. Class-Heavy (+50%): (0.60, 0.20, 0.10, 0.10) => Trust AUC = 0.9993, Net Benefit = +1,909,733 OCU
+3. Anomaly-Heavy (+50%): (0.25, 0.525, 0.125, 0.10) => Trust AUC = 0.9989, Net Benefit = +1,910,263 OCU
+4. Topo-Heavy (+50%): (0.35, 0.325, 0.225, 0.10) => Trust AUC = 0.9990, Net Benefit = +1,909,733 OCU
 5. Uniform Allocation: (0.25, 0.25, 0.25, 0.25) => Trust AUC = 0.9988, Net Benefit = +1,909,733 OCU
-6. Classifier-Dominated: (0.70, 0.10, 0.10, 0.10) => Trust AUC = 0.9992, Net Benefit = +1,911,268 OCU
-7. Anomaly-Dominated: (0.10, 0.70, 0.10, 0.10) => Trust AUC = 0.9985, Net Benefit = +1,908,413 OCU
+6. Classifier-Dominated: (0.70, 0.10, 0.10, 0.10) => Trust AUC = 0.9993, Net Benefit = +1,909,733 OCU
+7. Anomaly-Dominated: (0.10, 0.70, 0.10, 0.10) => Trust AUC = 0.9985, Net Benefit = +1,911,268 OCU
 
 <<<TABLE_13>>>
 

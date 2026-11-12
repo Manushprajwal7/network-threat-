@@ -23,8 +23,8 @@ Despite theoretical advantages, deploying unsupervised anomaly detectors in oper
 
 2.4 Dynamic Trust Modeling and Continuous Risk Assessment
 Dynamic trust management models quantify entity trustworthiness over time based on historical interaction fidelity [30], [31]. Audun Jøsang's Subjective Logic [30] established a formal mathematical foundation for trust quantification by expressing belief, disbelief, and uncertainty through Dirichlet reputation distributions, allowing systems to reason probabilistically under incomplete information. Under this framework, evidence accumulation follows Beta-distribution conjugacy:
-$$f(p \mid \alpha, \beta) = \frac{1}{\mathrm{B}(\alpha, \beta)} p^{\alpha - 1} (1 - p)^{\beta - 1}$$
-where $\mathrm{B}(\alpha, \beta) = \frac{\Gamma(\alpha)\Gamma(\beta)}{\Gamma(\alpha + \beta)}$ is the Beta function, and $\alpha$ and $\beta$ record cumulative positive and negative behavioral observations, updated via $O(1)$ conjugate additions: $\alpha \leftarrow \alpha + k$, $\beta \leftarrow \beta + (n - k)$.
+$$f(p \mid \alpha, \beta) = \frac{1}{B(\alpha, \beta)} p^{\alpha - 1} (1 - p)^{\beta - 1}$$
+where $B(\alpha, \beta) = \frac{\Gamma(\alpha)\Gamma(\beta)}{\Gamma(\alpha + \beta)}$ is the Beta function, and $\alpha$ and $\beta$ record cumulative positive and negative behavioral observations, updated via $O(1)$ conjugate additions: $\alpha \leftarrow \alpha + k$, $\beta \leftarrow \beta + (n - k)$.
 
 The Zero Trust Architecture (ZTA) paradigm, formalized by NIST Special Publication 800-207 [32], provides strong conceptual motivation for eliminating implicit perimeter trust through continuous verification. We emphasize, however, that our framework does not implement a full ZTA deployment—we do not enforce per-request cryptographic authorization or software-defined micro-segmentation. Rather, ZTA principles motivate our use of dynamic, continuously decaying trust metrics to drive tiered operational containment. Comprehensive surveys by Yan et al. [33] emphasize the necessity of dynamic behavioral decay in IoT trust systems.
 
