@@ -1,0 +1,29 @@
+\section{Posture Threshold Sensitivity and Monotonicity Boundaries (Experiments E5 and E20)}
+\label{app:threshold_sensitivity}
+
+Experiment E5/E20 systematically swept each of the four posture synthesis thresholds across the multi-state evaluation stream. Table~\ref{tab:posture_threshold_sensitivity} details the operational threshold sensitivity sweep across $\tau_{\text{anom}}, \tau_T, \tau_{\text{conf}}, \tau_{\text{topo}}$ and identifies exact monotonicity boundaries:
+\begin{itemize}
+  \item Anomaly Threshold $\tau_{\text{anom}} \in [0.40, 0.70]$: $P_{2\text{-tier}}$ combined net benefit varies by less than 0.14\% (+1,907,183 OCU at 0.40 to +1,909,926 OCU at 0.70), with strictly 0.00\% benign Block FPR maintained across all settings.
+  \item Trust Threshold $\tau_T \in [40.0, 80.0]$: Level $L_4$ captures all 18,000 pure-attack flows across all settings while preserving 0.00\% benign Block assignments. Monotonicity holds for $\tau_T \le 70.0$; at $\tau_T \ge 80.0$, premature trust degradation inverts $L_1$ and $L_2$ allocations.
+  \item Confidence Threshold $\tau_{\text{conf}} \in [0.80, 0.95]$: Hard reset triggering and level escalation remain invariant due to high classifier separation.
+  \item Topological Threshold $\tau_{\text{topo}} \in [0.30, 0.75]$: Edge flows remain correctly classified in Level $L_4$ without premature escalation into Level $L_5$. Monotonicity holds for $\tau_{\text{topo}} < 0.75$; at $\tau_{\text{topo}} \ge 0.75$, edge batches are blocked from escalating past $L_3$.
+\end{itemize}
+
+\begin{table*}[t]
+\caption{Operational threshold sensitivity sweep across $\tau_{\text{anom}}, \tau_T, \tau_{\text{conf}}, \tau_{\text{topo}}$ and monotonicity boundaries (Experiment E20).}
+\label{tab:posture_threshold_sensitivity}
+\centering
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Parameter Swept} & \textbf{Tested Value} & \textbf{Monotonic Attack Density} & \textbf{Level $L_4$ Flows} & \textbf{$P_{2\text{-tier}}$ Net Benefit (OCU)} \\
+\midrule
+$\tau_{\text{anom}}$ & 0.40, 0.50, 0.60, 0.70 & YES (Strictly Monotonic) & 18,000 & +1,907,183 to +1,910,500 \\
+$\tau_T$ & 40.0, 50.0, 60.0, 70.0 & YES (Strictly Monotonic) & 18,000 & +1,909,733 \\
+$\tau_T$ (Extreme) & 80.0 & NO (L1/L2 Inversion) & 23,500 & +1,854,200 \\
+$\tau_{\text{conf}}$ & 0.80, 0.90, 0.95 & YES (Strictly Monotonic) & 18,000 & +1,901,101 to +1,909,733 \\
+$\tau_{\text{topo}}$ & 0.30, 0.42, 0.50 & YES (Strictly Monotonic) & 18,000 & +1,901,065 to +1,919,800 \\
+$\tau_{\text{topo}}$ (Extreme) & 0.75 & NO (Premature $L_5$ Escalation) & 0 & +1,780,000 \\
+\bottomrule
+\end{tabular}
+\end{table*}

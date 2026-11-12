@@ -1,0 +1,5 @@
+Split,Policy,Block FPR (%),Quarantine FPR (%),Combined Net Benefit (OCU)
+Validation Split (Seed 42),P1 (Default Safe),0.0,29.9,786643
+Validation Split (Seed 42),P2-tier (Recommended),0.0,29.9,1909843
+Independent Held-Out Test (Seed 99),P1 (Default Safe),0.0,31.01,784164
+Independent Held-Out Test (Seed 99),P2-tier (Recommended),0.12,31.01,1907694

@@ -1,0 +1,8 @@
+Policy,Enforcement Mapping (L0-L5),Balanced Net (OCU),Attack-Heavy Net (OCU),Combined Net (OCU),Balanced Block FPR,Balanced Quarantine FPR,Flood Block FPR,Search Rank
+P0 (Baseline [1]),Heuristic (Alert / Quarantine),"+413,930","+329,835","+781,765",0.00%,39.76%,0.00%,Unranked
+P_opt (Global Optimum),"[Allow, Allow, Restrict, Restrict, Block, Block]","+985,534","+2,856,000","+1,920,767",0.00%,0.00%,100.00%,Rank 1 of 70
+P1 (Conservative Default),"[Allow, Alert, Restrict, Quarantine, Quarantine, Block]","+423,686","+1,149,600","+786,643",0.00%,29.90%,0.00%,Rank 44 of 70
+P2-tier (Canonical 1-to-1),"[Allow, Alert, Restrict, Quarantine, Block, Block]","+963,686","+2,856,000","+1,909,843",0.00%,29.90%,100.00%,Rank 9 of 70
+P2 (Aggressive Baseline),"[Allow, Restrict, Quarantine, Block, Block, Block]","+907,520","+2,856,000","+1,881,760",29.90%,0.00%,100.00%,Rank 28 of 70
+P_XGB (Pure Flow Classifier),Per-Flow Classifier (No Posture),"+1,479,900","+2,887,550","+2,183,725",0.47%,0.00%,0.42%,Unranked (0.47% FPR)
+P_hybrid (Posture + Benign Veto),Tiered Posture + Flow Veto (L4),"+963,066","+2,899,150","+1,931,108",0.00%,30.10%,34.03%,Dominates Static

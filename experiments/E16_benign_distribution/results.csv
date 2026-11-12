@@ -1,0 +1,4 @@
+Policy,Partition,Allow_Pct,Alert_Pct,Restrict_Pct,Quarantine_Pct,Block_Pct,Non_Disruptive_Attention_Pct,Total_Disruptive_FPR_Pct,Block_FPR_Pct
+P2-tier (Authoritative Recommended),"Multi-State Balanced (29,882 Benign Flows)",25.77,34.47,9.87,29.9,0.0,44.34,29.9,0.0
+P1 (Authoritative Conservative Default),"Multi-State Balanced (29,882 Benign Flows)",25.77,34.47,9.87,29.9,0.0,44.34,29.9,0.0
+P1 (Legacy Deprecated Partition),"Legacy Split (30,009 Benign Flows)",47.32,40.62,11.07,0.99,0.0,51.69,0.99,0.0

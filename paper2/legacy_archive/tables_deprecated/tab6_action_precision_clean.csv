@@ -1,0 +1,26 @@
+Window,Policy,Action,Total Flows,Attack Flows,Benign Flows,Attack Precision (%),Status
+Atk-Heavy,P0 (Pub 19A),Allow,0,0,0,0.00%,N/A (empty)
+Atk-Heavy,P0 (Pub 19A),Alert,"54,553","54,553",0,100.00%,Baseline
+Atk-Heavy,P0 (Pub 19A),Restrict,0,0,0,0.00%,N/A (empty)
+Atk-Heavy,P0 (Pub 19A),Quarantine,"5,447","3,840","1,607",70.50%,INVERTED
+Atk-Heavy,P0 (Pub 19A),Block,0,0,0,0.00%,N/A (empty)
+Atk-Heavy,P0 (Recomputed),Allow,15,1,14,6.67%,Baseline
+Atk-Heavy,P0 (Recomputed),Alert,"51,076","51,011",65,99.87%,Monotonic
+Atk-Heavy,P0 (Recomputed),Restrict,"1,882",490,"1,392",26.04%,INVERTED
+Atk-Heavy,P0 (Recomputed),Quarantine,"7,027","7,016",11,99.84%,Monotonic
+Atk-Heavy,P0 (Recomputed),Block,0,0,0,0.00%,N/A (empty)
+Atk-Heavy,P1 (Default),Allow,0,0,0,0.00%,N/A (empty)
+Atk-Heavy,P1 (Default),Alert,0,0,0,0.00%,N/A (empty)
+Atk-Heavy,P1 (Default),Restrict,0,0,0,0.00%,N/A (empty)
+Atk-Heavy,P1 (Default),Quarantine,"56,100","54,705","1,395",97.51%,Baseline
+Atk-Heavy,P1 (Default),Block,"3,900","3,813",87,97.77%,Monotonic
+Balanced,P0 (Recomputed),Allow,"11,609",2,"11,607",0.02%,Baseline
+Balanced,P0 (Recomputed),Alert,"27,287","25,864","1,423",94.79%,Monotonic
+Balanced,P0 (Recomputed),Restrict,"17,083",298,"16,785",1.74%,INVERTED
+Balanced,P0 (Recomputed),Quarantine,"4,021","3,827",194,95.18%,Monotonic
+Balanced,P0 (Recomputed),Block,0,0,0,0.00%,N/A (empty)
+Balanced,P1 (Default),Allow,"14,200",0,"14,200",0.00%,Baseline
+Balanced,P1 (Default),Alert,"20,200","8,009","12,191",39.65%,Monotonic
+Balanced,P1 (Default),Restrict,"7,800","4,479","3,321",57.42%,Monotonic
+Balanced,P1 (Default),Quarantine,"16,300","16,003",297,98.18%,Monotonic
+Balanced,P1 (Default),Block,"1,500","1,500",0,100.00%,Monotonic

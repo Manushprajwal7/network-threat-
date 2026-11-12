@@ -1,0 +1,7 @@
+config,window,High%,Moderate%,Low%,VeryLow%,Critical%,Trust_AUC,L4_entities%,L5_entities%,mean_trust_attack,mean_trust_benign,sample_trust_gap,entity_trust_gap
+C0',Attack-heavy 60k,3.21,83.69,13.10,0.00,0.00,0.7843,0.00,0.00,65.83,73.79,7.96,7.79
+C1',Attack-heavy 60k,0.14,2.50,3.83,93.53,0.00,0.8969,0.00,0.00,33.27,41.75,8.48,7.79
+C2',Attack-heavy 60k,0.12,1.00,3.16,35.38,60.34,0.9468,90.50,6.50,19.37,41.73,22.36,21.68
+C3',Attack-heavy 60k,0.09,0.18,2.50,33.77,63.46,0.9641,90.50,6.50,15.95,40.40,24.45,23.75
+C4',Attack-heavy 500k,0.06,0.14,2.25,33.84,63.71,0.9644,90.50,6.50,15.84,39.70,23.86,23.65
+C4' (Bal),Stratified Balanced 60k,38.19,4.15,9.48,15.51,32.67,0.9774,26.00,2.50,19.25,77.96,58.72,72.83

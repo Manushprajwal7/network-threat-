@@ -1,0 +1,3 @@
+node_id,degree,raw_pagerank,scaled_risk_R,z_score_empirical
+0,41,0.077498,0.9,6.67
+4,28,0.052281,0.8089,5.41

@@ -1,0 +1,26 @@
+ID,Experiment Focus,Seeds,Split / Dataset,Primary Artifact,Key Finding / Supported Claim
+E1,Multi-Seed Baseline & Calibration,"13, 42, 99, 123, 2024",60k Multi-State Stream,experiments/E1_multi_seed/results.csv,"Clean IF AUC 0.9380+/-0.0087; P2-tier net benefit +1,909,278+/-1,127 OCU (Sec 4.1.1, Tab 8)"
+E2,Out-of-Sample Held-Out Test,99,60k Attack-Heavy Test Split,experiments/E2_held_out/results.csv,"P2-tier yields +2,863,600 OCU on unseen test traffic (2.485x over P1, Sec 4.3.2)"
+E3,Disruption vs Attention FPR Audit,42,60k Multi-State Stream,experiments/E3_full_disruption_fpr/results.csv,"0.00% Block FPR achieved at 29.9% Quarantine disruption, 44.3% attention overhead (Tab 7)"
+E4,ADTM Weight Allocation Sweep,42,60k Multi-State Stream,experiments/E4_adtm_weight/results.csv,"Trust AUC stable in [0.9985, 0.9993] across 7 weight allocations (Sec 4.1.2, App C)"
+E5,Operational Threshold Sweep,42,60k Multi-State Stream,experiments/E5_threshold_sensitivity/results.csv,Monotonicity and zero-Block FPR invariant across standard operational ranges (App D)
+E6,Cost Scaling Parameter Sweep,42,Dual 60k Regimes,experiments/E6_cost_sensitivity/results.csv,"P2-tier 2.24x to 2.46x benefit advantage over P1 across lambda in [0.2, 5.0] (Tab 10)"
+E7,Regime Mixture Weight Sweep,42,"Dual 60k Regimes (w_bal in [0, 1])",experiments/E7_regime_weight/results.csv,Identifies exact Pareto frontier transition between P1 and P2-tier (Fig 5)
+E8,Core-Hub Level L5 Population,42,100k Flows (Core Hub R >= 0.75),experiments/E8_l5_population/results.csv,"100% batches escalate to L5 during acute flood, 0% during benign traffic (Sec 4.2.3, Tab 12)"
+E9,Online Regime-Aware Switcher,42,Mixed Transition Stream,experiments/E9_regime_aware_switcher/results.csv,Evaluates EWMA-based dynamic policy switching between traffic regimes (Fig 6)
+E10,Barabasi-Albert Graph Calibration,42,"N=120, m=2 Graph",experiments/E10_tarp_reproducibility/results.csv,"TARP PageRank risk calibration (mu_R=0.4200, sigma_R=0.0800, Sec 3.1.1, App B)"
+E11,Wilson Score Confidence Intervals,42,Posture Distributions,experiments/E11_wilson_ci/results.csv,"Non-degenerate binomial Wilson 95% CIs for extreme 0/n and n/n bounds (Tab 5, Tab 6)"
+E12,Anomaly Score Sign Convention,42,60k Validation Flows,experiments/E12_score_sign/results.csv,Validates -score_samples convention (higher = more anomalous; footnote Sec 3.3)
+E13,Table 4 / Figure 3 Reconciliation,42,60k Attack-Heavy Stream,experiments/E13_table4_figure3/results.csv,"Reconciles C0*-C4* trust distributions (C4*: 91.34% Critical, 7.89% Very Low, Tab 4, Fig 3)"
+E14,Per-Family Action & Trust Audit,42,"60k Multi-State (30,118 Attack)",experiments/E14_per_family/results.csv,"Reconciles Tab 9 across all 8 families (Web trust 19.04; benign Alert 34.13%, Quar 30.10%, Block 0.00%)"
+E15,5-Seed Trust AUC & Net Benefit,"13, 42, 99, 123, 2024",Dual 60k Streams,experiments/E15_five_seed_trust/results.csv,"Dual-regime trust AUC (0.9990 balanced, 0.9855 attack-heavy); +1,909,278+/-1,127 OCU (Sec 4.1.2)"
+E16,Dynamic Switcher Reconciliation,42,Dual 60k Evaluation Streams,experiments/E16_dynamic_switcher/results.csv,"Dynamic switcher within 0.006% (110 OCU rounding) of static P2-tier (+1,909,733 OCU, Tab 11)"
+E17,Core-Hub L5 Population Verification,42,100k Flows (R >= 0.75),experiments/E17_l5_population/results.csv,"Confirms 100% L5 escalation under flood and 0% under benign traffic (Sec 4.2.3, Tab 12)"
+E18,Synthetic Topology Sensitivity,42,"N=120, mu_R in {0.30, 0.42, 0.55}",experiments/E18_synthetic_topology/results.csv,"Edge posture allocation invariant to underlying network density (Sec 3.1.1, App B)"
+E19,ADTM Weight Sensitivity Grid,42,60k Multi-State Stream (7 Configs),experiments/E19_adtm_weight_sensitivity/results.csv,"Dynamic trust AUC in [0.9985, 0.9993]; P2-tier benefit invariant (Tab 13, App C)"
+E20,Posture Threshold Bounds & Breaks,42,60k Multi-State Sweep,experiments/E20_posture_threshold_sensitivity/results.csv,"Delineates precise parameter bounds where monotonicity holds vs breaks (Tab 14, App D)"
+E21,Held-Out Balanced Test Split,99,60k Held-Out Balanced Test Split,experiments/E21_held_out_balanced/results.csv,"P2-tier Block FPR = 0.23% (Wilson CI [0.18%, 0.29%]), Quarantine FPR = 30.72%, Net Benefit +959,843 OCU (+1,907,922 OCU combined; Sec 4.3.2)"
+E22,Score Negation Sign Verification,42,60k Evaluation Flows,experiments/E22_score_sign/results.csv,Verifies -score_samples achieves r = +0.7794 correlation with true labels (Sec 3.3)
+E23,Exact Wilson Score Bounds,42,Posture & Action Distributions,experiments/E23_wilson_ci/results.csv,"Exact statsmodels Wilson CIs for L0-L4 and P2-tier action distributions (Tab 5, Tab 6)"
+E24,27-Point 3-Factor Cost Grid,42,27 Cost Configurations,experiments/E24_cost_matrix_sensitivity/results.csv,"P2-tier strictly dominates P1 across 100% of tested cost parameters (1.82x-2.44x, App E)"
+E25,LaTeX Math & Delimiter Audit,N/A,Full paper_v2.tex Manuscript,experiments/E25_latex_math_audit/results.csv,"Automated scanner confirms zero syntax errors, unmatched delimiters, or malformed equations"

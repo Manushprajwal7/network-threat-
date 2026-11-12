@@ -1,0 +1,3 @@
+Batches,Level,Attack Flows,Benign Flows,Attack (%),Mean Trust,Mean R
+1000,L5 (Critical Hub),97600,2400,97.6,10.7,0.8201
+1000,L0 (Nominal Traffic),0,100000,0.0,92.4,0.8201

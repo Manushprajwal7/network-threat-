@@ -1,0 +1,10 @@
+Metric,Value
+Mean,0.4200
+Std,0.0801
+p5,0.2884
+p50,0.4202
+p95,0.5517
+Max,0.7783
+N_nodes,120
+BA_m,2
+Mapping,Round-robin n(b) = b mod 120

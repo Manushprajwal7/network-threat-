@@ -1,0 +1,5 @@
+Model,Trees (M),Training Telemetry,ROC AUC,KS Statistic (D),KS p-value,Anomaly Gap,Benign Score Mean,Attack Score Mean,Benign Tail >= 0.90 (%),Attack Tail >= 0.90 (%),Pearson r,Spearman rho,Fit Time (s)
+Contaminated (M=100),100,97.5% Contaminated,0.0077,0.953,0.00e+00,-0.3077,0.6901,0.3825,5.01,0.06,-0.5845,-0.2626,0.44
+Contaminated (M=200),200,97.5% Contaminated,0.0084,0.9504,0.00e+00,-0.2973,0.681,0.3837,4.94,0.07,-0.5591,-0.2622,0.69
+Repaired Clean (M=100),100,100% Clean Benign,0.9435,0.8564,0.00e+00,0.0769,0.4843,0.5612,5.01,49.07,0.3513,0.2366,0.43
+Repaired Clean (M=200),200,100% Clean Benign,0.9523,0.8659,0.00e+00,0.0819,0.4829,0.5649,5.01,53.81,0.3779,0.2413,0.63

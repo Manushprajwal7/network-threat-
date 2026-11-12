@@ -1,0 +1,4 @@
+Confidence_Threshold,Attack_Precision_Pct,Overall_Precision_Pct,Sample_Coverage_Pct,Selected
+0.9,99.94,99.89,97.92,No
+0.95,99.96,99.94,97.5,Yes (Selected: per-class precision >= 90% & high coverage)
+0.99,99.99,99.99,96.56,No

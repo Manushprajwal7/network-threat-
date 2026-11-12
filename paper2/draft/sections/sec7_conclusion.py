@@ -1,0 +1,24 @@
+# Section 7: Conclusion and Back Matter
+SEC7_TEXT = r"""
+7. CONCLUSION
+
+This paper has presented a systematic empirical investigation into the operational challenges of multi-stage IoT intrusion response, focusing on the diagnosis of training contamination, dynamic trust recalibration, and cost-aware policy optimization on the CICIoT2023 dataset. Our findings yield three concrete technical conclusions:
+
+First, controlled evaluation at matched model capacities ($M=100$ and $M=200$ trees) demonstrates that the inverted anomaly performance in earlier iterations (AUC $\approx 0.008$) stemmed entirely from categorical label mismatch ('BENIGN' vs 'BenignTraffic') during training set curation, rather than model under-capacity. Training on verified clean benign traffic restores discriminative anomaly detection to AUC 0.952 (Kolmogorov-Smirnov $D = 0.866, p < 10^{-15}$), while empirical dose-response curves reveal that anomaly inversion begins at 10% contamination and inverts completely at 20%, demonstrating the critical importance of training purity in network telemetry baselining as articulated by Sommer and Paxson [27].
+
+Second, by formulating a dynamic trust architecture with neutral initial priors ($T_0 = 100.0$) and eliminating ground-truth attack family leakage, we demonstrate that runtime evidence alone drives robust trust degradation. Incorporating clean anomaly scores and high-confidence classification signals elevates trust discrimination AUC from 0.044 to 0.986 on attack-heavy traffic and 0.9990 on balanced streams, establishing genuine behavioral separation without relying on label-derived priors.
+
+Third, a comprehensive combinatorial sweep over all 70 admissible monotonic level-to-action mappings establishes that response policy selection is inherently regime-dependent. We explicitly recommend cost-optimal policy $P_{\text{opt}}$ (`Allow-Allow-Restrict-Restrict-Block-Block`, Rank 1 of 70, +1,920,767 OCU combined) as the primary default policy for network environments requiring zero quarantine disruption (0.00% Block FPR and 0.00% Quarantine FPR on balanced traffic). Canonical policy $P_{2\text{-tier}}$ preserves a strict 1-to-1 mapping across all five enforcement actions and achieves non-decreasing precision ($0.00\% \le 0.00\% \le 46.40\% \le 51.71\% \le 100.00\%$) with a 2.43x net benefit advantage over $P_1$ (+1,909,843 vs +786,643 OCU), but ranks 9th of 70 and is Pareto-dominated by 8 policies due to collateral benign quarantine (29.90% on stratified streams and 74.60% on unstratified streams). Evaluating previously missing baselines demonstrates that pure flow classification ($P_{\text{XGB}}$) inflicts unacceptable collateral damage (9.46% Block FPR on benign flows), whereas a microscopic Hybrid Posture + Benign Veto architecture ($P_{\text{hybrid}}$) strictly dominates all static policies (+1,931,108 to +1,932,608 OCU combined) and slashes flood Block FPR from 100.0% down to 34.03%–38.89%.
+
+DATA AND CODE AVAILABILITY
+All source code, trained machine learning model artifacts, evaluation split generation scripts, experimental logs, and reproducibility verification pipelines are archived in an open, immutable repository package. All experimental CSV tables, 300 DPI figures, and algorithmic replication scripts are cryptographically hashed with SHA-256 integrity checksums stored in `checksums.sha256`. Raw network traffic features originate from the public CICIoT2023 benchmark repository hosted by the Canadian Institute for Cybersecurity [11]. Reproducibility artifacts, instructions, and seed definitions are accessible at: https://anonymous.4open.science/r/iot-posture-reproducibility-2026/ (archived with Zenodo DOI: 10.5281/zenodo.[Blinded for Peer Review]).
+
+FUNDING DECLARATION
+This research received no external grant funding. All computational evaluations were conducted using institutional research computing infrastructure.
+
+COMPETING INTERESTS
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the findings reported in this paper.
+
+ACKNOWLEDGMENTS
+The authors thank the Canadian Institute for Cybersecurity (CIC) and the University of New Brunswick for curating and maintaining the open CICIoT2023 research repository.
+"""

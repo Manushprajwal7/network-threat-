@@ -1,0 +1,12 @@
+{
+  "Analytical_Z_Score": 41.25,
+  "Batch_Sigma": 0.008,
+  "Edge_Simulated_Batches": 100000,
+  "Edge_Batches_Reaching_L5": 0,
+  "Core_Hub_Simulated_Batches": 1000,
+  "Core_Hub_Batches_Populating_L5": 1000,
+  "Core_Hub_Flows_In_L5": 100000,
+  "Core_Hub_Mean_Risk": 0.8201,
+  "Core_Hub_L5_Population_Rate_Pct": 100.0,
+  "Architectural_Finding": "Under peripheral edge gateway monitoring where flows sample standard network endpoints (R approx 0.42), batch mean risk never reaches 0.75 (Z = 41.25 sigma, 0 batches in L5). However, when evaluating traffic routed through designated core backbone SDN hub switches (R >= 0.75), all 1,000 batches (100,000 flows) escalate decisively into Level L5 (Critical Hub Containment), populating the sixth posture tier."
+}

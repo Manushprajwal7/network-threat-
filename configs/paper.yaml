@@ -1,0 +1,311 @@
+# configs/paper.yaml
+# Single Source of Truth for all experimental parameters, thresholds, seeds, and costs.
+# Every numeric parameter in the manuscript traces to an entry in this configuration.
+
+dataset:
+  name: "CICIoT2023"
+  source_cache: "audit/lofo/cache"
+  train_total_flows: 5491971
+  train_benign_flows: 129538
+  train_attack_flows: 5362433
+  train_attack_percentage: 97.641
+  test_total_flows: 1176851
+  num_features: 46
+  num_classes: 34
+  benign_class_name: "BenignTraffic"
+
+evaluation_windows:
+  window_size_flows: 60000
+  batch_size_W: 100
+  total_batches: 600
+  attack_heavy:
+    description: "Contiguous 60k flow slice from test partition matching empirical high-attack operational regime"
+    slice_start: 0
+    slice_end: 60000
+    expected_attack_percentage: 97.60
+  balanced_stratified:
+    description: "Stratified 60k window with 180 pure benign, 240 mixed (binomial 50%), and 180 pure attack batches"
+    pure_benign_batches: 180
+    mixed_batches: 240
+    pure_attack_batches: 180
+    expected_attack_percentage: 50.20
+
+seeds:
+  primary_evaluation: 42
+  held_out_test: 99
+  multi_seed_suite: [13, 42, 99, 123, 2024]
+
+anomaly_detection:
+  model: "IsolationForest"
+  n_estimators_controlled: [100, 200]
+  max_samples: 256
+  contamination: 0.05
+  clean_training_sample_size: 20000
+  calibration:
+    method: "empirical_quantile_scaling"
+    p5_percentile: 0.4421
+    p95_percentile: 0.5284
+    scale_factor: 0.80
+    offset: 0.10
+  decision_threshold_tau_anom: 0.50
+  isolation_forest_audit:
+    contaminated_raw_auc: 0.0090
+    contaminated_inverted_auc: 0.9910
+    clean_raw_auc: 0.9590
+    ks_statistic_contaminated: 0.9499
+    ks_statistic_clean: 0.8872
+    interpretation: "Contaminated IF learned inverted orientation where benign was outlier and attack was inlier; clean retraining reoriented model semantically rather than increasing raw discriminative capacity"
+
+trust_engine:
+  model: "Adaptive Dynamic Trust Model (ADTM)"
+  initial_trust_T0: 100.0  # Strict neutral initialization; zero label leakage
+  smoothing_factor_k: 0.30 # T_t = 0.30 * T_obs + 0.70 * T_{t-1}
+  component_weights:
+    w_class: 0.40
+    w_anom: 0.35
+    w_topo: 0.15
+    w_dev: 0.10
+  hard_reset:
+    enabled: true
+    min_confidence_c_conf: 0.90
+    required_class: "attack" # y_hat != BenignTraffic
+    min_anomaly_s_anom: 0.50
+    reset_trust_value: 10.0
+  thresholds:
+    tau_T: 60.0          # Distinguishes healthy from degraded trust
+    tau_T_critical: 20.0 # Boundary for high-threat escalation (L3 vs L4)
+
+topology:
+  model: "Topology-Aware Risk Propagation (TARP)"
+  num_nodes: 120
+  synthetic_risk_distribution:
+    distribution: "normal"
+    mean: 0.42
+    std: 0.08
+    clip_min: 0.10
+    clip_max: 0.90
+  decision_threshold_tau_topo: 0.42
+  hub_risk_boundary_tau_R_hub: 0.75
+  individual_node_z_score_to_hub: 4.125
+  empirical_graph_z_score_to_hub: 4.59
+  batch_assignment_property: "Flows within batch b inherit identical risk R = R[b mod 120]; c_topo is constant per batch"
+
+posture_levels:
+  L0:
+    name: "Nominal"
+    description: "Benign verification; zero risk signals"
+  L1:
+    name: "Observation"
+    description: "Single weak anomaly or mild trust degradation"
+  L2:
+    name: "Elevated"
+    description: "Two concurrent security signals"
+  L3:
+    name: "High Threat"
+    description: "Three concurrent signals with trust preserved above critical (> 20.0)"
+  L4:
+    name: "Severe Threat"
+    description: "Three concurrent signals with trust depleted (<= 20.0) on non-hub devices"
+  L5:
+    name: "Critical Infrastructure Hub"
+    description: "Three concurrent signals with trust depleted on high-centrality hubs (R >= 0.75); architectural extension"
+  statistical_significance_l2_vs_l3:
+    z_score: 6.91
+    p_value: 4.75e-12
+
+cost_matrix_ocu:
+  # Action: [Benign Cost (Penalty), Attack Cost (Reward / Containment Credit)]
+  Allow:
+    action_id: 0
+    benign_cost: 0
+    attack_cost: 0
+  Alert:
+    action_id: 1
+    benign_cost: 1
+    attack_cost: -5
+  Restrict:
+    action_id: 2
+    benign_cost: 3
+    attack_cost: -10
+  Quarantine:
+    action_id: 3
+    benign_cost: 15
+    attack_cost: -20
+  Block:
+    action_id: 4
+    benign_cost: 50
+    attack_cost: -50
+
+policies:
+  total_monotonic_candidates: 70
+  P0_baseline:
+    name: "Published Heuristic Table 19A"
+    mapping: "Heuristic (Alert/Quarantine)"
+  P_opt_rank1:
+    name: "P_opt (Global Rank 1 among 70 Monotonic Policies)"
+    mapping_tuple: [0, 0, 2, 2, 4, 4]
+    mapping_str: "Allo-Allo-Rest-Rest-Bloc-Bloc"
+    search_rank_in_70: 1
+    combined_net_benefit_ocu: 1920767
+    balanced_net_benefit_ocu: 985534
+    attack_heavy_net_benefit_ocu: 2856000
+    block_fpr_pct: 0.000
+    quarantine_fpr_pct: 0.000
+  P1_default:
+    name: "P1 (Default Posture Policy)"
+    mapping_tuple: [0, 1, 2, 3, 3, 4]
+    mapping_str: "Allo-Aler-Rest-Quar-Quar-Bloc"
+    search_rank_in_70: 44
+  P2_tier_recommended:
+    name: "P2-tier (Distinct Action Tiering Policy)"
+    mapping_tuple: [0, 1, 2, 3, 4, 4]
+    mapping_str: "Allo-Aler-Rest-Quar-Bloc-Bloc"
+    search_rank_in_70: 9
+    combined_net_benefit_ocu: 1909843
+    balanced_net_benefit_ocu: 963686
+    attack_heavy_net_benefit_ocu: 2856000
+    block_fpr_pct: 0.000
+    quarantine_fpr_pct: 29.851
+    unique_property: "Unique policy preserving 1-to-1 strict progression across all five enforcement actions; Pareto-dominated by 8 policies in (Block FPR, Quarantine FPR, Net Benefit) space"
+  P2_cost_optimal:
+    name: "P2 (Global Cost-Optimal)"
+    mapping_tuple: [0, 2, 3, 4, 4, 4]
+    mapping_str: "Allo-Rest-Quar-Bloc-Bloc-Bloc"
+    search_rank_in_70: 28
+
+optimization_weights:
+  balanced_window_weight: 0.50
+  attack_heavy_window_weight: 0.50
+
+phase1_phase2_verified_metrics:
+  held_out_balanced_test_e21:
+    seed: 99
+    flows: 60000
+    disjoint_partition_verified: true
+    overlap_with_e2: 0
+    p2_tier_block_fpr_pct: 0.233
+    p2_tier_block_fpr_ci: [0.184, 0.294]
+    p2_tier_quarantine_fpr_pct: 30.724
+    p2_tier_quarantine_fpr_ci: [30.205, 31.248]
+    p2_tier_balanced_net_benefit_ocu: 959843
+    p2_tier_combined_net_benefit_ocu: 1907922
+    p1_block_fpr_pct: 0.000
+    p1_quarantine_fpr_pct: 30.957
+    p1_balanced_net_benefit_ocu: 418393
+    p1_combined_net_benefit_ocu: 783997
+  random_balanced_unstratified_task5:
+    flows: 60000
+    p2_tier_block_fpr_pct: 0.241
+    p2_tier_block_fpr_ci: [0.191, 0.303]
+    p2_tier_quarantine_fpr_pct: 75.184
+    p1_block_fpr_pct: 0.000
+    p1_quarantine_fpr_pct: 75.430
+  extended_cost_sensitivity_task8:
+    lambda_range: [0.2, 50.0]
+    break_even_lambda: 30.8
+    break_even_block_penalty_ocu: 1540
+    p2_advantage_at_lambda_0_2: 2.47
+    p2_advantage_at_lambda_30_0: 1.04
+    p2_advantage_at_lambda_50_0: 0.07
+    regime_mixture_weight_range: [0.0, 1.0]
+    regime_advantage_range: [2.29, 2.48]
+  classifier_34_class_audit_task9:
+    raw_accuracy_pct: 98.99
+    balanced_accuracy_34_classes_pct: 70.98
+    macro_f1_34_classes_pct: 71.51
+    balanced_accuracy_33_attacks_pct: 70.35
+    macro_f1_33_attacks_pct: 70.96
+    malware_recall_pct: 1.12
+    malware_recall_ci: [0.03, 6.09]
+    bruteforce_recall_pct: 15.05
+    bruteforce_recall_ci: [11.51, 19.42]
+  five_seed_trust_e15:
+    seeds: [13, 42, 99, 123, 2024]
+    balanced_stream_auc_mean: 0.9990
+    balanced_stream_auc_std: 0.0001
+    attack_heavy_auc_mean: 0.9855
+    attack_heavy_auc_std: 0.0003
+    p2_tier_net_benefit_mean_ocu: 1909278
+    p2_tier_net_benefit_std_ocu: 1127
+    p1_net_benefit_mean_ocu: 785992
+    p1_net_benefit_std_ocu: 1023
+    p2_tier_benefit_ratio_over_p1: 2.429
+  dynamic_switcher_e16:
+    balanced_net_benefit_ocu: 963466
+    attack_heavy_net_benefit_ocu: 2856000
+    combined_net_benefit_ocu: 1909733
+    static_p2_tier_combined_ocu: 1909843
+    offset_ocu: 110
+    offset_percentage: 0.006
+  core_hub_l5_population_e8_e17:
+    flows: 100000
+    batches: 1000
+    min_core_hub_risk_R: 0.75
+    acute_flood_escalation_pct: 100.0
+    nominal_benign_escalation_pct: 0.0
+  per_family_reconciliation_e14:
+    total_attack_flows: 30118
+    total_benign_flows: 29882
+    total_flows: 60000
+    web_mean_trust: 16.03
+    benign_allow_pct: 25.8
+    benign_alert_pct: 34.4
+    benign_restrict_pct: 9.9
+    benign_quarantine_pct: 29.9
+    benign_block_pct: 0.0
+
+tier2_audit_task14:
+  xgboost_tree_complexity:
+    num_classes: 34
+    boosting_rounds_per_class: 150
+    total_trees: 5100
+    max_depth: 8
+    max_scalar_comparisons_per_flow: 40800
+  baselines_evaluation:
+    P_XGB:
+      description: "Pure Per-Flow XGBoost Classifier Baseline"
+      balanced_net_benefit_ocu: 1360450
+      attack_heavy_net_benefit_ocu: 2928000
+      combined_net_benefit_ocu: 2144225.0
+      balanced_block_fpr_pct: 9.46
+      benign_flows_blocked: 2827
+      attack_heavy_block_fpr_pct: 9.44
+    P_hybrid:
+      description: "Hybrid Posture Escalation + Per-Flow Benign Veto in Level L4"
+      balanced_net_benefit_ocu: 963066
+      attack_heavy_net_benefit_ocu: 2899150
+      combined_net_benefit_ocu: 1931108.0
+      balanced_block_fpr_pct: 0.00
+      balanced_quarantine_fpr_pct: 30.10
+      attack_heavy_block_fpr_pct: 38.89
+      benign_flows_vetoed: 880
+      false_negatives: 17
+  contamination_dose_response:
+    c_0_0_pct: {auc: 0.9427, ks_D: 0.8570, orientation: "Standard"}
+    c_1_0_pct: {auc: 0.9686, ks_D: 0.8934, orientation: "Standard"}
+    c_2_0_pct: {auc: 0.9566, ks_D: 0.8595, orientation: "Standard"}
+    c_5_0_pct: {auc: 0.8219, ks_D: 0.6792, orientation: "Standard"}
+    c_10_0_pct: {auc: 0.5794, ks_D: 0.1677, orientation: "Standard"}
+    c_20_0_pct: {auc: 0.2457, inverted_auc: 0.7543, ks_D: 0.5026, orientation: "Inverted"}
+    c_50_0_pct: {auc: 0.0600, inverted_auc: 0.9400, ks_D: 0.8361, orientation: "Inverted"}
+    c_80_0_pct: {auc: 0.0206, inverted_auc: 0.9794, ks_D: 0.9293, orientation: "Inverted"}
+    c_97_6_pct: {auc: 0.0088, inverted_auc: 0.9912, ks_D: 0.9501, orientation: "Inverted"}
+  alternative_anomaly_detectors:
+    clean_isolation_forest_m100: {auc: 0.9427, ks_D: 0.8570}
+    clean_isolation_forest_m200: {auc: 0.9523, ks_D: 0.8659}
+    diagonal_mahalanobis: {auc: 0.9630, ks_D: 0.8036}
+    ecod_empirical_copula: {auc: 0.9770, ks_D: 0.9334}
+  held_out_70_policy_search_d_test:
+    seed: 99
+    flows: 60000
+    P_opt_rank: 1
+    P_opt_combined_net_benefit_ocu: 1920662.5
+    P_opt_balanced_block_fpr_pct: 0.233
+    P2_tier_rank: 9
+    P2_tier_combined_net_benefit_ocu: 1907921.5
+    P2_tier_balanced_block_fpr_pct: 0.233
+    zero_out_of_sample_rank_inversion_verified: true
+  joint_cost_sensitivity_boundaries:
+    P2_beats_P2_tier_boundary: "lambda <= 0.5 and rho >= 1.0"
+    P1_beats_P2_tier_boundary: "lambda >= 10.0 and rho <= 0.2"
+    tiered_dominance_corridor: "lambda in [0.8, 5.0] and rho in [0.5, 1.5]"

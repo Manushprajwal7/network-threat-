@@ -1,0 +1,6 @@
+policy,pipeline_description,expected_cost_bal,net_benefit_bal,expected_cost_atk,net_benefit_atk,combined_net_benefit,benign_penalty_bal,attack_containment_bal,monotonic_precision,inversion_count,block_fpr_bal%,attack_recall_bal%
+P0 (Published Table 19A),Contaminated IF + Original Decision Engine,N/A (untested),N/A (untested),-329835,329835,N/A,N/A,N/A,NO (Inverted),1,0.0,N/A
+P0 (Freshly Recomputed),Contaminated IF + Original Engine (Fair Eval),-153952,153952,-395769,395769,274860.5,54688,-208640,NO (Inverted),1,0.0,99.99
+P1 (New Default),Corrected IF + Recalibrated Trust + Default Mapping,-453286,453286,-1259475,1259475,856380.5,26609,-479895,YES (Strictly Monotonic),0,0.0,100.0
+P2 (Global Cost-Optimal),Corrected Pipeline + Sweep-Optimal Mapping (Allow-Res-Qua-Blo-Blo-Blo),-943582,943582,-2851800,2851800,1897691.0,101238,-1044820,YES (Strictly Monotonic),0,0.99,100.0
+P2_tier (Tier-Preserving Optimal),Corrected Pipeline + 5-Tier Optimal Mapping (Allow-Ale-Res-Qua-Blo-Blo),-921286,921286,-2802480,2802480,1861883.0,26609,-947895,YES (Strictly Monotonic),0,0.0,100.0

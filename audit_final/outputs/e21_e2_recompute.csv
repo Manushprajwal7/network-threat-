@@ -1,0 +1,5 @@
+pairing_description,balanced_net_ocu,attack_heavy_net_ocu,formula,combined_net_ocu,rounded_int_ocu,notes
+E21 Balanced (Seed 99) + Master Attack-Heavy (Seed 42),959843.0,2856000.0,"(959,843 + 2,856,000) / 2",1907921.5,1907922,"Matches +1,907,922 OCU reported in Sec 4.3.2 and Section 1"
+E21 Balanced (Seed 99) + Held-Out Attack-Heavy (Seed 99),959843.0,2863600.0,"(959,843 + 2,863,600) / 2",1911721.5,1911722,Exact 50/50 average when both streams use Seed 99
+E21 Alternative Realization + Master Attack-Heavy,959388.0,2856000.0,"(959,388 + 2,856,000) / 2",1907694.0,1907694,"Source of historical +1,907,694 OCU in draft revisions"
+P1 Conservative: E21 Balanced + Master Attack-Heavy,418393.0,1149600.0,"(418,393 + 1,149,600) / 2",783996.5,783997,Matches P1 combined reported in Sec 4.3.2

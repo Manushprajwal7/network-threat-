@@ -1,0 +1,6 @@
+window,policy,allow_cnt,alert_cnt,restrict_cnt,quarantine_cnt,block_cnt,total_cost,net_benefit,attack_recall%,benign_fpr%,benign_quar_block%
+Attack-heavy 60k,P0 (Published Table 19A),0,54553,0,5447,0,-329835,329835,100.00,100.00,100.00
+Attack-heavy 60k,P0 (Freshly Recomputed),15,51076,1882,7027,0,-395769,395769,100.00,99.06,0.74
+Attack-heavy 60k,P1 (New Default),0,0,0,56100,3900,-1259475,1259475,100.00,100.00,100.00
+Balanced Stratified 60k,P0 (Freshly Recomputed),11609,27287,17083,4021,0,-153952,153952,99.99,61.32,0.65
+Balanced Stratified 60k,P1 (New Default),14200,20200,7800,16300,1500,-453286,453286,100.00,52.68,0.99

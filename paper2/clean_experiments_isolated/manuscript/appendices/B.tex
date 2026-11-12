@@ -1,0 +1,8 @@
+\section{Synthetic Topology and Flow-to-Node Mapping (Experiments E10 and E18)}
+\label{app:topology}
+
+Because raw CICIoT2023 flow traces do not include physical network topology annotations or router graph matrices, topological centrality metrics are modeled via a synthetic enterprise scale-free network topology generated according to the Barab\'asi-Albert model (Experiments E10 and E18). The synthetic network comprises $N = 120$ nodes with attachment parameter $m = 2$ directed edges per newly introduced node, producing 236 directed communication edges and average node degree 3.93.
+
+Personalized PageRank centrality is computed with teleportation parameter $\alpha = 0.85$ via power iteration to tolerance $10^{-6}$. Raw centrality scores are linearly scaled to $[0.10, 0.90]$, producing empirical mean $\mu_R = 0.4200$ and standard deviation $\sigma_R = 0.0799$ ($p_5 = 0.2887, p_{50} = 0.4201, p_{95} = 0.5513, \max = 0.7490$). Ingress monitoring batches are mapped to nodes via round-robin index allocation $n(b) = b \pmod{120}$. 
+
+Across sensitivity sweeps over base topology mean $\mu_R \in \{0.30, 0.42, 0.55\}$, posture allocations on edge streams remain strictly invariant ($L_0$: 12.83\%, $L_1$: 17.17\%, $L_2$: 9.17\%, $L_3$: 30.83\%, $L_4$: 30.00\%, $L_5$: 0.00\%), confirming that edge monitoring is resilient to underlying graph density shifts.

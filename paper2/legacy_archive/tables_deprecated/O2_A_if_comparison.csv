@@ -1,0 +1,3 @@
+IF model,benign_mean,attack_mean,AUC(benign vs attack),% benign above 0.90,% attack above 0.90
+Contaminated (published),1.0000,0.8770,0.0296,100.00%,22.46%
+Corrected (benign-only),0.4352,0.9221,0.9567,4.99%,62.72%
