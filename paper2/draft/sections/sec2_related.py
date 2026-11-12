@@ -56,5 +56,5 @@ To contextualize our six-level security posture model within broader industrial 
 3. MITRE ATT&CK Framework [43]: The MITRE ATT&CK enterprise matrix categorizes adversarial tactics from initial reconnaissance to impact. Our multi-stage pipeline maps incoming telemetry to these operational tactics: the upstream XGBoost classifier recognizes explicit attack techniques, the clean Isolation Forest flags anomalous payload variations indicative of evasion, TARP quantifies lateral movement risk across topology hubs, and ADTM tracks persistent campaign dwell time.
 4. Distinction from Evaluation Standards [44]: In contrast to evaluation methodologies such as Common Criteria Evaluation Assurance Levels (EAL1–EAL7) [44], which assess the static design verification depth of an IT product during certification, our posture model governs dynamic runtime threat escalation under live streaming telemetry.
 
-Table 1 provides an architectural and quantitative comparison between the proposed framework and the published foundational baseline [1].
+Table 1 provides an architectural and quantitative comparison between the proposed framework and the prior foundational baseline submission [1].
 """

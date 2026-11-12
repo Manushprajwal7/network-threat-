@@ -55,7 +55,7 @@ where $\hat{y}_t \ne \text{benign}$ denotes an attack prediction and $c_t = \max
 
 The synthesized evidence score $S$, combined with the window's mean trust $\bar{T} = \frac{1}{W} \sum_{t=1}^W T_t$ and mean topological risk $\bar{R} = \frac{1}{W} \sum_{t=1}^W R_t$, uniquely determines the operational security posture level $L \in \{L_0, L_1, L_2, L_3, L_4, L_5\}$:
 - Level $L_0$ (Normal Monitoring): $S = 0$ and $\bar{T} \ge 60.0$. Traffic exhibits nominal trust, baseline anomaly rates, and zero high-confidence attack detections. Permitted default action: Allow (unit cost: 0).
-- Level $L_1$ (Heightened Surveillance): $S = 1$, or $S = 0 \land \bar{T} < 60.0$ (capturing behavioral trust degradation even if instantaneous telemetry indicators have not triggered). Permitted default action: Alert (unit cost: +1 on benign / -5 on attack).
+- Level $L_1$ (Topology-Prior Monitoring): $S = 1$, or $S = 0 \land \bar{T} < 60.0$ (capturing behavioral trust degradation or topological prior exposure even if instantaneous threat indicators have not triggered). Permitted default action: Alert (unit cost: +1 on benign / -5 on attack) under $P_{2\text{-tier}}$, or Allow under $P_{\text{opt}}$.
 - Level $L_2$ (Contextual Evaluation): $S = 2$. Two independent components corroborate suspicious behavior. Permitted default action: Restrict (unit cost: +3 on benign / -10 on attack).
 - Level $L_3$ (Active Containment): $S \ge 3$ with mean trust $\bar{T} > 20.0$. Multi-source evidence confirms active malicious activity, but trust degradation remains moderate. Permitted default action: Quarantine (unit cost: +15 on benign / -20 on attack).
 - Level $L_4$ (Severe Containment - Peripheral / Off-Hub): $S \ge 3$, mean trust $\bar{T} \le 20.0$, and off-hub topology $\bar{R} < 0.75$. Severe threat confirmed on peripheral edge endpoints. Permitted action: Block under policy $P_{2\text{-tier}}$ or Quarantine under conservative policy $P_1$.
@@ -82,7 +82,7 @@ $$c(n) = 2 H(n - 1) - \frac{2(n - 1)}{n} = 2\left(\ln(n - 1) + \gamma\right) - \
 
 where $H(i)$ is the harmonic number, approximated by $\ln(i) + \gamma$, and $\gamma \approx 0.5772156649$ is Euler's constant ($2\gamma \approx 1.1544313298$). When $h(\mathbf{x}) \to 0$, $s \to 1$, indicating that the observation is isolated rapidly near the root and is statistically anomalous.
 
-In the published baseline pipeline [1], an unvalidated string literal mismatch occurred: the training script filtered benign samples using `'BENIGN'` (inherited from CICIDS2017), whereas CICIoT2023 designates nominal traffic as `'BenignTraffic'`:
+In the prior baseline pipeline [1], an unvalidated string literal mismatch occurred: the training script filtered benign samples using `'BENIGN'` (inherited from CICIDS2017), whereas CICIoT2023 designates nominal traffic as `'BenignTraffic'`:
 
 ```python
 # Contamination Defect in LOFO Training Routine

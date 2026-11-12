@@ -1,9 +1,9 @@
-\section{Posture Threshold Sensitivity and Monotonicity Boundaries (Experiments E5 and E20)}
+\section{Posture Synthesis Threshold Sensitivity and Monotonicity Boundaries (Experiments E5 and E20)}
 \label{app:threshold_sensitivity}
 
 Experiment E5/E20 systematically swept each of the four posture synthesis thresholds across the multi-state evaluation stream. Table~\ref{tab:posture_threshold_sensitivity} details the operational threshold sensitivity sweep across $\tau_{\text{anom}}, \tau_T, \tau_{\text{conf}}, \tau_{\text{topo}}$ and identifies exact monotonicity boundaries:
 \begin{itemize}
-  \item Anomaly Threshold $\tau_{\text{anom}} \in [0.40, 0.70]$: $P_{2\text{-tier}}$ combined net benefit varies by less than 0.14\% (+1,907,183 OCU at 0.40 to +1,909,926 OCU at 0.70), with strictly 0.00\% benign Block FPR maintained across all settings.
+  \item Anomaly Threshold $\tau_{\text{anom}} \in [0.40, 0.70]$: $P_{2\text{-tier}}$ combined net benefit varies by less than 0.17\% (+1,907,183 OCU at 0.40 to +1,910,500 OCU at 0.70, matching Table 14), with strictly 0.00\% benign Block FPR maintained across all settings.
   \item Trust Threshold $\tau_T \in [40.0, 80.0]$: Level $L_4$ captures all 18,000 pure-attack flows across all settings while preserving 0.00\% benign Block assignments. Monotonicity holds for $\tau_T \le 70.0$; at $\tau_T \ge 80.0$, premature trust degradation inverts $L_1$ and $L_2$ allocations.
   \item Confidence Threshold $\tau_{\text{conf}} \in [0.80, 0.95]$: Hard reset triggering and level escalation remain invariant due to high classifier separation.
   \item Topological Threshold $\tau_{\text{topo}} \in [0.30, 0.75]$: Edge flows remain correctly classified in Level $L_4$ without premature escalation into Level $L_5$. Monotonicity holds for $\tau_{\text{topo}} < 0.75$; at $\tau_{\text{topo}} \ge 0.75$, edge batches are blocked from escalating past $L_3$.

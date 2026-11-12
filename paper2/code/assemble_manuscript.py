@@ -671,7 +671,7 @@ def parse_and_insert_text(raw_text):
 # -------------------------------------------------------------
 parse_and_insert_text(SEC1_TEXT)
 
-add_table_booktabs(1, "Comparison between published baseline [1] and the proposed framework on the CICIoT2023 benchmark.",
+add_table_booktabs(1, "Architectural and quantitative progression comparison between prior baseline submission [1] and the proposed framework on the CICIoT2023 benchmark.",
                    "paper2/tables/tab1_paper_comparison.csv",
                    col_widths=[1.3, 2.5, 2.5, 0.8])
 
@@ -744,18 +744,18 @@ for part in results_parts:
                           "Posture level distributions under attack-heavy versus stratified multi-state traffic streams (600 batches, W=100).")
         
     elif "Table 7 audits action-level precision across candidate decision architectures" in part:
-        add_table_booktabs(7, "Comprehensive action-level precision audit on the multi-state benchmark stream. Baseline P0 exhibited severe action precision inversion (Alert 100.00% > Quarantine 70.50%), whereas new pipeline P1 and P2-tier establish strictly non-decreasing precision across all five enforcement tiers (Allow 0.00% <= Alert 0.00% < Restrict 46.40% < Quarantine 51.71% < Block 100.00%) with zero inversions.",
+        add_table_booktabs(7, "Comprehensive action-level precision audit on the multi-state benchmark stream across candidate decision architectures. Baseline P0 exhibited severe action precision inversion (Alert 100.00% > Quarantine 70.50%), whereas new pipeline policies P1 and P2-tier establish strictly non-decreasing precision across all five enforcement tiers (Allow 0.00% <= Alert 0.00% < Restrict 46.40% < Quarantine 51.71% < Block 100.00%) with zero inversions.",
                            "paper2/tables/tab7_action_precision.csv",
-                           col_widths=[1.2, 1.0, 0.8, 1.0, 1.0, 1.0, 1.1])
+                           col_widths=[1.2, 1.1, 0.7, 0.8, 0.8, 0.8, 0.9, 0.9])
         
     elif "Figure 6 illustrates this strictly non-decreasing precision profile" in part:
         add_figure_inline(6, "paper2/figures/O3_action_precision_bars.png",
                           "Action-level precision profiles across enforcement tiers under published baseline P0 and proposed policy P2-tier.")
         
     elif "Table 8 compares the primary candidate architectures" in part:
-        add_table_booktabs(8, "Master policy performance comparison across candidate decision architectures evaluated on 60,000-flow multi-state and attack-heavy streams in Operational Cost Units (OCU). Global optimum policy P_opt achieves Rank 1 (+1,920,767 OCU combined, with 0.00% Block FPR and 0.00% Quarantine FPR). Canonical policy P2-tier ranks 9th of 70 admissible mappings overall (the unique mapping enforcing strict 1-to-1 action tiering across all five responses, while Pareto-dominated by 8 policies that eliminate its 29.9% benign Quarantine disruption), achieving +963,686 OCU on balanced and +2,856,000 OCU on attack-heavy streams (+1,909,843 OCU combined, a 2.43x gain over P1). Policy P2 (Aggressive Baseline) achieves unconstrained cost efficiency on multi-state but incurs 521,820 OCU in benign penalties, ranking 28th.",
+        add_table_booktabs(8, "Master policy performance comparison across candidate decision architectures evaluated on 60,000-flow multi-state and attack-heavy streams in Operational Cost Units (OCU). Global optimum policy P_opt achieves Rank 1 (+1,920,767 OCU combined, with 0.00% Block FPR and 0.00% Quarantine FPR on balanced streams; on attack-heavy streams, P_opt incurs 100% Block FPR). Canonical policy P2-tier ranks 9th of 70 admissible mappings overall (+1,909,843 OCU combined, a 2.43x gain over P1, while Pareto-dominated by 8 policies that eliminate its 29.90% benign Quarantine disruption). Microscopic hybrid policy P_hybrid achieves the highest combined benefit (+1,931,108 OCU) by vetoing 880 benign flows in Level L4, reducing flood Block FPR to 38.89% while incurring 29.90% Quarantine FPR on balanced traffic.",
                            "paper2/tables/tab8_master_policy.csv",
-                           col_widths=[0.75, 1.10, 0.55, 0.55, 0.55, 0.50, 0.45, 0.50, 0.50, 0.50, 0.50, 0.65])
+                           col_widths=[1.1, 1.3, 0.65, 0.65, 0.65, 0.55, 0.55, 0.55, 1.1])
         
     elif "Figure 7 illustrates the net benefit comparison across policies" in part:
         add_figure_inline(7, "paper2/figures/O3_cost_comparison_bars.png",
@@ -766,7 +766,7 @@ for part in results_parts:
                           "Empirical Pareto frontier of admissible monotonic policies in (Block FPR, Quarantine FPR, Net Benefit) space.")
         
     elif "Table 9 details the distribution of enforcement actions across the eight CICIoT2023 threat families" in part:
-        add_table_booktabs(9, "Per-family flow counts, action distribution under recommended policy P2-tier, and mean dynamic trust scores across eight threat families on the multi-state benchmark stream (incorporating all 30,118 attack flows). Benign traffic incurs 0.0% Block, while all eight attack families incur 0.0% Allow/Alert and concentrate heavily in Block (54.0% to 100.0%) and Quarantine (0.0% to 40.0%).",
+        add_table_booktabs(9, "Per-family flow counts, action distribution under canonical policy P2-tier, and mean dynamic trust scores across seven attack families and benign traffic on the multi-state benchmark stream (incorporating all 30,118 attack flows). Benign traffic incurs 0.00% Block, with traffic partitioned across Alert (34.47%), Quarantine (29.90%), Allow (25.77%), and Restrict (9.86%). For attack families, Block percentages range from 54.04% (Recon) to 75.00% (Web), and Quarantine percentages range from 25.00% (Web) to 40.00% (BruteForce).",
                            "paper2/tables/tab9_per_family.csv",
                            col_widths=[1.0, 0.7, 0.6, 0.6, 0.6, 0.6, 0.6, 0.8, 0.6, 1.0])
         add_figure_inline(9, "paper2/figures/O3_per_family_heatmap.png",
