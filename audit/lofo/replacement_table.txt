@@ -1,0 +1,78 @@
+REPLACEMENT FOR MANUSCRIPT TABLE 17
+LEAVE-ONE-FAMILY-OUT (LOFO) UNKNOWN-TRAFFIC DETECTION EVALUATION
+================================================================================
+Dataset: CICIoT2023 | 7 held-out attack families (never seen during Isolation
+Forest training for their respective fold) | BenignTraffic always retained
+Isolation Forest: n_estimators=200, contamination=0.05, random_state=42,
+  bootstrap=False, max_features=1.0, max_samples='auto' (fixed, all folds)
+XGBoost: fixed pretrained 34-class model (saved_models/xgboost.pkl), not
+  retrained per fold; confidence threshold = 0.60
+Hybrid rule: flag unknown if (XGBoost confidence < 0.60) OR (IF flags anomaly)
+
+--------------------------------------------------------------------------------
+METHOD A — Isolation Forest alone
+--------------------------------------------------------------------------------
+Fold  Family       Unknown-n   UTDR      Precision   F1        FPR
+F1    DDoS           855,981   0.0014    0.0720      0.0028    0.0498
+F2    DoS            204,245   0.0080    0.0325      0.0128    0.0500
+F3    Mirai           66,749   0.0339    0.0392      0.0363    0.0500
+F4    Recon            8,812   0.6712    0.0918      0.1616    0.0501
+F5    Web                626   0.8914    0.0094      0.0186    0.0500
+F6    Spoofing        12,410   0.9286    0.1652      0.2804    0.0500
+F7    BruteForce         319   0.8339    0.0045      0.0090    0.0499
+
+--------------------------------------------------------------------------------
+METHOD B — Hybrid (XGBoost confidence < 0.60) OR (Isolation Forest anomaly)
+--------------------------------------------------------------------------------
+Fold  Family       Unknown-n   UTDR      Precision   F1        FPR
+F1    DDoS           855,981   0.0026    0.0864      0.0050    0.0728
+F2    DoS            204,245   0.0085    0.0332      0.0135    0.0521
+F3    Mirai           66,749   0.0342    0.0377      0.0359    0.0525
+F4    Recon            8,812   0.7031    0.0939      0.1657    0.0512
+F5    Web                626   0.9521    0.0098      0.0193    0.0514
+F6    Spoofing        12,410   0.9499    0.1657      0.2821    0.0510
+F7    BruteForce         319   0.9279    0.0048      0.0096    0.0517
+
+--------------------------------------------------------------------------------
+AGGREGATE — Macro (mean of the 7 per-fold values; weights every family equally)
+--------------------------------------------------------------------------------
+Method                        UTDR              Precision          F1                 FPR
+IsolationForest alone         0.4812 ± 0.4111   0.0592 ± 0.0522    0.0745 ± 0.0984    0.0500 ± 0.0001
+Hybrid (XGB conf. OR IF)      0.5112 ± 0.4369   0.0616 ± 0.0532    0.0759 ± 0.0991    0.0547 ± 0.0074
+
+--------------------------------------------------------------------------------
+AGGREGATE — Micro (all 7 folds' TP/FP/FN/TN pooled first; weights by sample count)
+--------------------------------------------------------------------------------
+Method                        UTDR      Precision   F1        FPR
+IsolationForest alone         0.0204    0.0619      0.0306    0.0500
+Hybrid (XGB conf. OR IF)      0.0218    0.0631      0.0325    0.0526
+
+(Micro and macro values are reported as point estimates, not distributions —
+std/min/max for the micro rows in aggregate_metrics.csv equal the pooled value
+itself, since pooling produces a single number, not seven independent draws.)
+
+================================================================================
+INTERPRETATION
+================================================================================
+The macro-average UTDR (48–51%) conceals a bimodal split that the single
+679-sample holdout in the original manuscript could not reveal: three
+high-volume, flood-style families (DDoS, DoS, Mirai — 96% of all test-unknown
+samples across the seven folds) are detected at near-zero rates (0.1–3.4%
+UTDR) when held out, because the Isolation Forest's decision boundary is
+shaped by the many structurally similar flood-type attacks that remain in
+training; four low-volume, behaviorally distinct families (Recon, Web,
+Spoofing, BruteForce) are detected at 67–95% UTDR, because their traffic
+patterns differ sharply from the flood-dominated training distribution.
+Precision is low in every fold (0.5–16.6%) regardless of family, reflecting
+the base-rate problem inherent to anomaly detection on a dataset this
+imbalanced: even a fixed ~5% false-positive rate on hundreds of thousands to
+over a million known samples yields tens of thousands of false alarms, which
+swamps true positives except in the largest unknown-family folds. The hybrid
+method (XGBoost confidence OR Isolation Forest) improves UTDR modestly over
+Isolation Forest alone in every fold (macro UTDR 51.1% vs. 48.1%) at a small
+cost in FPR, confirming the fusion rule adds value but does not change the
+qualitative pattern. These results do not support treating the manuscript's
+original 95.14% hybrid UTDR as representative: that number reflects the
+specific seven rare classes chosen for the single-split holdout, all of which
+happen to fall in the "easy" (behaviorally distinct) category — no
+DDoS/DoS/Mirai class was ever tested as unknown in the original evaluation.

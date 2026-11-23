@@ -1,0 +1,2 @@
+xgb_total_trees,xgb_latency_us_per_flow,if_latency_us_per_flow,trust_latency_us_per_batch,posture_latency_us_per_batch,total_pipeline_us_per_flow,throughput_flows_per_sec
+5100,22.488999984489055,3.1009800000902032,1045.0600000694976,37.99999994953396,36.420579984769574,27457.0037165301

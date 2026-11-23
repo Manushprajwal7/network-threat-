@@ -1,0 +1,4 @@
+Configuration,High Trust %,Moderate Trust %,Low Trust %,Very Low Trust %,Critical Trust %,Mean Trust Score
+Full TARP (baseline),94.25%,5.75%,0.00%,0.00%,0.00%,83.1610
+"Without topology penalty (A1, lambda = 0)",100.00%,0.00%,0.00%,0.00%,0.00%,85.9566
+Difference,+5.75%,-5.75%,0.00%,0.00%,0.00%,+2.7956

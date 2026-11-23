@@ -1,0 +1,6 @@
+Regime Identifier,Total Flows,Batches (W=100),Attack Base Rate,Batch Composition Structure,Operational Purpose
+Balanced Multi-State,"60,000",600,50.20%,"180 pure benign, 240 mixed (binomial p=0.50), 180 pure attack batches",Evaluates graduated posture escalation and precision monotonicity across threat phases
+Attack-Heavy Surge,"60,000",600,97.60%,Contiguous test slice matching empirical high-rate volumetric DDoS/Mirai floods,Evaluates high-volume threat containment benefit and measures collateral benign blocking
+Multi-State Phase Transition,"60,000",600,50.20%,Sequential phase transitions (Nominal -> Probe -> Lateral -> Flood -> Recovery),Validates hysteresis latching and cooldown de-escalation over continuous time
+Unstratified Shuffled,"60,000",600,50.20%,60k flows randomly interleaved without batch purity stratification,Assesses sensitivity to batch structuring and measures worst-case unstratified disruption
+Pure Volumetric Flood,"60,000",600,100.00%,"60,000 consecutive attack flows across DDoS, DoS, and Mirai attack families",Measures maximum threat containment reward under total malicious link saturation

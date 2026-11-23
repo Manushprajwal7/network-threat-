@@ -1,0 +1,6 @@
+action,mapped_levels,total_flows,benign_flows,attack_flows,attack_prevalence_pct,ci_lower_pct,ci_upper_pct
+Allow,[0],8600,8600,0,0.0,0.0,0.045
+Alert,[1],9400,9400,0,0.0,0.0,0.041
+Restrict,[2],5100,2744,2356,46.196,44.831,47.567
+Quarantine,[3],18700,9231,9469,50.636,49.92,51.353
+Block,"[4, 5]",18200,70,18130,99.615,99.514,99.695

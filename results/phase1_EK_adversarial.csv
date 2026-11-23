@@ -1,0 +1,9 @@
+adversary_type,parameter,atk_recall_pct,combined_net_benefit
+dilution,0.0,100.0,1920767.0
+dilution,10.0,100.0,1626667.0
+dilution,20.0,100.0,1337317.0
+dilution,40.0,100.0,750067.0
+dilution,60.0,100.0,165367.0
+pulsing,1.0,100.0,455667.0
+pulsing,2.0,100.0,-31033.0
+pulsing,4.0,100.0,-421833.0

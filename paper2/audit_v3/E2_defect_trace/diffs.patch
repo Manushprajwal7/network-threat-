@@ -1,0 +1,70 @@
+--- a/backend/ml_model/unknown_attack_detector.py
++++ b/backend/ml_model/unknown_attack_detector.py
+@@ -67,10 +67,13 @@
+-    benign_idx = list(label_encoder.classes_).index("BENIGN") \
+-        if "BENIGN" in label_encoder.classes_ else -1
++    valid_benign_names = ["BenignTraffic", "BENIGN", "Benign", "Normal"]
++    benign_idx = -1
++    for name in valid_benign_names:
++        if name in label_encoder.classes_:
++            benign_idx = list(label_encoder.classes_).index(name)
++            break
+ 
+     if benign_idx >= 0:
+         benign_mask = y_train == benign_idx
+         X_benign    = X_train[benign_mask]
+         log.info(f"Training Isolation Forest on {len(X_benign):,} BENIGN samples")
+     else:
+-        X_benign = X_train
+-        log.warning("BENIGN class not found — training IF on all training samples")
++        raise ValueError("Critical Error: Benign class label not found in dataset classes.")
+ 
+--- a/backend/api/trust_manager.py
++++ b/backend/api/trust_manager.py
+@@ -51,7 +51,7 @@
+-    def record_event(self, entity_id: str, risk_level: str, is_attack: bool,
+-                     anomaly_score: float, confidence: float):
++    def record_event(self, entity_id: str, risk_level: str, is_attack_pred: bool,
++                     anomaly_score: float, confidence: float):
+         self._history[entity_id].append({
+             "ts": time.time(),
+             "risk": risk_level,
+-            "is_attack": is_attack,
++            "is_attack": is_attack_pred,  # Model prediction only; zero ground-truth label leakage
+             "anomaly": anomaly_score,
+             "confidence": confidence,
+         })
+@@ -84,7 +84,6 @@
+     def compute_trust(
+         self,
+         entity_id: str = "default",
+         predicted_label: str = "BENIGN",
+         risk_level: str = "Low",
+         confidence: float = 0.0,
+         anomaly_score: float = 0.0,
+-        is_attack: bool = False,
+         topology_risk: str = "Low",
+         record: bool = True,
+     ) -> dict:
++        # Determine attack nature strictly from runtime prediction
++        is_attack_pred = (predicted_label.upper() not in ("BENIGN", "BENIGNTRAFFIC", ""))
+         if record:
+-            self.record_event(entity_id, risk_level, is_attack, anomaly_score, confidence)
++            self.record_event(entity_id, risk_level, is_attack_pred, anomaly_score, confidence)
+--- a/paper2/code/generate_both_windows.py
++++ b/clean_experiments_isolated/experiments/common.py
+@@ -29,13 +29,3 @@
+-p_benign_map = {
+-    "BenignTraffic": 100.0, "Recon-PingSweep": 74.8, "SqlInjection": 70.1,
+-    "BrowserHijacking": 57.6, "DictionaryBruteForce": 56.9, "DNS_Spoofing": 55.5,
+-    "CommandInjection": 53.7, "Uploading_Attack": 53.1, "MITM-ArpSpoofing": 53.0,
+-    "Backdoor_Malware": 52.0, "XSS": 51.6, "Recon-OSScan": 48.0,
+-    "Recon-PortScan": 43.5, "Recon-HostDiscovery": 41.4,
+-}
+-priors_by_idx = np.full(len(class_names), 45.0)
+-priors_by_idx[1] = 100.0
+-for c_name, val in p_benign_map.items():
+-    if c_name in class_names:
+-        priors_by_idx[class_names.index(c_name)] = val
++# Universal neutral prior initialization (100.0 for all entities)
++T_curr = 100.0

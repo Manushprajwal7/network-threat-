@@ -1,0 +1,17 @@
+active_components,num_components,has_conf,has_anom,has_trust,has_topo,balanced_net_ocu,attack_heavy_net_ocu,combined_net_ocu,balanced_block_fpr,balanced_quar_fpr,attack_heavy_block_fpr
+c_conf+c_anom+c_trust,3,True,True,True,False,983600,2856000,1919800.0,0.0,20.06893782210026,100.0
+c_conf+c_anom+c_trust+c_topo,4,True,True,True,True,963466,2856000,1909733.0,0.0,30.0983869888227,100.0
+c_conf+c_trust+c_topo,3,True,False,True,True,647786,1786464,1217125.0,0.0,9.243022555384513,53.333333333333336
+c_conf+c_anom+c_topo,3,True,True,False,True,647786,1786464,1217125.0,0.0,9.243022555384513,53.333333333333336
+c_anom+c_trust+c_topo,3,False,True,True,True,644636,1786464,1215550.0,0.0,19.272471722106953,53.333333333333336
+c_anom+c_trust,2,False,True,True,False,265534,581280,423407.0,0.0,0.0,0.0
+c_conf+c_trust,2,True,False,True,False,251729,581280,416504.5,0.0,0.0,0.0
+c_conf+c_anom,2,True,True,False,False,251729,581280,416504.5,0.0,0.0,0.0
+c_trust+c_topo,2,False,False,True,True,196195,444984,320589.5,0.0,0.0,0.0
+c_anom+c_topo,2,False,True,False,True,196195,444984,320589.5,0.0,0.0,0.0
+c_conf+c_topo,2,True,False,False,True,179502,444984,312243.0,0.0,0.0,0.0
+c_trust,1,False,False,True,False,138708,291360,215034.0,0.0,0.0,0.0
+c_anom,1,False,True,False,False,138708,291360,215034.0,0.0,0.0,0.0
+c_conf,1,True,False,False,False,119018,291360,205189.0,0.0,0.0,0.0
+c_topo,1,False,False,False,True,63246,154392,108819.0,0.0,0.0,0.0
+None,0,False,False,False,False,0,0,0.0,0.0,0.0,0.0

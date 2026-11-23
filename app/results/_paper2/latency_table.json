@@ -1,0 +1,56 @@
+[
+    {
+        "component":  "XGBoost (GPU)",
+        "execution_mode":  "Single Flow (B=1)",
+        "hardware":  "RTX 3050 Laptop GPU",
+        "p50_us":  "13828.5",
+        "p95_us":  "18622.9",
+        "p99_us":  "21624.3",
+        "mean_us":  "14775.0"
+    },
+    {
+        "component":  "XGBoost (CPU)",
+        "execution_mode":  "Single Flow (B=1)",
+        "hardware":  "Host CPU (n_jobs=-1)",
+        "p50_us":  "1864.2",
+        "p95_us":  "2820.2",
+        "p99_us":  "2986.1",
+        "mean_us":  "2058.7"
+    },
+    {
+        "component":  "Isolation Forest",
+        "execution_mode":  "Single Flow (B=1)",
+        "hardware":  "Host CPU (n_jobs=-1)",
+        "p50_us":  "7335.5",
+        "p95_us":  "9257.6",
+        "p99_us":  "10795.1",
+        "mean_us":  "7600.4"
+    },
+    {
+        "component":  "ADTM Trust Manager",
+        "execution_mode":  "Single Flow (Sequential Causal)",
+        "hardware":  "Host CPU",
+        "p50_us":  "0.9",
+        "p95_us":  "1.7",
+        "p99_us":  "1.9",
+        "mean_us":  "1.05"
+    },
+    {
+        "component":  "TARP Topology",
+        "execution_mode":  "Graph-Wide Propagation (120 Nodes)",
+        "hardware":  "Host CPU",
+        "p50_us":  "4.8",
+        "p95_us":  "5.2",
+        "p99_us":  "7.6",
+        "mean_us":  "4.99"
+    },
+    {
+        "component":  "Benign Veto Logic",
+        "execution_mode":  "Single Flow Conditional Check",
+        "hardware":  "Host CPU",
+        "p50_us":  "0.2",
+        "p95_us":  "0.3",
+        "p99_us":  "0.4",
+        "mean_us":  "0.177"
+    }
+]

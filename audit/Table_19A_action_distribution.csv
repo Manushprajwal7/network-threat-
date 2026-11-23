@@ -1,0 +1,4 @@
+Configuration,"Allow (count, %)","Alert (count, %)","Restrict (count, %)","Quarantine (count, %)","Block (count, %)"
+Baseline thresholds,0 (0.00%),"54,553 (90.92%)",0 (0.00%),"5,447 (9.08%)",0 (0.00%)
+Relaxed thresholds,"1,544 (2.57%)","53,009 (88.35%)","3,447 (5.75%)","2,000 (3.33%)",0 (0.00%)
+Difference,"+1,544 (+2.57%)","-1,544 (-2.57%)","+3,447 (+5.75%)","-3,447 (-5.75%)",0 (0.00%)

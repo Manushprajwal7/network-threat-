@@ -1,0 +1,212 @@
+{
+  "timestamp": "2026-11-17T23:23:00Z",
+  "environment": {
+    "os_platform": "Windows-11-10.0.26300-SP0",
+    "python_version": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "packages": {
+      "numpy": "2.1.3",
+      "scipy": "1.17.1",
+      "pandas": "2.2.3",
+      "scikit-learn": "1.9.0",
+      "python-docx": "1.2.0",
+      "pyyaml": "6.0.2"
+    }
+  },
+  "seeds": {
+    "primary_evaluation": 42,
+    "held_out_test": 99,
+    "task2_permutations_seed": 12345,
+    "task3_10_seeds": [
+      13,
+      42,
+      99,
+      123,
+      2024,
+      7,
+      77,
+      101,
+      2023,
+      31415
+    ],
+    "task6_5_seeds": [
+      13,
+      42,
+      99,
+      123,
+      2024
+    ],
+    "tarp_graph_seed": 42
+  },
+  "hashes": [
+    {
+      "file": "audit\\consistency.csv",
+      "sha256": "51a55775d08bba84c0fed2a739695ae6cd0d556e4cecef1f9319170d6afcb3db",
+      "bytes": 12209
+    },
+    {
+      "file": "audit\\generate_task9_tables.py",
+      "sha256": "1e21631f08b0e6e8dce63ce0878fd50ffbe87453e870fb5e68c27e70050a4c2f",
+      "bytes": 5868
+    },
+    {
+      "file": "audit\\outputs\\task2_topology_confound_permutations.csv",
+      "sha256": "d5256ad8d8d251946671db3f229e1767b0b2475d6a3fafb79a458f7844170619",
+      "bytes": 118281
+    },
+    {
+      "file": "audit\\outputs\\task2_topology_confound_summary.csv",
+      "sha256": "ca962d090957ca1506901fb14c7d6a7e7519675f69b9ecbdbc04235a8b8e5f64",
+      "bytes": 1131
+    },
+    {
+      "file": "audit\\outputs\\task3_detailed_policy_evaluations.csv",
+      "sha256": "53eb45bcd26485be808c62083c68644bc6bacb4a99c2ecd0a5cc52e7508440e4",
+      "bytes": 131449
+    },
+    {
+      "file": "audit\\outputs\\task3_paired_bootstrap_wilcoxon.csv",
+      "sha256": "589c139c623b7cc5ed97f838f7cbe6c54be849de5e6d3dcf240e8a282643ce0c",
+      "bytes": 1087
+    },
+    {
+      "file": "audit\\outputs\\task3_policy_action_summary_table.csv",
+      "sha256": "0285ca3e79918696c2fe93eae3b88e84446c3f9130028e151973c709cdce5ce7",
+      "bytes": 14797
+    },
+    {
+      "file": "audit\\outputs\\task3_policy_multiseed_summary.csv",
+      "sha256": "81f44d730e08b503aaa6976256163a4913e9abf8011a15e9cb926546dd412ca7",
+      "bytes": 2547
+    },
+    {
+      "file": "audit\\outputs\\task4_hybrid_audit.csv",
+      "sha256": "1b2d3ef0e88fa4777471b90fb70e833640657a2a0ba8c7d782b8c514fd34d8a0",
+      "bytes": 729
+    },
+    {
+      "file": "audit\\outputs\\task5_exceedance_audit.csv",
+      "sha256": "0c703116832f258204ea82b5f2d287799872583418d55c4695e624be70da4ae2",
+      "bytes": 267
+    },
+    {
+      "file": "audit\\outputs\\task5_recalibration_summary.csv",
+      "sha256": "40428cd3bd07bf4ef6cb8eb57925d14d37db1b0c1ffbe0e8776ddce04e376536",
+      "bytes": 372
+    },
+    {
+      "file": "audit\\outputs\\task6_trust_ablation_cis.csv",
+      "sha256": "ae2c4249430f76f8eec1358afe18a63ae3a4578a30d2dcf77705684713c64655",
+      "bytes": 695
+    },
+    {
+      "file": "audit\\outputs\\task7_latency_benchmark.csv",
+      "sha256": "8ba1f0fc5848feabae284ff1c30c81b84dc1b7183c439500d203e71798b177e9",
+      "bytes": 361
+    },
+    {
+      "file": "audit\\outputs\\task7_lofo_zero_day_novelty.csv",
+      "sha256": "215392c4b107e7df197a86a3b3ead37a6ff816ebaedd1adf2b1a5c4d7ad9b0fd",
+      "bytes": 629
+    },
+    {
+      "file": "audit\\summarize_task2.py",
+      "sha256": "2dd842957d88273a6ffe4a24c517407d1e260790bc874b6f89ae09548ec11f9a",
+      "bytes": 3788
+    },
+    {
+      "file": "audit\\task1_build_consistency_ledger.py",
+      "sha256": "25b3f27afe3ba1dbbc37236c06f820593924eae8354e63d29f153e1ebdc43c74",
+      "bytes": 18251
+    },
+    {
+      "file": "audit\\task2_topology_confound.py",
+      "sha256": "41949dfaf08cc408235a7217dd23c29b18835ef3c9cbfd73f1490f368262e352",
+      "bytes": 12870
+    },
+    {
+      "file": "audit\\task3_policy_rebuild.py",
+      "sha256": "81a449cccf1f429cfadd8a72c8faf3fb8e1fc45bbec9f3816dd2c22d5e43e5d1",
+      "bytes": 19249
+    },
+    {
+      "file": "audit\\task4_hybrid_audit.py",
+      "sha256": "b6fbb81b33ab605b2fb5dde70e133dd93b7044fdfcbf8bf7e0389961a316036b",
+      "bytes": 7732
+    },
+    {
+      "file": "audit\\task5_calibration_audit.py",
+      "sha256": "1b8c64701a97dd6fc2e0872e876be839da76e2dd3c7191ce46b473e840eb061c",
+      "bytes": 7370
+    },
+    {
+      "file": "audit\\task6_trust_leakage.py",
+      "sha256": "77e13a0ebe699551558ebf0827b4f521784e2ee77cf35e2cd67579c6e01e68c6",
+      "bytes": 6250
+    },
+    {
+      "file": "audit\\task7_latency_novelty.py",
+      "sha256": "a6c9e7d0660edd0639c3096d83f9be7f5f70320279e3abe423014e8406b930ab",
+      "bytes": 7816
+    },
+    {
+      "file": "audit\\task8_reproducibility.py",
+      "sha256": "9b0d48308b999a17d6f5da407f1040ee65fb3efc1257cc18feb58ee1a7c526d2",
+      "bytes": 3250
+    },
+    {
+      "file": "clean_experiments_isolated\\manuscript\\paper_v3.tex",
+      "sha256": "dc42e6ae447563ea471a0576db4f0e1544613ed85a562b276c0a363594c5ae4f",
+      "bytes": 88550
+    },
+    {
+      "file": "draft\\paper2_manuscript.docx",
+      "sha256": "bded44d91a5aa98e21d6fa8ff80fcf5547fd3e775cc1f18eca90663191a8589e",
+      "bytes": 1390175
+    },
+    {
+      "file": "draft\\sections\\references.py",
+      "sha256": "d02d1143ddc8b776713e3201bcd8cfec29fa156b22958bc5788aaaa550f54ec4",
+      "bytes": 14730
+    },
+    {
+      "file": "draft\\sections\\sec1_intro.py",
+      "sha256": "7f8ac88947011cff91eae375aaaa780947e0641f7f2c3c5bb9b5d821b1c0a926",
+      "bytes": 15676
+    },
+    {
+      "file": "draft\\sections\\sec2_related.py",
+      "sha256": "bb566e4076ef00859328b7219bb42805e87f7b7e1a7dfb1a6ca31ce298562eea",
+      "bytes": 9063
+    },
+    {
+      "file": "draft\\sections\\sec3_method.py",
+      "sha256": "b9c2d2f528ba0d118ea00a8d953b14d1bc72962c6f4e2ea3436615d59fa2068c",
+      "bytes": 25221
+    },
+    {
+      "file": "draft\\sections\\sec4_results.py",
+      "sha256": "c1c53a18084656a18f39298681e8ceb36ed30215816ab0ec5b40fd6b04eb640a",
+      "bytes": 31141
+    },
+    {
+      "file": "draft\\sections\\sec5_discussion.py",
+      "sha256": "8d2aef8ae15b0ba2dc6eddddf3e759a38525a94729549e790f5ceeea2a227e7c",
+      "bytes": 9505
+    },
+    {
+      "file": "draft\\sections\\sec6_limitations.py",
+      "sha256": "0475ddb587a6cf733dae292f2465507cd6f5b45abdd481eb86ed628f51089cab",
+      "bytes": 15298
+    },
+    {
+      "file": "draft\\sections\\sec7_conclusion.py",
+      "sha256": "093155d54bbedcea02988f7e0fcadc226982ab30d255e33a85a31c60b656648b",
+      "bytes": 5482
+    },
+    {
+      "file": "draft\\sections\\sec8_appendix.py",
+      "sha256": "edccdb93bec88f567e998b05d5b7b97c1c5c8c21d630275e7fdcfce26f1d13eb",
+      "bytes": 7691
+    }
+  ]
+}

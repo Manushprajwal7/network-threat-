@@ -1,0 +1,4 @@
+threshold_s,pub_benign_exceedance_pct,pub_attack_exceedance_pct,pub_precision,val_benign_exceedance_pct,val_attack_exceedance_pct,val_precision
+0.5,39.99,99.45,71.48,25.85,99.22,79.46
+0.7,20.18,99.03,83.18,10.87,86.76,88.94
+0.9,11.02,87.21,88.86,4.63,45.42,90.81

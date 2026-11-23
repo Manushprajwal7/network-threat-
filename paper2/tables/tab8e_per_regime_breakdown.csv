@@ -1,0 +1,6 @@
+policy_id,policy_name,mapping,balanced_mean,attack_heavy_mean,multi_state_mean,unstratified_mean,flood_mean,fifty_run_mean,test_split_seed99,notes
+P_opt,P_opt (Rank 1 Static),Allow-Allow-Allow-Allow-Block-Block,1470740.0,2892530.0,1470795.0,1465610.0,2962515.0,2052438.1,1467700.0,Rank 1 of 70 static policies. Maps L0-L3 to Allow and L4-L5 to Block.
+P_2-tier,P_2-tier (Canonical),Allow-Alert-Restrict-Quarantine-Block-Block,1410822.0,2895249.0,1410455.4,1360220.8,2970718.0,2009492.8,1404974.0,Canonical 5-action escalation (Rank 15). Incurs 9.56% quarantine FPR on balanced streams.
+P_hybrid,P_hybrid (Veto),Batch Posture + Per-Flow Benign Veto,1391654.0,2896961.0,1439073.2,1402115.0,2974176.0,2044425.0,1404974.0,On D_test Level L4 has 0 benign flows so veto does not trigger. Gains +14071 OCU on pure flood via batch Block.
+P_XGB,P_XGB (Closed-World),Confidence-Gated XGBoost (Cg >= 0.90),1472830.0,2891120.0,1472850.0,1469500.0,2960105.0,2053543.0,1472830.0,Standalone classifier. Maximizes stationary balanced OCU (+1472830) but suffers severe novel attack recall collapse.
+P_1,P_1 (Conservative),Allow-Alert-Restrict-Quarantine-Quarantine-Block,529292.5,1158652.8,528731.8,481808.8,1194845.0,778666.2,786643.0,Conservative baseline (Rank 50). Maps L4 to Quarantine sacrificing over 1.7M OCU in foregone flood containment.

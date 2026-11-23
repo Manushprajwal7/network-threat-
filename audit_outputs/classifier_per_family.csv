@@ -1,0 +1,10 @@
+macro_family,support,share_pct,precision_pct,precision_ci_lower,precision_ci_upper,recall_pct,recall_ci_lower,recall_ci_upper,f1_score_pct,statistical_reliability
+Benign,27709,2.355,87.57,87.184,87.942,91.87,91.541,92.185,89.67,Sufficient statistical support
+DDoS,855981,72.735,99.98,99.974,99.981,99.91,99.899,99.912,99.94,Sufficient statistical support
+DoS,204245,17.355,99.87,99.856,99.887,99.9,99.889,99.916,99.89,Sufficient statistical support
+Mirai,66749,5.672,99.88,99.851,99.904,99.91,99.879,99.926,99.89,Sufficient statistical support
+Spoofing,12410,1.055,62.31,61.449,63.158,62.01,61.149,62.857,62.16,Sufficient statistical support
+Recon,8812,0.749,66.9,65.908,67.885,66.12,65.119,67.095,66.51,Sufficient statistical support
+Web,537,0.046,16.67,10.674,25.079,3.17,1.986,5.011,5.32,"Rare class (<1,000 flows) — wide Wilson CI"
+BruteForce,319,0.027,38.4,30.341,47.151,15.05,11.541,19.385,21.62,"Rare class (<1,000 flows) — wide Wilson CI"
+Malware,89,0.008,5.88,1.046,26.982,1.12,0.199,6.093,1.88,"Rare class (<1,000 flows) — wide Wilson CI"

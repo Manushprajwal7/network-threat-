@@ -1,0 +1,6 @@
+Aggregation Scope,Metric 1 (Accuracy / Balanced Acc),Macro F1 Score,Notes
+Overall Flow Accuracy,98.99%,N/A,Dominated by DDoS (73.2%) and DoS (17.4%)
+All 34 Granular Classes,70.98%,71.51%,Published in classification report (0.7098 / 0.7151)
+33 Granular Attack Classes,70.35%,70.96%,Excludes BenignTraffic (Recall 91.87%)
+8 Macro Attack Families + Benign,59.90%,60.76%,Grouped operational categories
+8 Macro Attack Families Only,55.90%,57.15%,Pure attack containment capability

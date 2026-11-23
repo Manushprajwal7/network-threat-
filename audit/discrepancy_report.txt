@@ -1,0 +1,142 @@
+DISCREPANCY REPORT — Paper vs Recomputed (source: genuine sklearn classification_report)
+==========================================================================================
+
+SECTION 1 — Table 15 (aggregate) comparison
+------------------------------------------------------------------------------------------
+model                 metric           paper   recomputed   diff_pp   flag
+xgboost               accuracy         98.99        98.99      0.00   
+xgboost               macro_F1         71.51        71.51      0.00   
+xgboost               ADR              70.35        70.98      0.63   [DISCREPANCY]
+xgboost               FPR               8.13         0.31      7.82   [DISCREPANCY]
+random_forest         accuracy         98.51        98.51      0.00   
+random_forest         macro_F1         63.95        63.95      0.00   
+random_forest         ADR              61.93        63.01      1.08   [DISCREPANCY]
+random_forest         FPR               1.39         1.02      0.37   [DISCREPANCY]
+decision_tree         accuracy         97.56        97.56      0.00   
+decision_tree         macro_F1         66.23        66.23      0.00   
+decision_tree         ADR              68.69        68.67      0.02   
+decision_tree         FPR              32.27         0.20     32.07   [DISCREPANCY]
+naive_bayes           accuracy         81.16        17.47     63.69   [DISCREPANCY]
+naive_bayes           macro_F1         17.13        17.13      0.00   
+naive_bayes           ADR              22.08        22.75      0.67   [DISCREPANCY]
+naive_bayes           FPR              55.22         0.65     54.57   [DISCREPANCY]
+logistic_regression   accuracy         81.61         0.15     81.46   [DISCREPANCY]
+logistic_regression   macro_F1         47.70         0.50     47.21   [DISCREPANCY]
+logistic_regression   ADR              53.88         3.56     50.32   [DISCREPANCY]
+logistic_regression   FPR              35.29         0.00     35.29   [DISCREPANCY]
+knn                   accuracy         17.47         0.75     16.72   [DISCREPANCY]
+knn                   macro_F1         17.13         0.20     16.93   [DISCREPANCY]
+knn                   ADR              22.08         2.98     19.10   [DISCREPANCY]
+knn                   FPR              55.22         1.43     53.79   [DISCREPANCY]
+svm                   accuracy          0.15         2.35      2.20   [DISCREPANCY]
+svm                   macro_F1          0.50         0.14      0.36   [DISCREPANCY]
+svm                   ADR               3.67         2.94      0.73   [DISCREPANCY]
+svm                   FPR             100.00       100.20      0.20   [DISCREPANCY]
+
+SECTION 2 — Table 12 (per-class F1, mean) comparison — reviewer's reported means
+------------------------------------------------------------------------------------------
+model                  paper_mean(T12)   true_macro_F1  true_macro_recall  diff_vs_recall
+xgboost                          70.98           71.51              70.98            0.00   [DISCREPANCY vs macro-F1]
+random_forest                    63.01           63.95              63.01            0.00   [DISCREPANCY vs macro-F1]
+decision_tree                    68.67           66.23              68.67            0.00   [DISCREPANCY vs macro-F1]
+naive_bayes                      22.74           17.13              22.75            0.01   [DISCREPANCY vs macro-F1]
+
+Interpretation: the paper's Table 12 mean matches true macro-RECALL (not macro-F1) to within
+rounding for every model checked. This confirms Table 12 was generated from the buggy
+per_class_metrics_ciciot2023.csv file, whose 'f1' column is actually per-class recall.
+
+SECTION 3 — Table 12 root cause
+------------------------------------------------------------------------------------------
+In train_ciciot2023_models.py (lines ~326-350), per-class precision, recall, and F1 are computed
+with average='micro' on a subset of y_test masked to a single class. Since average='micro' on a
+single-class subset always returns TP_c / support_c, the three metrics collapse to the same value
+— per-class recall — and precision/recall/F1 are identical in every row of
+per_class_metrics_ciciot2023.csv. Table 12 of the manuscript is derived from this corrupted file.
+Table 15 was generated separately (via a correct classification_report() call) and is not affected.
+
+SECTION 4 — Decision Tree specific check (reviewer's transposition hypothesis)
+------------------------------------------------------------------------------------------
+DT recomputed Macro-F1:        66.2265%
+DT recomputed ADR (macro-recall): 68.6665%
+Difference: 2.4400 pp — NOT within 0.05 pp
+VERDICT: The reviewer's transposition hypothesis for Decision Tree is NOT supported. The apparent
+proximity of DT's macro-F1 (66.23%) and macro-recall/ADR (68.67%) is coincidental. The true root
+cause of the Table 12 vs Table 15 disagreement is the Table 12 generation bug described in Section 3,
+not a transposed column in Table 15.
+
+SECTION 5 — Naive Bayes specific check
+------------------------------------------------------------------------------------------
+(a) Macro-F1 over all 34 classes (0.0 counted):        17.1341%
+(b) Macro-F1 over classes with support > 0 (34 classes): 17.1341%
+(c) Macro-F1 over classes with F1 > 0 (28 classes):        20.8057%
+Paper's reported Naive Bayes Macro-F1: 17.13%
+Matches: (a) all 34 classes, (b) support>0 classes
+
+SECTION 6 — Class count check
+------------------------------------------------------------------------------------------
+Dataset has 34 classes (confirmed from classification_report_*.txt files).
+The manuscript's Table 12 reportedly lists 31 rows (30 attack classes + Benign) per the user's
+original prompt. Without the manuscript text itself, this audit cannot enumerate which specific
+3 classes are missing from the printed manuscript table. The full 34-class list, in canonical
+model output order, is:
+  [ 0] Backdoor_Malware
+  [ 1] BenignTraffic
+  [ 2] BrowserHijacking
+  [ 3] CommandInjection
+  [ 4] DDoS-ACK_Fragmentation
+  [ 5] DDoS-HTTP_Flood
+  [ 6] DDoS-ICMP_Flood
+  [ 7] DDoS-ICMP_Fragmentation
+  [ 8] DDoS-PSHACK_Flood
+  [ 9] DDoS-RSTFINFlood
+  [10] DDoS-SYN_Flood
+  [11] DDoS-SlowLoris
+  [12] DDoS-SynonymousIP_Flood
+  [13] DDoS-TCP_Flood
+  [14] DDoS-UDP_Flood
+  [15] DDoS-UDP_Fragmentation
+  [16] DNS_Spoofing
+  [17] DictionaryBruteForce
+  [18] DoS-HTTP_Flood
+  [19] DoS-SYN_Flood
+  [20] DoS-TCP_Flood
+  [21] DoS-UDP_Flood
+  [22] MITM-ArpSpoofing
+  [23] Mirai-greeth_flood
+  [24] Mirai-greip_flood
+  [25] Mirai-udpplain
+  [26] Recon-HostDiscovery
+  [27] Recon-OSScan
+  [28] Recon-PingSweep
+  [29] Recon-PortScan
+  [30] SqlInjection
+  [31] Uploading_Attack
+  [32] VulnerabilityScan
+  [33] XSS
+ACTION NEEDED: compare this list against the manuscript's actual Table 12 row labels to
+identify the 3 missing classes; this cannot be done from the codebase alone.
+
+SECTION 7 — Manuscript errors discovered beyond the reviewer's findings
+------------------------------------------------------------------------------------------
+1. Table 15's Logistic Regression row (81.61% acc / 47.70% macro-F1) does not correspond to
+   any model's genuine output in this codebase. Real LR output: 0.15% acc / 0.50% macro-F1.
+2. Table 15's KNN row (macro-F1 17.13%, ADR 22.08%, FPR 55.22%) is identical to the Naive Bayes
+   row on those three metrics (only accuracy differs) — almost certainly a copy-paste error.
+   Real KNN output: 0.75% acc / 0.20% macro-F1.
+3. Table 15's SVM row (0.15% acc / 0.50% macro-F1) is numerically identical to the real
+   Logistic Regression output — appears to be LR's output mislabeled as SVM.
+   Real SVM output: 2.35% acc / 0.14% macro-F1.
+4. Table 12's per-class F1 column is actually per-class recall, due to the average='micro'
+   bug on masked single-class subsets (see Section 3).
+These four issues are more serious than the reviewer's original two findings and should be
+disclosed in the revision response letter.
+
+SECTION 8 — CNN/LSTM provenance
+------------------------------------------------------------------------------------------
+cnn_research.keras and lstm_research.keras were produced by train_research_models.py, which
+imports from research_preprocess.py — a pipeline whose docstring states it is for CICIDS2017
+and whose default dataset directory is the CICIDS2017 folder. These two models cannot have
+produced 34-class CICIoT2023 metrics. The manuscript's CNN/LSTM rows in Table 15 (and Table
+15A, per the user) must be removed or replaced with CNN/LSTM models trained on CICIoT2023
+using the same pipeline as the sklearn models. Their provenance in the current manuscript is
+unverifiable from this codebase — CNN/LSTM are excluded from audit/Table_15_corrected.csv.

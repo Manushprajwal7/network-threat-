@@ -1,0 +1,2 @@
+xgboost version: 3.3.0
+CUDA tiny fit: PASSED

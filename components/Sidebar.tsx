@@ -17,7 +17,7 @@ const NAV = [
   { href: '/dashboard/evaluation', label: 'Evaluation', icon: 'M9 11l3 3L22 4 M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11' },
   { href: '/dashboard/simulation',      label: 'Sim Lab',    icon: 'M8 3H5a2 2 0 0 0-2 2v3 M21 8V5a2 2 0 0 0-2-2h-3 M3 16v3a2 2 0 0 0 2 2h3 M16 21h3a2 2 0 0 0 2-2v-3 M12 8v8 M8 12h8' },
   { href: '/dashboard/research-results',label: 'Research',   icon: 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 1 1 3-3h7z' },
-  { href: '/results', label: 'Results',  icon: 'M3 3v18h18 M18 9l-5 5-2-2-5 5', exact: true },
+  { href: '/results', label: 'Results (Paper 1 & 2)',  icon: 'M3 3v18h18 M18 9l-5 5-2-2-5 5', exact: true },
 ];
 
 

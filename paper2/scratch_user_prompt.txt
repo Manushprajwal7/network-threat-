@@ -1,0 +1,35 @@
+<USER_REQUEST>
+ fix all these properlly 
+
+
+TASK: Revise paper2_manuscript so every claim is (a) a continuation of the base paper [1], (b) limited to what the existing code and outputs actually show, and (c) honest about results and limitations.
+
+RULES
+- Do NOT run new experiments or retrain anything. You may READ existing code, CSVs and logs.
+- Every number in the paper must trace to an existing output file. If you can't trace it, delete it or mark it "not verified". Never invent a number.
+- Never strengthen a claim. Never delete a limitation. If a fix makes results look worse, keep the honest version.
+- Edit in place, keep formatting. At the end give a change log: item # | section | old text | new text | source file.
+- If code and paper disagree and the right answer isn't obvious, STOP and ask me. Don't pick silently.
+
+========== P0: NUMBERS THAT CONTRADICT EACH OTHER (fix first) ==========
+
+1. HEADLINE OCU DOES NOT REPRODUCE FROM TABLE 6
+ISSUE: Table 6 level counts + Table 2 cost matrix give P2-tier = +963,686, P_opt = +985,534, P1 = +423,686 OCU on the balanced stratified stream. Max possible attack reward on that stream is 30,118 x 50 = 1,505,900. Yet Abstract, 1.3, Table 1, Tables 8/8b/8e, 4.3.2 report +1.40M to +1.47M for posture policies. The "+1,909,843 combined" (4.3.2, Table 10, Fig 7/8, Conclusion) equals (963,686 + 2,856,000)/2, i.e. the OLD dual-regime protocol. The "~500k reconciliation" paragraph in 3.4 doesn't explain this: the old balanced component was 985,534, not 1.44M.
+WHERE: Abstract; 1.3 (Contribution 3); Table 1 (last row); 3.4 "Clarification of Historical OCU Shift"; 4.3.2; Tables 8, 8b, 8c, 8e, 10; Figs 7-8; Appendix C and E; Table A1 rows E1/E2/E16/E21/E24.
+FIX: (a) Read the code that produced the 50-run, test-split (seed 99) and balanced-mean numbers, and the code that produced Table 6. State whether they use the same stream and the same level assignment. (b) Pick ONE evaluation protocol per table and label each number with its stream. (c) If the two protocols can't be reconciled, repo
+<truncated 13334 bytes>
+1(3) says the gateway "operates inline ... flow-table packet drop" and "line-rate forwarding is realized". Nothing is implemented inline; evaluation is offline replay. Single-flow GPU latency is 13.8 ms (3.1, 4.3.8) vs 2.5 ms (5.4, 6.10). 5.4 says hysteresis "guarantees" no controller exhaustion (untested). Fix: describe inline operation as an assumed deployment context; call E9 "throughput of separately timed components on a laptop GPU"; reconcile latency; delete "guarantee".
+
+19. Table 9: caption says Block 54-100% and Quarantine 0-40%, rows show 54-75% and 25-40%; Web is 16 flows here but 15 in LOFO. Text frames 40-46% of attacks getting only Restrict/Quarantine as success; state it as a limitation. Table 10: P1 (rank 44-50 of 70) is a weak comparator, and the block-penalty sweep only touches 1,440 benign flows; say so, or compare against P_opt / P_XGB using existing per-level counts.
+
+20. Scrub promotional wording: "forensic autopsy", "cleanly separates", "highest standards of scientific rigor", "immutable", "rigorous audit suite", "verified partitions", "genuine", "rounding to 0.008" (repeated). The same caveat block is repeated in Abstract, 1.3, 1.5, 5.3, 6 and 7: keep the full list in 6, a short list in 1.5, an Abstract <=250 words with the 4 key caveats, and a Conclusion with no new numbers. RQ1 cites [11] (the dataset) for "topology metrics". Reference [1] names the authors in-text (1.1, 1.4, Table 1, 7) while the title page says Anonymous: fix if the venue is double-blind. Verify the anonymous.4open.science URL and Zenodo DOI 10.5281/zenodo.14889214 actually exist; remove if not.
+
+========== FINAL CHECKS ==========
+A. Every number in Abstract, 1.3 and 7 appears in a table, with the same value and the same stream.
+B. Every claim in Abstract and 7 is also in 6 (limitations).
+C. No sentence says "validated / verified / proves / robust / genuine" without a cited table.
+D. Output the change log.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-11-22T14:49:26+05:30.
+</ADDITIONAL_METADATA>

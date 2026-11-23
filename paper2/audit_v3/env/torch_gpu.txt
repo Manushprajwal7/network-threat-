@@ -1,0 +1,1 @@
+True, NVIDIA GeForce RTX 3050 6GB Laptop GPU

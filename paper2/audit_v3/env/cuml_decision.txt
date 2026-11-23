@@ -1,0 +1,17 @@
+# RAPIDS cuML Installation & Fallback Decision Record
+Date: 2026-11-18
+Host OS: Windows 11 AMD64
+Python: CPython 3.12.10
+GPU: NVIDIA GeForce RTX 3050 6GB Laptop GPU (Driver 581.86, CUDA 13.0)
+
+## Decision
+Fall back to scikit-learn CPU IsolationForest (`sklearn.ensemble.IsolationForest` with `n_jobs=-1`).
+
+## Rationale & Diagnostic Log
+1. Attempted `pip install cuml` and `pip install cuml-cu12` within the Python 3.12 environment.
+2. Official RAPIDS cuML wheels (`cuml-cu12`) are strictly distributed for Linux platforms (`manylinux_2_24_x86_64`, `manylinux_2_28_x86_64`, and `aarch64`).
+3. Pip metadata generation failed with error:
+   `RuntimeError: Didn't find wheel for cuml-cu12 25.8.0 against Windows 11 AMD64 / CPython 3.12.10`.
+4. RAPIDS does not provide native Windows wheels for cuML on Python 3.12 without WSL2.
+5. Scikit-learn CPU implementation of Isolation Forest (`sklearn.ensemble.IsolationForest`) is deterministic, multicore-accelerated (`n_jobs=-1`), and natively matches all historical paper training pipelines and validation baselines (`isolation_forest_corrected.pkl`, `isolation_forest.pkl`).
+6. Benchmarked CPU scoring performance on 60,000 flows: ~2.35 seconds, which well satisfies all latency and throughput requirements.

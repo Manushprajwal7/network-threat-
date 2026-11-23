@@ -1,0 +1,115 @@
+LOFO EVALUATION — EXECUTIVE SUMMARY
+================================================================================
+Protocol: Leave-One-Family-Out, 7 folds (F1–F7), Isolation Forest retrained
+fresh per fold on CICIoT2023 with the held-out family fully excluded from
+training. BenignTraffic retained in every fold. XGBoost (fixed, pretrained,
+34-class) not retrained. All 7 folds completed successfully — no fold
+failures, no NaN offset_, no fallback substitutions were used anywhere.
+
+--------------------------------------------------------------------------------
+AGGREGATE NUMBERS
+--------------------------------------------------------------------------------
+                          Isolation Forest alone     Hybrid (XGB conf. OR IF)
+Macro UTDR (mean ± std)   0.4812 ± 0.4111            0.5112 ± 0.4369
+Macro Precision           0.0592 ± 0.0522            0.0616 ± 0.0532
+Macro F1                  0.0745 ± 0.0984            0.0759 ± 0.0991
+Macro FPR                 0.0500 ± 0.0001            0.0547 ± 0.0074
+
+Micro UTDR (pooled)       0.0204                     0.0218
+Micro Precision           0.0619                     0.0631
+Micro F1                  0.0306                     0.0325
+Micro FPR                 0.0500                     0.0526
+
+Micro and macro diverge sharply (macro UTDR ~48–51% vs. micro UTDR ~2%)
+because 96% of all test-unknown samples across the 7 folds belong to the
+three families the detector fails on hardest (DDoS, DoS, Mirai). Macro
+aggregation treats all 7 families as equally important; micro aggregation
+reflects what would actually happen if a random flow's family were unknown,
+weighted by how common each family's traffic actually is.
+
+--------------------------------------------------------------------------------
+PER-FOLD OUTLIERS (|z| > 2 relative to the 7-fold macro mean/std)
+--------------------------------------------------------------------------------
+Isolation Forest alone:
+  F6 (Spoofing) — precision z=2.03, F1 z=2.09 (highest of all folds on both)
+Hybrid (XGB conf. OR IF):
+  F6 (Spoofing) — F1 z=2.08 (precision z=1.96, just under threshold)
+  F1 (DDoS) — FPR z=2.44 (hybrid's confidence-based flagging raises FPR
+    specifically on this fold's very large known-set)
+
+No fold is a UTDR outlier by the strict |z|>2 test, because the 7-fold UTDR
+distribution is bimodal rather than clustered around its mean — three folds
+sit far below the mean (F1, F2, F3) and four sit far above it (F4, F5, F6,
+F7), which inflates the standard deviation enough that no single value
+crosses 2 std. This is a case where the underlying bimodal split is the
+more important and more honest finding than the z-score screen: DDoS, DoS,
+and Mirai form one cluster (UTDR 0.1–3.4%); Recon, Web, Spoofing, and
+BruteForce form another (UTDR 67–95%).
+
+--------------------------------------------------------------------------------
+STRONGEST AND WEAKEST FOLD
+--------------------------------------------------------------------------------
+Strongest: F6 — Spoofing (DNS_Spoofing, MITM-ArpSpoofing).
+  UTDR 92.9%/95.0%, Precision 16.5%/16.6%, F1 0.280/0.282 — best on every
+  metric except being tied near the ~5% FPR floor common to all folds.
+  Per-class: MITM-ArpSpoofing individually reaches 95.7% (IF alone) / 97.4%
+  (hybrid) flag rate; DNS_Spoofing reaches 88.0% / 90.9%.
+
+Weakest: F1 — DDoS (12 flood-attack classes, 855,981 test-unknown samples,
+  by far the largest fold).
+  UTDR 0.14%/0.26%, F1 0.0028/0.0050 — the lowest F1 of all 7 folds despite
+  not having the single lowest precision (F7 is lower on precision alone).
+  F2 (DoS, UTDR 0.80%/0.85%) fails for the identical structural reason and is
+  nearly as weak — both are flood-pattern families that remain heavily
+  represented in "known" training via other flood-type attacks not held out
+  in that fold, so the held-out flood variant does not look anomalous to the
+  fold's Isolation Forest.
+
+--------------------------------------------------------------------------------
+DOES THIS SUPPORT A "ZERO-DAY" CLAIM?
+--------------------------------------------------------------------------------
+No — not as a general claim, and this LOFO run is the direct evidence for
+why. The manuscript's original 679-sample single-split result (95.14% hybrid
+UTDR) used exactly seven rare, low-volume, behaviorally distinct classes
+(Backdoor_Malware, BrowserHijacking, CommandInjection, SqlInjection, XSS,
+Uploading_Attack, Recon-PingSweep) as "unknown" — every one of which falls
+into this LOFO run's high-performing cluster (F4/F5, UTDR 67–95%). No
+DDoS, DoS, or Mirai variant was ever tested as unknown in the original
+evaluation, and those are precisely the families this LOFO run shows the
+detector cannot recognize as novel (UTDR 0.1–3.4%) — because they resemble,
+in flood-pattern feature space, other attack families the model has already
+seen. The honest characterization is: this Isolation Forest / hybrid
+approach can flag traffic from a genuinely novel BEHAVIORAL CATEGORY
+(application-layer exploitation, spoofing, reconnaissance, credential
+attacks) with moderate-to-good recall but poor precision; it CANNOT reliably
+flag a novel variant of a volumetric flood attack as unknown when other
+flood attacks are already in its training distribution. "Zero-day
+detection" as an unqualified claim is not supportable. A qualified claim
+("unknown-traffic screening, effective for behaviorally novel attack
+categories, unreliable for novel flood-type variants") is supportable and
+is what these results actually show.
+
+--------------------------------------------------------------------------------
+RECOMMENDATION FOR THE MANUSCRIPT
+--------------------------------------------------------------------------------
+Keyword: replace "zero-day unknown traffic screening" with "unknown-traffic
+screening" throughout (title, abstract, keywords). Do not use "zero-day" as
+an unqualified capability claim anywhere the LOFO results are cited.
+
+Contribution 4 (§1.5): rewrite to state that unknown-traffic detection was
+evaluated via a 7-fold leave-one-family-out protocol (not a single 679-
+sample holdout), and that detection performance is strongly family-
+dependent: high recall (67–95% UTDR) for behaviorally distinct novel
+categories (reconnaissance, web exploitation, spoofing, credential attacks),
+near-zero recall (0.1–3.4% UTDR) for novel volumetric flood-attack variants,
+and low precision throughout (0.5–16.6%) due to class-imbalance base rates.
+Report both macro (0.48–0.51 mean UTDR) and micro (0.02 pooled UTDR)
+aggregates explicitly, since they answer different questions and diverge by
+more than 20x.
+
+Do not keep the original 679-sample result as an equally-weighted
+alternative next to LOFO — it is not a valid baseline for the same claim,
+since it only ever tested the "easy" cluster of classes. If retained at all,
+it should be clearly labeled as a "best-case, non-representative single-
+split result on 7 pre-selected easy classes" and the LOFO protocol should be
+presented as the primary, methodologically sound evaluation replacing it.

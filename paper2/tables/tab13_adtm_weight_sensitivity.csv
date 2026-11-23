@@ -1,4 +1,4 @@
-Configuration,Weights (w_class, w_anom, w_topo, w_dev),Dynamic Trust AUC,Critical (<20) %,Very Low (20-40) %,P2-tier Net Benefit (OCU)
+Configuration,"Weights (w_class, w_anom, w_topo, w_dev)",Dynamic Trust AUC,Critical (<20) %,Very Low (20-40) %,P2-tier Net Benefit (OCU)
 Baseline (Authoritative),"(0.40, 0.35, 0.15, 0.10)",0.9991,91.34%,7.89%,"+1,909,733"
 Class +50% (0.60),"(0.60, 0.20, 0.10, 0.10)",0.9993,92.10%,7.15%,"+1,909,733"
 Anomaly +50% (0.525),"(0.25, 0.525, 0.125, 0.10)",0.9989,90.85%,8.35%,"+1,910,263"

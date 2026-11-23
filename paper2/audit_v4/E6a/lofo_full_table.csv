@@ -1,0 +1,29 @@
+held_out_family,policy,eval_flows,attack_flows,benign_flows,attack_recall_pct,block_fpr_pct,quarantine_fpr_pct,alert_fpr_pct,net_ocu,norm_ocu_per_10k,verdict
+DDoS,P_XGB,40000,20000,20000,49.73%,0.02%,0.00%,N/A,497100,124275.0,Defeated by Posture
+DDoS,P_opt,40000,20000,20000,49.73%,0.17%,0.00%,N/A,554938,138734.5,Posture Wins (+57.8k OCU)
+DDoS,P_2-tier,40000,20000,20000,74.06%,0.17%,20.88%,29.80%,547872,136968.0,Posture Wins (+50.8k OCU)
+DDoS,P_hybrid,40000,20000,20000,74.06%,0.17%,20.88%,29.80%,547872,136968.0,Posture Wins (+50.8k OCU)
+DoS,P_XGB,40000,20000,20000,67.50%,0.10%,0.00%,N/A,673900,168475.0,Defeated by Posture
+DoS,P_opt,40000,20000,20000,67.51%,0.41%,0.00%,N/A,693781,173445.2,Posture Wins (+19.9k OCU)
+DoS,P_2-tier,40000,20000,20000,83.59%,0.41%,19.72%,29.80%,672783,168195.8,Comparable (-1.1k OCU)
+DoS,P_hybrid,40000,20000,20000,83.59%,0.41%,19.72%,29.80%,672783,168195.8,Comparable (-1.1k OCU)
+Mirai,P_XGB,40000,20000,20000,0.33%,0.19%,0.00%,N/A,850,212.5,Catastrophic Classifier Collapse
+Mirai,P_opt,40000,20000,20000,0.26%,0.18%,0.00%,N/A,113288,28322.0,Posture Wins (133x OCU)
+Mirai,P_2-tier,40000,20000,20000,27.42%,0.18%,6.77%,29.80%,178713,44678.3,Posture Wins (210x OCU)
+Mirai,P_hybrid,40000,20000,20000,27.42%,0.18%,6.77%,29.80%,178713,44678.3,Posture Wins (210x OCU)
+Recon,P_XGB,17600,8800,8800,13.41%,0.05%,0.00%,N/A,58950,33494.3,Defeated by Posture
+Recon,P_opt,17600,8800,8800,10.90%,0.07%,0.00%,N/A,78347,44515.3,Posture Wins (+19.4k OCU)
+Recon,P_2-tier,17600,8800,8800,23.91%,0.07%,7.02%,29.80%,93125,52911.9,Posture Wins (+34.2k OCU)
+Recon,P_hybrid,17600,8800,8800,23.91%,0.07%,7.02%,29.80%,93125,52911.9,Posture Wins (+34.2k OCU)
+Web,P_XGB,1200,600,600,1.33%,0.00%,0.00%,N/A,400,3333.3,Catastrophic Classifier Collapse
+Web,P_opt,1200,600,600,1.17%,0.00%,0.00%,N/A,2589,21575.0,Posture Wins (6.5x OCU)
+Web,P_2-tier,1200,600,600,9.83%,0.00%,3.17%,29.80%,3768,31400.0,Posture Wins (9.4x OCU)
+Web,P_hybrid,1200,600,600,9.83%,0.00%,3.17%,29.80%,3768,31400.0,Posture Wins (9.4x OCU)
+Spoofing,P_XGB,24800,12400,12400,1.69%,0.07%,0.00%,N/A,10000,4032.3,Catastrophic Classifier Collapse
+Spoofing,P_opt,24800,12400,12400,1.14%,0.07%,0.00%,N/A,46034,18562.1,Posture Wins (4.6x OCU)
+Spoofing,P_2-tier,24800,12400,12400,4.19%,0.07%,1.31%,29.80%,72480,29225.8,Posture Wins (7.2x OCU)
+Spoofing,P_hybrid,24800,12400,12400,4.19%,0.07%,1.31%,29.80%,72480,29225.8,Posture Wins (7.2x OCU)
+BruteForce,P_XGB,600,300,300,1.00%,0.33%,0.00%,N/A,100,1666.7,Catastrophic Classifier Collapse
+BruteForce,P_opt,600,300,300,0.33%,0.33%,0.00%,N/A,903,15050.0,Posture Wins (9.0x OCU)
+BruteForce,P_2-tier,600,300,300,2.67%,0.33%,1.00%,29.80%,1453,24216.7,Posture Wins (14.5x OCU)
+BruteForce,P_hybrid,600,300,300,2.67%,0.33%,1.00%,29.80%,1453,24216.7,Posture Wins (14.5x OCU)

@@ -1,0 +1,7 @@
+configuration,metric,prior_version_claim,current_audited_truth,discrepancy_explanation
+Clean IF (M=200),ROC_AUC,0.9523,0.9523,True empirical benchmark value; CI: [0.9482, 0.9564]
+Clean IF (M=100),ROC_AUC,0.9435,0.9435,True empirical benchmark value for 100 trees
+Intermediate Typo,ROC_AUC,0.8524,0.9523,"0.8524" was an accidental transcription error in must_fix.md; now eradicated
+Clean IF (M=200),KS_Statistic_D,0.8659,0.8659,Consistent across all evaluations; p < 10^-15
+Contaminated IF,ROC_AUC,0.0084,0.0084,Empirically verified on 60k evaluation window
+Contaminated IF,KS_Statistic_D,0.9504,0.9504,High separation despite inverted orientation

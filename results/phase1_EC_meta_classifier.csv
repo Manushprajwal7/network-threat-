@@ -1,0 +1,5 @@
+model,batch_auc,weights
+XGBoost Alone (Batch Mean Confidence),0.9997,1.0 c_conf
+Logistic Regression Meta-Classifier,0.9945,"[np.float64(5.846), np.float64(1.457), np.float64(1.457), np.float64(-0.022)]"
+Decision Tree Meta-Classifier (depth=3),0.9945,Tree rules
+Heuristic Linear Posture Sum (S = sum c_k),0.9517,"[1, 1, 1, 1]"

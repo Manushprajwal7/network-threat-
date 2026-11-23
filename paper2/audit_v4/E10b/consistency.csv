@@ -1,0 +1,19 @@
+location,claim,artifact,recomputed,status,action
+Abstract,Clean IF AUC = 0.9523 (KS D = 0.8659),tab3_if_controlled.csv,"AUC=0.9523, D=0.8659",MATCH,Verified
+Abstract,Contaminated IF raw AUC = 0.0084,defects.md,AUC=0.0084,MATCH,Verified
+Abstract,Neutral trust AUC = 0.9858 (from 0.0441),tab4_trust_neutral.csv,"C4* AUC=0.9858, C0* AUC=0.0441",MATCH,Verified
+Abstract,"P_opt test OCU = +1,439,948",test_policy_table.csv,"+1,439,948 OCU",MATCH,Verified
+Abstract,"P_2-tier test OCU = +1,404,974",test_policy_table.csv,"+1,404,974 OCU",MATCH,Verified
+Abstract,"P_1 test OCU = +786,643",full_policy_table.csv,"+786,643 OCU",MATCH,Verified
+Contribution 1,"BA topology N=120, m=2, E=236, k_bar=3.93",ba_topology.csv,"120 nodes, 236 edges, k_bar=3.93",MATCH,Verified
+Contribution 1,"PageRank mu_R=0.4189, sigma_R=0.0721",summary.md (E3),"mu=0.4189, sigma=0.0721",MATCH,Verified
+Contribution 1,"Node 0 Z=4.5931 sigma (p=2.18e-6 1-tail, 4.37e-6 2-tail)",summary.md (E3),"Z=4.5931, p1=2.18e-6, p2=4.37e-6",MATCH,Verified
+Contribution 1,Permutation test null monotonicity p=0.0040 (0.40%),results.csv (E4),p=0.0040 (4/1000),MATCH,Verified
+Contribution 3,Total admissible monotonic policies = 70,full_policy_table.csv,"C(8,4) = 70",MATCH,Verified
+Contribution 3,"P_opt Rank 1 among 70 static policies (50-run mean 2,052,438.1)",full_policy_table.csv,"Mean=2,052,438.1, Rank 1",MATCH,Verified
+Contribution 3,"P_XGB balanced mean = 1,472,830.0",comparison_table.csv (E5),"Mean=1,472,830.0",MATCH,Verified
+Contribution 3,"P_hybrid flood mean = 2,974,176.0 (outperforms P_XGB by +14,071)",comparison_table.csv (E5),"Diff = +14,071.0, p=0.002",MATCH,Verified
+Contribution 3,"LOFO Mirai posture recall 27.42% (+178,713 OCU) vs P_XGB 0.33% (850 OCU)",lofo_results.csv (E6),"27.42% vs 0.33%, 178k vs 850",MATCH,Verified
+Table 1,"P_opt test=1,439,948 vs P_2-tier test=1,404,974",test_policy_table.csv,"1,439,948 vs 1,404,974",MATCH,Fixed Copy-Paste
+Sec 4.3.8,"Pipeline throughput = 18,244.3 flows/sec (54.81 us/flow)",throughput.csv (E9),"18,244.3 fps, 54.81 us",MATCH,Verified
+Sec 4.3.8,Microscopic benign veto check = 0.177 us (177 ns),throughput.csv (E9),0.177 us,MATCH,Verified

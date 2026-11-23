@@ -7,19 +7,18 @@ To confirm that dynamic trust discrimination and policy rankings are robust to h
 \caption{ADTM component weight sensitivity analysis across seven weight allocations $w = (w_{\text{class}}, w_{\text{anom}}, w_{\text{topo}}, w_{\text{dev}})$ (Experiment E19).}
 \label{tab:adtm_weight_sensitivity}
 \centering
-\footnotesize
-\begin{tabular}{lcccccc}
+\small
+\begin{tabular}{lccccc}
 \toprule
-\textbf{Configuration} & \textbf{Weights $(w_c, w_a, w_t, w_d)$} & \textbf{C4 AUC} & \textbf{Critical (<20) \%} & \textbf{Very Low \%} & \textbf{Low \%} & \textbf{$P_{2\text{-tier}}$ Net (OCU)} \\
+\textbf{Configuration} & \textbf{Weights $(w_c, w_a, w_t, w_d)$} & \textbf{Dynamic Trust AUC} & \textbf{Critical (<20) \%} & \textbf{Very Low (20--40) \%} & \textbf{$P_{2\text{-tier}}$ Net (OCU)} \\
 \midrule
-Baseline (Authoritative) & (0.40, 0.35, 0.15, 0.10) & 0.9991 & 91.34\% & 7.89\% & 0.24\% & +1,909,733 \\
-Class +50\% (0.60) & (0.60, 0.20, 0.10, 0.10) & 0.9993 & 92.10\% & 7.15\% & 0.20\% & +1,909,733 \\
-Anomaly +50\% (0.525) & (0.25, 0.525, 0.125, 0.10) & 0.9989 & 90.85\% & 8.35\% & 0.26\% & +1,910,263 \\
-Topo +50\% (0.225) & (0.35, 0.325, 0.225, 0.10) & 0.9990 & 91.20\% & 8.01\% & 0.25\% & +1,909,733 \\
-Dev +50\% (0.15) & (0.38, 0.33, 0.14, 0.15) & 0.9990 & 91.25\% & 7.96\% & 0.25\% & +1,909,733 \\
-Uniform (0.25 ea) & (0.25, 0.25, 0.25, 0.25) & 0.9988 & 89.95\% & 9.20\% & 0.31\% & +1,909,733 \\
-Extreme Class (0.70) & (0.70, 0.10, 0.10, 0.10) & 0.9993 & 92.80\% & 6.45\% & 0.20\% & +1,909,733 \\
-Extreme Anomaly (0.70) & (0.10, 0.70, 0.10, 0.10) & 0.9985 & 88.50\% & 10.60\% & 0.35\% & +1,911,268 \\
+Baseline (Authoritative) & (0.40, 0.35, 0.15, 0.10) & 0.9991 & 91.34\% & 7.89\% & +1,909,733 \\
+Class +50\% (0.60) & (0.60, 0.20, 0.10, 0.10) & 0.9993 & 92.10\% & 7.15\% & +1,909,733 \\
+Anomaly +50\% (0.525) & (0.25, 0.525, 0.125, 0.10) & 0.9989 & 90.85\% & 8.35\% & +1,910,263 \\
+Topo +50\% (0.225) & (0.35, 0.325, 0.225, 0.10) & 0.9990 & 91.20\% & 8.01\% & +1,909,733 \\
+Uniform (0.25 ea) & (0.25, 0.25, 0.25, 0.25) & 0.9988 & 89.95\% & 9.20\% & +1,909,733 \\
+Extreme Class (0.70) & (0.70, 0.10, 0.10, 0.10) & 0.9993 & 92.80\% & 6.45\% & +1,909,733 \\
+Extreme Anomaly (0.70) & (0.10, 0.70, 0.10, 0.10) & 0.9985 & 88.50\% & 10.60\% & +1,911,268 \\
 \bottomrule
 \end{tabular}
 \end{table*}

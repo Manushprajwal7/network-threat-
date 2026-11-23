@@ -1,0 +1,115 @@
+<USER_REQUEST>
+You are a reproducibility auditor and scientific editor. Your job is to verify every quantitative claim in the manuscript against the code and data, then edit the paper so it claims only what is actually supported. Do not fabricate results. Do not change numbers unless recomputed from code. Work in a new branch. For every experiment, save:
+- a script under experiments/audit/
+- raw CSV outputs under audit_outputs/
+- a short markdown report under audit_outputs/reports/
+- a SHA256 hash manifest.
+
+After each audit task, update the manuscript only after the result is verified. If a claim is unsupported, remove it or temper it explicitly. If an experiment cannot be reproduced, flag it as “UNVERIFIED — remove from manuscript.”
+
+Prioritize these tasks in order:
+
+TASK 1 — Split integrity and leakage audit
+- Load training, validation, test, E2 attack-heavy, E21 balanced, E1 multi-state, and E8 core-hub splits.
+- For each split, compute row counts, class counts, and SHA256 of sorted flow identifiers/feature-row hashes.
+- Compute pairwise intersection counts. Check training vs validation, training vs test, validation vs test, E2 vs E21, E1 vs E2/E21, E8 vs E2/E21.
+- Verify no overlap. If overlap exists, regenerate disjoint splits from the official CICIoT2023 test partition with explicit seeds and rerun all downstream results.
+- Output: audit_outputs/split_integrity.csv and a markdown report. Include exact seeds and file paths.
+
+TASK 2 — Feature schema and label count audit
+- Read the raw CICIoT2023 CSV headers. Print the exact 46 feature names in order.
+- Compare against manuscript Section 3.1. Correct the manuscript feature list. Pay special attention to “State”, “Date”, “Srate”, “Drate”.
+- Print all label values and counts. Confirm whether there are 34 total classes or 34 attack classes. Print the 34→8 family mapping.
+- Output: audit_outputs/feature_schema.csv, audit_outputs/label_counts.csv, audit_outputs/class_mapping.csv.
+- Edit manuscript Section 3.1 and Section 4.3.5 to match.
+
+TASK 3 — Topology and L5 audit
+- Print R distribution per node: min, max, mean, std, 5th, 50th, 95th, max. Count nodes with R >= 0.75.
+- Print the node IDs used in E8. Verify whether any node/batch can satisfy mean R >= 0.75.
+- If max R < 0.75, either regenerate the synthetic topology with guaranteed core hubs or remove L5 claims.
+- Recompute the Z-score for edge batches correctly using batch mean standard error = sigma_R/sqrt(100). Report both individual and batch-mean Z.
+- Run E8 core-hub benign control: 100,000 benign core-hub flows. Report posture level distribution. If L0 is not produced, edit Section 4.2.3 to state the actual level and remove the “locked at L0” claim.
+- Output: audit_outputs/topology_audit.csv, audit_outputs/e8_benign_core_hub.csv.
+
+TASK 4 — Evidence component ablation
+- Re-run Table 6 and Table 8 with each of these ablations:
+  a) c_topo forced to 0
+  b) c_anom forced to 0
+  c) c_trust forced to 0
+  d) c_conf forced to 0
+  e) R randomly permuted across batches
+- For each, report posture level distribution, pure-benign false escalation rate (L0/L1/L2+), attack density per level, P2-tier Block FPR, Quarantine FPR, and net benefit.
+- If L1 pure-benign escalation drops when c_topo=0 or R is permuted, the topology signal is not empirically valid. Edit manuscript to report this and temper claims about topological evidence.
+- Output: audit_outputs/evidence_ablation.csv.
+
+TASK 5 — Random balanced stream evaluation
+- Construct a new held-out balanced stream of 60,000 flows with 50.2% attack, but shuffle flows randomly before batching into 600 windows of 100. Do not stratify by batch purity.
+- Run the six-level posture model and P2-tier/P1 policies.
+- Report: level distribution, attack density per level, monotonicity, Block FPR, Quarantine FPR, total disruptive FPR, net benefit, Wilson CIs.
+- Compare to Table 6. If monotonicity or zero Block FPR disappears, edit the manuscript to state that the stratified benchmark overstates performance.
+- Output: audit_outputs/random_balanced_60k.csv.
+
+TASK 6 — E21 held-out full metrics
+- On E21 balanced test split, report full posture distribution and action-level precision/density with Wilson CIs.
+- Report P1 and P2-tier separately: Block FPR, Quarantine FPR, total disruptive FPR, net benefit.
+- Verify whether E2 and E21 overlap. If they do, regenerate one split and rerun.
+- Edit Section 4.3.2: change “combined net operational benefit” for E21 to “balanced-stream net benefit” unless both regimes are evaluated.
+- Output: audit_outputs/e21_full_metrics.csv.
+
+TASK 7 — Trust carryover and per-entity validity
+- Run a controlled sequence: 100 attack flows followed by 100 benign flows. Plot T(t).
+- Measure how many benign flows remain below T=60 and T=20 after the attack burst.
+- Report benign trust distribution on benign-only, balanced, and attack-heavy streams.
+- If trust is global, edit manuscript to rename it “stream-level trust score” and remove “per-entity” claims unless pseudo-entity assignment is implemented.
+- Output: audit_outputs/trust_carryover.csv and figure.
+
+TASK 8 — Extended cost and regime sensitivity
+- Extend cost sensitivity to lambda in [0.2, 0.5, 1, 2, 5, 10, 20, 30, 50] where Block benign penalty = 50*lambda.
+- For each, compute P1, P2-tier, P2 aggressive combined net benefit and Block/Quarantine FPR.
+- Compute the break-even lambda where P2-tier stops dominating P1.
+- Sweep regime mixture weight w_bal in [0, 0.1, ..., 1.0]. Report P2-tier/P1 ratio and break-even.
+- Add a table/figure. In the manuscript, replace “2.43x” with “2.43x under a 50/50 regime weighting and the stated OCU matrix; advantage ranges from X to Y and disappears at lambda > Z.”
+- Output: audit_outputs/cost_sensitivity_extended.csv, audit_outputs/regime_weight_sweep.csv.
+
+TASK 9 — Classifier per-family audit
+- Print full confusion matrix. Compute per-family precision, recall, F1, support, and Wilson 95% CIs.
+- Compute balanced accuracy and macro F1 over total classes and over attack classes only.
+- Replace “98.99% overall accuracy” with balanced accuracy + macro F1 + per-family recall. Add a table.
+- For rare families (Malware n=1, BruteForce n=5, Web n=15), either merge or report CIs and explicitly say “insufficient sample for strong claims.”
+- Output: audit_outputs/classifier_per_family.csv.
+
+TASK 10 — Action precision/density table corrections
+- Add P0 baseline rows to Table 7 or remove P0 from the caption.
+- Rename “precision” to “attack prevalence within action” and define it.
+- Fix Table 7 caption: the sequence `0.00 <= 0.00 < 46.40 < 51.71 < 100` applies to P2-tier only, not P1.
+- Add Wilson CIs to all action-level attack prevalence values.
+- Output: audit_outputs/action_prevalence.csv.
+
+TASK 11 — Statistical CI reconciliation
+- Recompute all Wilson CIs in Tables 5, 6, 7, 9. Save exact counts and bounds.
+- Fix any table where CIs are missing or inconsistent.
+- Output: audit_outputs/wilson_cis.csv.
+
+TASK 12 — Manuscript production and claim editing
+After tasks 1–11:
+- Recompile the LaTeX. Fix every delimiter, malformed table, duplicate paragraph, and broken reference.
+- Rebuild Appendix A Table A1 from CSVs. Remove references to missing Table 12/13/14 or add the tables.
+- Edit Abstract:
+  - change “100% attack” in E8 to “97.60% attack” unless code proves otherwise.
+  - change “zero benign Block assignments on validation streams” to “zero benign Block assignments on the stratified multi-state validation stream; 100% Block FPR on the attack-heavy stream.”
+  - change “six-level non-decreasing attack density” to “active peripheral levels L0–L4 non-decreasing; L5 reported separately.”
+  - add “synthetic 120-node topology” qualifier wherever topology evidence is claimed.
+- Edit Section 4.2.3: remove “locked at L0” for core-hub benign unless Task 3 reproduces L0. Report actual level.
+- Edit Section 4.3.2: stop recommending P2-tier globally. Recommend regime-aware policy or explicitly state P2-tier is only suitable when benign Block cost is low and embedded benign flows are acceptable.
+- Edit Section 5/6: state that P2-tier’s 2.43x advantage is conditional on the arbitrary OCU matrix and 50/50 regime weighting.
+- Replace “published baseline” with “prior submission/foundational manuscript” if [1] is under review.
+- Verify anonymous repository and Zenodo DOI do not violate double-blind review.
+
+TASK 13 — Final verification
+- Produce a claim-to-evidence matrix: every quantitative claim in the Abstract, Introduction, Results, and Conclusion mapped to a CSV row, script, and hash.
+- Flag any claim without a script as “UNSUPPORTED — remove.”
+- Produce a final diff of the manuscript showing all edits.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-11-12T10:27:27+05:30.
+</ADDITIONAL_METADATA>

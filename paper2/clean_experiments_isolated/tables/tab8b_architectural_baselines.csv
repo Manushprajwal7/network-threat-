@@ -1,0 +1,6 @@
+Decision Architecture,Paradigm / Model,Balanced Mean Net (OCU),Flood Mean Net (OCU),50-Run Overall Mean (OCU),Balanced Block FPR,Balanced Quarantine FPR,Flood Block FPR,Operational Role
+P_opt (Rank 1 Static),"Allow-Allow-Allow-Allow-Block-Block (Π_70)","1,470,740","2,962,515","2,052,438",0.80%,0.00%,N/A (0 benign),Rank 1 Level-to-Action Policy
+P2-tier (Canonical Reference),"Allow-Alert-Restrict-Quarantine-Block-Block","1,410,822","2,970,718","2,009,493",0.80%,9.56%,N/A (0 benign),Reference 5-Action Escalation (Rank 15)
+P_hybrid (Posture + Benign Veto),Hybrid Posture + Flow Veto (L4),"1,391,654","2,974,176","2,044,425",0.72%,9.37%,N/A (0 benign),Mitigates L4 Collateral Disruption
+P_XGB (Confidence-Gated),Per-Flow Classifier (Cg >= 0.90),"1,472,830","2,960,105","2,053,543",0.45%,0.00%,N/A (0 benign),Highest OCU on Stationary Balanced Traffic
+P_XGB (Ungated Raw),Per-Flow Classifier (argmax),"1,360,450","2,928,000","2,144,225",9.46%,0.00%,N/A (0 benign),Violates Availability (9.46% Block FPR)

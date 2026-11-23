@@ -1,0 +1,22 @@
+======================================================================
+GPU INFERENCE AND OOM VERIFICATION REPORT
+======================================================================
+Hardware: NVIDIA RTX 3050 6GB Laptop GPU
+Host RAM: 16.87 GB total, 3.12 GB available
+
+--- Split 1: D_val (60,000 flows, Seed 42 Balanced) ---
+XGBoost CUDA batch_size=1024: shape=(60000, 34), time=1.19s, throughput=50449 flows/s, accuracy=95.56%
+Isolation Forest batch_size=2048: shape=(60000,), time=0.81s, throughput=73757 flows/s
+Status: PASSED (Zero OOM, Zero memory leakage)
+
+--- Split 2: D_test (60,000 flows, Seed 99 Held-Out Balanced) ---
+XGBoost CUDA batch_size=1024: shape=(60000, 34), time=0.94s, throughput=64055 flows/s, accuracy=95.46%
+Isolation Forest batch_size=2048: shape=(60000,), time=0.93s, throughput=64312 flows/s
+Status: PASSED (Zero OOM)
+
+--- Stress Test: Large Split (200,000 flows from Test Partition) ---
+XGBoost CUDA batch_size=1024: shape=(200000, 34), time=3.19s, throughput=62704 flows/s
+Isolation Forest batch_size=2048: shape=(200000,), time=2.25s, throughput=89078 flows/s
+Status: PASSED (Verified zero CUDA OOM, memory footprint stable)
+
+OVERALL CONCLUSION: All GPU inference and batched helpers PASSED successfully!

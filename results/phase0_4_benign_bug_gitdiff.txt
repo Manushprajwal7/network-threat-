@@ -1,0 +1,32 @@
+Commit: 180b4b491c4081c2cfec2efa5ac6da10675e88ad
+Author: manushprajwal <manushprajwal555@gmail.com>
+Date:   Mon Jun 29 15:26:29 2026 +0530
+File:   backend/ml_model/evaluate_unknown_threats.py (Lines 150-165)
+
+Verbatim Implementation:
+-------------------------------------------------------------------------------
+    if "BENIGN" in class_names:
+        benign_idx = class_names.index("BENIGN")
+        benign_mask = y_train == benign_idx
+        X_benign = X_train[benign_mask]
+        log.info(f"Training Isolation Forest on {len(X_benign):,} BENIGN samples")
+    else:
+        X_benign = X_train
+        log.warning("BENIGN class not found — training IF on all training samples")
+
+    iforest = IsolationForest(
+        n_estimators=200,
+        contamination=contamination,
+        random_state=42,
+        n_jobs=-1,
+    )
+    iforest.fit(X_benign)
+-------------------------------------------------------------------------------
+
+Mechanism:
+1. In CICIoT2023, the clean traffic class is encoded as 'BenignTraffic', not 'BENIGN'.
+2. The check ('BENIGN' in class_names) evaluated to False.
+3. The else branch executed unconditionally: X_benign was assigned to all 5,491,971 training samples.
+4. Because the training set contained 97.64% attack flows and 2.36% benign flows, the Isolation Forest
+   modeled attack patterns as nominal inliers and treated legitimate communications as anomalous outliers,
+   inverting anomaly score orientation to raw AUC = 0.0084 (or 0.9916 when negated).

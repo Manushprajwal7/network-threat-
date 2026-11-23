@@ -1,0 +1,6 @@
+Detector,ROC_AUC,KS_D,Training_Time_Sec,Linear_Time_Complexity
+"Isolation Forest (Clean, M=100)",0.9427,0.857,~1.5s,O(M * n * log(max_samples))
+"Isolation Forest (Clean, M=200)",0.9523,0.8659,~2.8s,O(M * n * log(max_samples))
+Diagonal Mahalanobis Distance,0.963,0.8036,~0.05s,O(n * d)
+Empirical Tail Probability (ECOD baseline),0.977,0.9334,~0.08s,O(n * d)
+Contaminated Isolation Forest (97.6% Attack),0.0084,0.8659,~3.2s,O(M * n * log(max_samples))

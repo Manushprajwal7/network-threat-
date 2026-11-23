@@ -1,0 +1,11 @@
+regime,policy,ocu_mean,ocu_std,ocu_95_ci,block_fpr_pct,block_fpr_count,quarantine_fpr_pct,quarantine_fpr_count,alert_fpr_pct,attack_recall_pct,veto_precision_pct,veto_recall_pct,veto_false_negatives_count
+balanced,P_XGB,1472830.0,4194.0,"[1469829.8, 1475830.2]",0.45,136.1,N/A,0.0,N/A,98.64,N/A,N/A,N/A
+balanced,P_hybrid,1391654.0,7983.5,"[1385942.9, 1397365.1]",0.72,215.2,9.37,2811.9,40.16,99.08,100.0,0.0,0.0
+attack-heavy,P_XGB,2891120.0,3088.3,"[2888910.7, 2893329.3]",0.34,4.8,N/A,0.0,N/A,98.67,N/A,N/A,N/A
+attack-heavy,P_hybrid,2896960.6,3096.2,"[2894745.7, 2899175.5]",1.47,20.7,21.09,294.8,27.83,99.12,100.0,0.0,0.0
+multi-state,P_XGB,1472830.0,4194.0,"[1469829.8, 1475830.2]",0.45,136.1,N/A,0.0,N/A,98.64,N/A,N/A,N/A
+multi-state,P_hybrid,1391352.6,9234.2,"[1384746.8, 1397958.4]",0.71,212.4,9.35,2805.1,40.56,99.09,100.0,0.0,0.0
+unstratified,P_XGB,1472830.0,4194.0,"[1469829.8, 1475830.2]",0.45,136.1,N/A,0.0,N/A,98.64,N/A,N/A,N/A
+unstratified,P_hybrid,1326419.4,11070.4,"[1318500.1, 1334338.7]",1.1,328.9,20.29,6087.8,28.46,99.05,100.0,0.0,0.0
+flood,P_XGB,2960105.0,1833.6,"[2958793.4, 2961416.6]",N/A (0 benign),0.0,N/A,0.0,N/A,98.67,N/A,N/A,N/A
+flood,P_hybrid,2974176.0,1290.7,"[2973252.7, 2975099.3]",N/A (0 benign),0.0,N/A,0.0,N/A,99.12,100.0,100.0,0.0

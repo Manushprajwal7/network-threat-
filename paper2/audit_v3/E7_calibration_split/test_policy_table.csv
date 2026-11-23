@@ -1,0 +1,5 @@
+policy,eval_flows,net_ocu_test,containment_recall_pct,block_recall_pct,block_fpr_pct,quarantine_fpr_pct
+P_opt,60000,1439948,98.65,98.65,0.67,0.0
+P_2-tier,60000,1404974,98.97,98.65,0.67,6.53
+P_hybrid,60000,1404974,98.97,98.65,0.67,6.53
+P_XGB,60000,1470400,98.6,98.6,0.45,0.0

@@ -1,0 +1,155 @@
+[
+    {
+        "component":  "XGBoost (GPU)",
+        "hardware":  "RTX 3050 Laptop GPU (CUDA)",
+        "batch_size":  "32",
+        "total_flows":  "9984",
+        "elapsed_sec":  "5.8831",
+        "throughput_fps":  "1697.1",
+        "amortized_latency_us":  "589.25"
+    },
+    {
+        "component":  "XGBoost (GPU)",
+        "hardware":  "RTX 3050 Laptop GPU (CUDA)",
+        "batch_size":  "64",
+        "total_flows":  "9984",
+        "elapsed_sec":  "2.8363",
+        "throughput_fps":  "3520.1",
+        "amortized_latency_us":  "284.09"
+    },
+    {
+        "component":  "XGBoost (GPU)",
+        "hardware":  "RTX 3050 Laptop GPU (CUDA)",
+        "batch_size":  "128",
+        "total_flows":  "9984",
+        "elapsed_sec":  "1.437",
+        "throughput_fps":  "6948.0",
+        "amortized_latency_us":  "143.93"
+    },
+    {
+        "component":  "XGBoost (GPU)",
+        "hardware":  "RTX 3050 Laptop GPU (CUDA)",
+        "batch_size":  "256",
+        "total_flows":  "9984",
+        "elapsed_sec":  "0.6954",
+        "throughput_fps":  "14357.3",
+        "amortized_latency_us":  "69.65"
+    },
+    {
+        "component":  "XGBoost (GPU)",
+        "hardware":  "RTX 3050 Laptop GPU (CUDA)",
+        "batch_size":  "512",
+        "total_flows":  "9728",
+        "elapsed_sec":  "0.3362",
+        "throughput_fps":  "28935.7",
+        "amortized_latency_us":  "34.56"
+    },
+    {
+        "component":  "XGBoost (GPU)",
+        "hardware":  "RTX 3050 Laptop GPU (CUDA)",
+        "batch_size":  "1024",
+        "total_flows":  "9216",
+        "elapsed_sec":  "0.1546",
+        "throughput_fps":  "59595.6",
+        "amortized_latency_us":  "16.78"
+    },
+    {
+        "component":  "XGBoost (GPU)",
+        "hardware":  "RTX 3050 Laptop GPU (CUDA)",
+        "batch_size":  "2048",
+        "total_flows":  "8192",
+        "elapsed_sec":  "0.0765",
+        "throughput_fps":  "107126.6",
+        "amortized_latency_us":  "9.33"
+    },
+    {
+        "component":  "XGBoost (GPU)",
+        "hardware":  "RTX 3050 Laptop GPU (CUDA)",
+        "batch_size":  "4096",
+        "total_flows":  "8192",
+        "elapsed_sec":  "0.0462",
+        "throughput_fps":  "177340.2",
+        "amortized_latency_us":  "5.64"
+    },
+    {
+        "component":  "XGBoost (CPU)",
+        "hardware":  "Host CPU (Multithreaded)",
+        "batch_size":  "1024",
+        "total_flows":  "1024",
+        "elapsed_sec":  "0.0004",
+        "throughput_fps":  "2489666.9",
+        "amortized_latency_us":  "0.4"
+    },
+    {
+        "component":  "Isolation Forest",
+        "hardware":  "Host CPU (n_jobs=-1)",
+        "batch_size":  "64",
+        "total_flows":  "9984",
+        "elapsed_sec":  "1.2575",
+        "throughput_fps":  "7939.5",
+        "amortized_latency_us":  "125.95"
+    },
+    {
+        "component":  "Isolation Forest",
+        "hardware":  "Host CPU (n_jobs=-1)",
+        "batch_size":  "256",
+        "total_flows":  "9984",
+        "elapsed_sec":  "0.3581",
+        "throughput_fps":  "27883.1",
+        "amortized_latency_us":  "35.86"
+    },
+    {
+        "component":  "Isolation Forest",
+        "hardware":  "Host CPU (n_jobs=-1)",
+        "batch_size":  "1024",
+        "total_flows":  "9216",
+        "elapsed_sec":  "0.1183",
+        "throughput_fps":  "77933.7",
+        "amortized_latency_us":  "12.83"
+    },
+    {
+        "component":  "Isolation Forest",
+        "hardware":  "Host CPU (n_jobs=-1)",
+        "batch_size":  "2048",
+        "total_flows":  "8192",
+        "elapsed_sec":  "0.0743",
+        "throughput_fps":  "110189.7",
+        "amortized_latency_us":  "9.08"
+    },
+    {
+        "component":  "Isolation Forest",
+        "hardware":  "Host CPU (n_jobs=-1)",
+        "batch_size":  "4096",
+        "total_flows":  "8192",
+        "elapsed_sec":  "0.0557",
+        "throughput_fps":  "147015.5",
+        "amortized_latency_us":  "6.8"
+    },
+    {
+        "component":  "ADTM Trust Manager",
+        "hardware":  "Host CPU",
+        "batch_size":  "1",
+        "total_flows":  "10000",
+        "elapsed_sec":  "0.0086",
+        "throughput_fps":  "1156350.1",
+        "amortized_latency_us":  "0.86"
+    },
+    {
+        "component":  "Benign Veto Logic",
+        "hardware":  "Host CPU",
+        "batch_size":  "10000",
+        "total_flows":  "10000",
+        "elapsed_sec":  "2.2e-05",
+        "throughput_fps":  "454545451.0",
+        "amortized_latency_us":  "0.0022"
+    },
+    {
+        "component":  "End-to-End P_hybrid Pipeline",
+        "hardware":  "GPU + CPU Hybrid",
+        "batch_size":  "1024",
+        "total_flows":  "8192",
+        "elapsed_sec":  "0.449",
+        "throughput_fps":  "18244.3",
+        "amortized_latency_us":  "54.81"
+    }
+]

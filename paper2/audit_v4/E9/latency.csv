@@ -1,0 +1,7 @@
+component,execution_mode,hardware,p50_us,p95_us,p99_us,mean_us
+XGBoost (GPU),Single Flow (B=1),RTX 3050 Laptop GPU,13828.5,18622.9,21624.3,14775.0
+XGBoost (CPU),Single Flow (B=1),Host CPU (n_jobs=-1),1864.2,2820.2,2986.1,2058.7
+Isolation Forest,Single Flow (B=1),Host CPU (n_jobs=-1),7335.5,9257.6,10795.1,7600.4
+ADTM Trust Manager,Single Flow (Sequential Causal),Host CPU,0.9,1.7,1.9,1.05
+TARP Topology,Graph-Wide Propagation (120 Nodes),Host CPU,4.8,5.2,7.6,4.99
+Benign Veto Logic,Single Flow Conditional Check,Host CPU,0.2,0.3,0.4,0.177

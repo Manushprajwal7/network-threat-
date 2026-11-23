@@ -1,0 +1,50 @@
+[
+  {
+    "comparison": "XGBoost vs. Random Forest",
+    "metric": "accuracy",
+    "mean_diff": 0.0048861750552959046,
+    "statistic": 0.0,
+    "p_value": 0.001953125,
+    "significant": true
+  },
+  {
+    "comparison": "XGBoost vs. Random Forest",
+    "metric": "macro_f1",
+    "mean_diff": 0.07708003017012231,
+    "statistic": 0.0,
+    "p_value": 0.001953125,
+    "significant": true
+  },
+  {
+    "comparison": "XGBoost vs. Decision Tree",
+    "metric": "accuracy",
+    "mean_diff": 0.014443374734779524,
+    "statistic": 0.0,
+    "p_value": 0.001953125,
+    "significant": true
+  },
+  {
+    "comparison": "XGBoost vs. Decision Tree",
+    "metric": "macro_f1",
+    "mean_diff": 0.05549774142812284,
+    "statistic": 0.0,
+    "p_value": 0.001953125,
+    "significant": true
+  },
+  {
+    "comparison": "XGBoost vs. Naive Bayes",
+    "metric": "accuracy",
+    "mean_diff": 0.815275595636151,
+    "statistic": 0.0,
+    "p_value": 0.001953125,
+    "significant": true
+  },
+  {
+    "comparison": "XGBoost vs. Naive Bayes",
+    "metric": "macro_f1",
+    "mean_diff": 0.545995240962196,
+    "statistic": 0.0,
+    "p_value": 0.001953125,
+    "significant": true
+  }
+]

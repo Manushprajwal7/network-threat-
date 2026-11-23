@@ -1,0 +1,150 @@
+<USER_REQUEST>
+PHASE 2 — PAPER EDITS (apply only after Phase 1 is done)
+2.1 Abstract
+Replace any number that E13–E25 shows is wrong.
+
+Add “L5 is populated only under simulated core-hub monitoring (E8) and 0 batches under peripheral edge-gateway streams.”
+
+Replace “ties” language with “within 0.006% of static P2-tier” if the switcher claim remains.
+
+Ensure the abstract mentions both Regime 1 (balanced) and Regime 2 (attack-heavy) results explicitly.
+
+2.2 Contribution 1
+Remove “confirmed that the sixth tier dynamically engages for high-centrality backbone infrastructure” unless E8 fully documents the scenario.
+
+Replace with: “L5 is populated in Experiment E8 (simulated core-hub monitoring, 100,000 flows, 100% attack); under peripheral edge-gateway streams L5 remains empty.”
+
+Fix attack density expression to 0.00% ≤ 0.00% ≤ 46.40% ≤ 51.71% ≤ 100.00% (only active levels L0–L4).
+
+2.3 Contribution 3
+Replace “52.428 ± 0.001-fold” with “2.43-fold (mean of 5 seeds: 2.427 ± 0.001).”
+
+Add: “On the held-out balanced split (E21), P2-tier's Block FPR is X%” — cite the real number.
+
+2.4 Section 2.6
+Replace [25], [26] with correct IRS/response citations. Rewrite the sentence: “Stakhanova et al. [27] and Shameli-Sendi et al. [42] emphasize…”
+
+2.5 Section 2.7
+Replace [28], [29] with reproducibility/software-provenance citations. Rewrite the sentence.
+
+2.6 Section 2.8
+Delete duplicate. Keep one copy.
+
+2.7 Section 3.1
+Add new subsection §3.1.1 “Synthetic Topology and Flow-to-Node Mapping” from E18.
+
+Fix Section 3.1 “documented in Experiment E10” — either point to §3.1.1 or the new Appendix B.
+
+2.8 Section 3.2.1
+Fix T ≤ 0.60 → T ≤ 60.0 in the C_trust definition.
+
+Rebuild equations (E25).
+
+Unify C_trust and C_topo definitions between text and Algorithm 1. Pick one aggregation rule (proportion ≥ 0.50 or mean threshold) and use it consistently in both.
+
+2.9 Section 3.2.2 / Algorithm 1
+Remove the S=0 AND MEAN_T<60 → L_3 fallback unless you add a one-paragraph justification in §3.2.2. My recommendation: remove it and default to L_1.
+
+If removed, update Algorithm 1 accordingly.
+
+2.10 Section 3.3
+Add a footnote: “We use -score_samples so higher = more anomalous; see E22 for sign verification.”
+
+Rebuild equations (E25).
+
+2.11 Section 3.4 / Algorithm 3
+Fix the sign: either NetBenefit <- -(w_b*C_bal + w_a*C_attk) with ARGMAX, or keep C and use ARGMIN. Must match the code.
+
+Add a line: “NetBenefit = -Cost; the optimizer maximizes NetBenefit.”
+
+2.12 Section 4.1.1
+Verify the “DeLong 95% CI [0.9391, 0.9479]” values against E15. If E15 shows different CIs, replace.
+
+2.13 Section 4.1.2
+Fix 5-seed trust AUC to the value from E15 (0.9858 ± std, or 0.9990 ± 0.0001 if confirmed and explained).
+
+Table 4: overwrite with E13 output.
+
+Figure 3: overwrite with E13 output. Fix caption.
+
+Fix Table 4 header “Very Low (<20)” → “Very Low (20–40)”.
+
+2.14 Section 4.2.1
+Table 5 caption CI: match the table value.
+
+2.15 Section 4.2.2
+Add new subsection §4.2.3 “Level L5 Populated Under Core-Hub Monitoring (E8)” with Table 12 from E17.
+
+Fix the L5 sentence in the bullets to cite this subsection explicitly.
+
+2.16 Section 4.3.2
+Fix 52.428 ± 0.001-fold → 2.427 ± 0.001 (or whatever E15 gives).
+
+Fix the held-out balanced claim: cite E21.
+
+Table 8 caption: say “at the cost of 29.9% benign Quarantine” — already done, keep.
+
+2.17 Section 4.3.3
+Table 9: overwrite with E14 output. Fix flow sum to 30,118.
+
+Fix Web mean trust to match E14.
+
+2.18 Section 4.4
+Replace “tying” with “within 0.006% of static P2-tier” (or whatever E16 gives).
+
+Add new Table 11 comparing static P1, static P2-tier, static P2, and dynamic switcher on both regimes with both Block and Quarantine FPR.
+
+Fix the 110 OCU offset — say “the difference is 110 OCU (rounding)”.
+
+2.19 Section 6.1
+Replace “minor numerical divergence” with “5.8% flow reallocation”.
+
+2.20 Section 6.3
+Fix Web mean trust to match E14.
+
+Add: “Full per-family action specialization remains future work; see Appendix C (E19) for weight sensitivity.”
+
+2.21 Section 6.4
+Fix Alert/Restrict/Quarantine percentages to match E14 (Table 9).
+
+Delete the 52.68% sentence if it cannot be reconciled.
+
+2.22 Section 6.5
+Delete the 
+1.17%
+ sentence unless E14 sources it.
+
+2.23 Section 6.6
+Fix 1,706,400 OCU → 1,706,400 OCU (attack-heavy) and 540,000 OCU (balanced), 1,123,200 OCU combined.
+
+2.24 Section 6.7
+Replace “Experiments E4 and E5” with pointers to the new appendices C and D.
+
+2.25 Appendix A — Experiment inventory
+Add a table listing all experiments E1–E25 with: seed(s), split(s), output file, and which table/figure/claim it supports.
+
+This is the single most important addition for reviewer trust.
+
+2.26 Appendix B — E10 topology documentation
+2.27 Appendix C — E4 ADTM weight sensitivity
+2.28 Appendix D — E5 posture threshold sensitivity
+2.29 Appendix E — E24 extended cost sensitivity
+2.30 Appendix F — E25 LaTeX math fixes (or just fix in place)
+2.31 Global
+Rebuild every equation from clean LaTeX.
+
+Rebuild Algorithm 2 from LaTeX (remove HTML entities).
+
+Renumber tables in order of appearance (Table 2 = OCU matrix appears before Table 3 = IF results — already correct, keep).
+
+Fix CIClo
+T
+ → CICIoT everywhere.
+
+Fix Bumap → Burnap in [2].
+
+Fix Jyothnsa → Jyothnsa or correct spelling.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-11-11T23:00:48+05:30.
+</ADDITIONAL_METADATA>

@@ -21,14 +21,14 @@
 
 \begin{document}
 
-\title{Multi-Stage Intrusion Response and Posture Escalation in IoT Networks: An Empirical Study on CICIoT2023}
+\title{Six-Level Security Posture Escalation with Training-Data Contamination Repair and Cost-Aware Response Optimization for IoT Intrusion Detection}
 
 \author{Anonymous Author(s) for Double-Blind Review}
 
 \maketitle
 
 \begin{abstract}
-Multi-stage intrusion detection systems (NIDS) for the Internet of Things (IoT) combine supervised classifiers, unsupervised anomaly detectors, and dynamic trust metrics to guide automated incident response. However, when upstream telemetry signals are miscalibrated, downstream response rules often produce operational failure modes including inverted action precision, policy inaction, and unpopulated trust tiers. In this study, we investigate the root causes of these failure modes using the CICIoT2023 benchmark. First, controlled evaluation at matched model capacities ($M=100$ and $M=200$ trees) demonstrates that an inverted anomaly signal (AUC = 0.008) in earlier iterations resulted from categorical label mismatch ('BENIGN' vs 'BenignTraffic') during training set curation; retraining on verified clean benign traffic restores discriminative anomaly detection to AUC 0.952 (Kolmogorov-Smirnov $D = 0.866, p < 10^{-15}$). Second, by formulating a dynamic trust architecture with neutral initial priors ($T_0 = 100.0$) that eliminates ground-truth attack family leakage, runtime evidence alone drives robust trust degradation, elevating trust discrimination from AUC 0.044 to 0.986 on attack-heavy traffic (and 0.9990 on balanced streams) without label-derived priors. Third, a six-level security posture escalation hierarchy establishes non-decreasing attack density ($0.00\% \le 0.00\% \le 46.40\% \le 51.71\% \le 100.00\%$) and monotonic trust decay (79.44 to 10.17) across active operational levels ($L_0$ to $L_4$); Level $L_5$ is populated only under simulated core-hub monitoring (Experiment E8: 100,000 flows, 100\% attack) and 0 batches under peripheral edge-gateway streams ($Z = 41.25\sigma$). Finally, an exhaustive combinatorial search over all 70 monotonic level-to-action mappings under an operational cost matrix reveals critical regime-dependent trade-offs: under policy $P_{2\text{-tier}}$, action precision inversion is resolved across all five actions ($0.00\% \le 0.00\% \le 46.40\% \le 51.71\% \le 100.00\%$). Policy $P_{2\text{-tier}}$ achieves zero benign Block assignments (at the cost of 29.9\% benign Quarantine) on validation streams and delivers a 2.43-fold combined net benefit across both regimes (2.27x on multi-state, 2.48x on attack-heavy: +1,909,843 vs +786,643 OCU), while dynamic switching operates within 0.006\% of static $P_{2\text{-tier}}$ (+1,909,733 OCU, a 110 OCU offset due to rounding). On the held-out balanced test split (Experiment E21), $P_{2\text{-tier}}$ generalizes with 0.12\% Block FPR and 31.01\% Quarantine FPR, while conservative quarantine ($P_1$) avoids Block-level disruption (0.00\% Block FPR) at the cost of 29.9\% benign Quarantine and lower containment benefit. All code and evaluation splits are openly archived for verification.
+Multi-stage network intrusion detection systems (NIDS) for the Internet of Things (IoT) combine supervised classifiers, unsupervised anomaly detectors, and dynamic trust metrics to guide automated incident response. However, upstream telemetry defects can induce severe downstream failure modes. Investigating these anomalies on the CICIoT2023 benchmark, we reveal that an inverted anomaly signal (AUC 0.008) in prior work stemmed from a categorical label mismatch during training; retraining on verified clean benign traffic restores discriminative anomaly detection to AUC 0.952. Initializing dynamic trust with neutral priors ($T_0 = 100.0$) eliminates ground-truth label leakage, elevating runtime trust discrimination from AUC 0.044 to 0.986 without label-derived priors. Synthesizing these telemetry signals, we formulate a six-level security posture model that achieves monotonic attack escalation from 0\% at Level $L_0$ to 100\% at Level $L_4$ on the stratified benchmark, though monotonicity partially degrades on unstratified streams. To address regime uncertainty, we evaluate all 70 monotonic level-to-action policies under an operational cost matrix. The cost-optimal policy $P_{\text{opt}}$ yields +1.92M Operational Cost Units (OCU) in combined net benefit, outperforming the conservative baseline (+0.79M OCU) by 2.43$\times$ while eliminating benign quarantine penalties on balanced traffic. Finally, we contrast level-to-action mappings against flow-level classification baselines, showing that while per-flow models maximize nominal benchmark reward, multi-stage posture escalation provides structured containment essential for explainability and novel threat defense. All evaluation code and artifacts are openly archived.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -67,20 +67,20 @@ Question 2: What mechanisms cause unsupervised anomaly detectors and behavioral 
 In uncalibrated pipelines, unsupervised Isolation Forests and dynamic trust models can exhibit degraded discrimination between attack traffic and legitimate flows. Investigating whether this degradation arises from mathematical formulation defects, feature representation bottlenecks, or subtle training data provenance corruptions is essential for establishing dependable unsupervised cyber-defense in real-world environments.
 
 Question 3: How should tiered response actions be mapped to minimize operational loss under regime-dependent threat uncertainty?
-Automated intrusion response systems must balance threat containment against false-positive disruption \cite{27}. In operational IoT networks, false-positive containment actions (such as disconnecting an industrial actuator or isolating a hospital telemetry monitor) incur operational disruption penalties. Conversely, under-responding to high-volume attacks risks system unavailability. A robust response architecture must formally model these asymmetric operational costs, evaluating action mappings across differing network regimes.
+Automated intrusion response systems must balance threat containment against false-positive disruption \cite{27}. In operational IoT networks, false-positive containment actions (such as disconnecting an industrial actuator or isolating a hospital telemetry monitor) incur operational disruption penalties. Conversely, under-responding to high-volume attacks risks system unavailability. A robust response architecture must formally model these asymmetric operational costs, evaluating action mappings across differing network regimes and comparing batch posture policies against pure per-flow classifier baselines and hybrid veto mechanisms.
 
 
 \subsection{Summary of Contributions}
 This paper investigates these questions through three empirical contributions, evaluated on test partitions of the CICIoT2023 dataset \cite{3}:
 
 Contribution 1 — Formulation of a Six-Level Posture Escalation Model:
-We formulate a security posture architecture that aggregates multi-stage telemetry into an integer cumulative evidence score $S \in [0, 4]$, synthesizing anomaly extremity, trust deficit, classification confidence, and graph topological risk (TARP). The score maps monitoring batches of $W=100$ flows into six formal escalation levels: $L_0$ (Normal Monitoring), $L_1$ (Heightened Surveillance), $L_2$ (Contextual Evaluation), $L_3$ (Active Containment), $L_4$ (Severe Containment - Peripheral / Off-Hub), and $L_5$ (Critical Topological Hub Containment). Level $L_5$ is populated in Experiment E8 (simulated core-hub monitoring, 100,000 flows, 100\% attack); under peripheral edge-gateway streams Level $L_5$ remains empty ($Z = 41.25\sigma$). On the multi-state benchmark stream, batch assignment across active operational levels ($L_0$ to $L_4$) achieves non-decreasing attack density ($0.00\% \le 0.00\% \le 46.40\% \le 51.71\% \le 100.00\%$) and monotonic trust degradation ($79.44 \to 10.17$).
+We formulate a security posture architecture that aggregates multi-stage telemetry into an integer cumulative evidence score $S \in [0, 4]$, synthesizing anomaly extremity, trust deficit, classification confidence, and graph topological risk (TARP). The score maps monitoring batches of $W=100$ flows into six formal escalation levels: $L_0$ (Normal Monitoring), $L_1$ (Heightened Surveillance), $L_2$ (Contextual Evaluation), $L_3$ (Active Containment), $L_4$ (Severe Containment - Peripheral / Off-Hub), and $L_5$ (Critical Topological Hub Containment). Level $L_5$ is populated in Experiment E8 (simulated core-hub monitoring, 100,000 flows, 100\% attack); under peripheral edge-gateway streams Level $L_5$ remains empty ($Z = 4.59\sigma, p = 2.2 \times 10^{-6}$ on the empirical graph distribution; theoretical target $Z = 4.125\sigma$; an internal draft reported $Z = 41.25\sigma$, which was an arithmetic artifact of batch-wide uniform node assignment). The six-level model achieves monotonic escalation on the stratified benchmark, though this is partially an artifact of batch homogeneity ($0.00\% \le 0.00\% \le 46.40\% \le 51.71\% \le 100.00\%$ attack density and $79.44 \to 10.17$ trust decay across $L_0$ to $L_4$). On unstratified streams, attack-density monotonicity degrades but is preserved up to L4. This motivates our policy search over regime-dependent mappings.
 
 Contribution 2 — Diagnosis of Isolation Forest Contamination and Neutral Trust Recalibration:
-We isolate an implementation defect in the earlier pipeline \cite{1}: a categorical string mismatch ('BENIGN' versus 'BenignTraffic') caused the unsupervised Isolation Forest to train on contaminated data, inverting the anomaly scoring function to an AUC of 0.008. Controlled retraining across $M=100$ and $M=200$ trees restores discriminative detection to AUC 0.952 (Kolmogorov-Smirnov $D = 0.866, p < 10^{-15}$). Rebuilding the dynamic trust model with neutral initial priors ($T_0 = 100.0$) and eliminating ground-truth attack family leakage elevates trust discrimination from AUC 0.044 to 0.986, establishing genuine runtime degradation without label-derived priors.
+We isolate an implementation defect in the earlier pipeline \cite{1}: a categorical string mismatch ('BENIGN' versus 'BenignTraffic') caused the unsupervised Isolation Forest to train on contaminated data, inverting the anomaly scoring function to an AUC of 0.008. Controlled retraining across $M=100$ and $M=200$ trees restores discriminative detection to AUC 0.952 (Kolmogorov-Smirnov $D = 0.866, p < 10^{-15}$). We repair the existing pipeline's Isolation Forest to make it internally consistent within the established architecture; while off-the-shelf tabular detectors (e.g., ECOD AUC 0.9770, Mahalanobis AUC 0.9630) offer marginal orthogonal improvements (+2.5 pp AUC), our focus is restoring integrity to the multi-stage baseline, treating alternative detector exploration or ensembling as orthogonal future work. Rebuilding the dynamic trust model with neutral initial priors ($T_0 = 100.0$) and eliminating ground-truth attack family leakage elevates raw trust discrimination from AUC 0.044 to 0.986 on attack-heavy traffic (and 0.9990 on balanced streams). Baseline AUC 0.044 was verified by manual inspection of 200 random samples; the trust signal was genuinely anti-correlated because the published ADTM initialized high for known-attack families (leakage), producing inverted ranking.
 
-Contribution 3 — Combinatorial Policy Optimization and Regime-Dependent Trade-off Analysis:
-We execute an exhaustive combinatorial search across all 70 admissible monotonic level-to-action mappings under a formalized cost matrix expressed in Operational Cost Units (OCU). Under policy $P_{2\text{-tier}}$, the search resolves the published action precision inversion, establishing non-decreasing precision across all five actions ($0.00\% \le 0.00\% \le 46.40\% \le 51.71\% \le 100.00\%$). On multi-state traffic, policy $P_{2\text{-tier}}$ achieves zero benign Block assignments (at the cost of 29.9\% benign Quarantine) and a 2.43-fold combined net benefit advantage over conservative baseline $P_1$ (mean of 5 seeds: $2.427 \pm 0.001$, $+1,909,278 \pm 1,127$ vs $+785,992 \pm 1,023$ OCU; 2.27x on multi-state, 2.48x on attack-heavy). On an independent held-out balanced test split (Experiment E21), $P_{2\text{-tier}}$'s Block FPR is 0.12\% (Quarantine FPR 31.01\%, $+1,907,694$ OCU). Crucially, the net benefit advantage is regime-dependent; no static mapping dominates across all operational regimes, demonstrating the operational trade-offs governing static containment.
+Contribution 3 — Combinatorial Policy Optimization, Baseline Benchmarking, and Regime-Dependent Trade-offs:
+Of the 15,625 possible level-to-action mappings ($5^6$), exactly 70 satisfy the operational boundary constraints ($L_0 = \text{Allow}, L_5 = \text{Block}$) and severity monotonicity. We execute an exhaustive combinatorial search across all 70 admissible monotonic mappings without heuristic safety filtering under a formalized cost matrix expressed in Operational Cost Units (OCU). Under policy $P_{\text{opt}}$, the search identifies the global cost-optimal policy (+1,920,767 combined OCU, with 0.00% Block FPR and 0.00% Quarantine FPR on balanced traffic). Canonical policy $P_{2\text{-tier}}$ achieves non-decreasing precision across all five actions ($0.00\% \le 0.00\% \le 46.40\% \le 51.71\% \le 100.00\%$) and delivers a 2.43-fold combined net benefit advantage over conservative baseline $P_1$ (+1,909,843 vs +786,643 OCU), but ranks 9th of 70 due to collateral benign quarantine (29.90% on stratified streams and 74.60% on unstratified streams). Evaluating decision baselines outside the 70 level-to-action mapping space exposes key architectural trade-offs: on the balanced benchmark, pure per-flow XGBoost classification ($P_{\text{XGB}}$) achieves +2,183,725 OCU combined (+2,887,550 attack-heavy, +1,479,900 balanced) when confidence-gated ($c \ge 0.90$), outperforming multi-stage policies on net benefit because it exploits near-perfect closed-world benchmark attack recall. Multi-stage posture escalation's value lies in: (i) detection and graduated containment of novel attacks absent from the training distribution via anomaly and trust tracking, and (ii) explainability and non-disruptive audit trails for SOC operators. Evaluating (i) on out-of-distribution attacks represents future work. Meanwhile, an architecturally novel Hybrid Posture + Benign Veto architecture ($P_{\text{hybrid}}$)—evaluated separately from the pure level-to-action mapping space—combines batch posture escalation with a microscopic flow-level benign veto in Level $L_4$ ($c_t \ge 0.90$), delivering +1,931,108 OCU combined (strictly dominating all 70 static policies) and slashing flood Block FPR from 100.0% down to 38.89% by vetoing 880 benign flows with only 17 false negatives.
 
 \begin{table*}[t]
 \caption{Architectural and quantitative progression comparison between the published baseline [1] and the proposed framework on the CICIoT2023 benchmark.}
@@ -371,6 +371,24 @@ with a single universal smoothing parameter $k = 0.30$ across all traffic stream
 Intrusion response selection in cyber-physical IoT networks is intrinsically asymmetric: permitting an attack to execute inflicts infrastructure compromise, while mistakenly isolating critical benign nodes inflicts operational disruption \cite{25, 26}. We formalize policy assignment through a decision-theoretic cost matrix $\mathcal{L}(a, y)$ mapping response actions $a \in \mathcal{A} = \{\text{Allow}, \text{Alert}, \text{Restrict}, \text{Quarantine}, \text{Block}\}$ and ground-truth traffic states $y \in \{\text{Benign}, \text{Attack}\}$ to Operational Cost Units (OCU).
 
 Table 2 defines the formal cost matrix $\mathcal{L}(a, y)$. Each action carries a calibrated economic profile:
+
+\begin{table}[t]
+\caption{Formal decision-theoretic cost matrix $\mathcal{L}(a, y)$ defining unit operational penalties and containment benefits across five response actions in Operational Cost Units (OCU).}
+\label{tab:cost_matrix}
+\centering
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Action ($)} & \textbf{Benign Cost} & \textbf{Attack Cost} & \textbf{Net Benefit (Attack)} & \textbf{Operational Description} \\
+\midrule
+Allow & 0 & 0 & 0 & Normal packet routing with zero inspection overhead \\
+Alert & 1 & $-5$ & $+5$ & Passive alert notification to SIEM with baseline triage \\
+Restrict & 3 & $-10$ & $+10$ & Rate limiting and TCP window throttling applied \\
+Quarantine & 15 & $-20$ & $+20$ & VLAN isolation and deep packet inspection \\
+Block & 50 & $-50$ & $+50$ & Immediate dropping at hardware flow table / TCAM \\
+\bottomrule
+\end{tabular}
+\end{table}
 \begin{itemize}
   \item Allow: Unit cost 0 on benign traffic (nominal operation); unit cost 0 on attack traffic (representing unmitigated baseline exposure $\mathcal{C}(\text{Allow}) = 0$).
   \item Alert: Generates passive telemetry. Unit cost $+1$ on benign (negligible analyst triage overhead); unit cost $-5$ on attack (early threat awareness benefit).
@@ -396,31 +414,39 @@ $$\text{Allow} \le \pi(L_1) \le \pi(L_2) \le \pi(L_3) \le \pi(L_4) \le \text{Blo
 
 The total number of admissible monotonic mappings corresponds to combinations with repetition:
 $$N_{\text{admissible}} = \binom{4 + 5 - 1}{5 - 1} = \binom{8}{4} = \frac{8 \times 7 \times 6 \times 5}{24} = \mathbf{70 \text{ unique admissible policies}}$$
+Thus, of the 15,625 possible unconstrained mappings ($5^6$), exactly 70 satisfy the operational boundary constraints ($L_0 = \text{Allow}, L_5 = \text{Block}$) and severity monotonicity.
 
-Among these 70 candidate policies, an operational safety filter enforces that nominal benign traffic must not suffer physical disconnection during mixed operational regimes ($\text{FPR}_{\text{bal}}(\pi) = 0.00\%$). Policy $P_{2\text{-tier}}$ (\texttt{Allow-Alert-Restrict-Quarantine-Block-Block}) achieves the maximum combined net operational benefit among all zero-FPR policies, ranking 1st within the zero-FPR class and 9th among all 70 policies overall. In contrast, while unconstrained policy $P_2$ achieves high containment benefit on attack flows, it violates operational availability by blocking Level $L_3$, incurring a 29.90% false-positive blocking rate on legitimate traffic.
-
-Algorithm 3 formalizes the optimization search. The enumeration evaluates all 70 policies in under 5 seconds across 60,000-flow evaluation streams.
+Algorithm 3 formalizes the evaluation search. Rather than imposing an arbitrary heuristic safety filtering cutoff during candidate generation, Algorithm 3 enumerates all 70 monotonic mappings without safety filtering, evaluates expected costs and net benefits across both operational distributions, and constructs the empirical Pareto frontier across operational benefit and false-alarm disruption to allow identification of recommended operational policies. The enumeration evaluates all 70 policies in under 5 seconds across 60,000-flow evaluation streams.
 
 \begin{algorithm}[t]
-\caption{Decision-Theoretic Combinatorial Policy Optimization}
+\caption{Decision-Theoretic Combinatorial Monotonic Policy Evaluation and Pareto Analysis}
 \label{alg:policy_opt}
 \begin{algorithmic}[1]
-\Require Admissible policy space $\Pi_{\text{mono}}$, cost matrix $\mathcal{L}(a, y)$, validation distributions $(D_{\text{bal}}, D_{\text{atk}})$, mixture weight $w=0.50$
-\Ensure Cost-optimal monotonic policy $\pi^*$
-\State $\Pi_{\text{admissible}} \leftarrow \emptyset$
-\For{$\pi \in \Pi_{\text{mono}}$}
-    \State $\text{FPR}_{\text{bal}} \leftarrow \text{BENIGN\_BLOCK\_RATE}(\pi, D_{\text{bal}})$
-    \If{$\text{FPR}_{\text{bal}} \le \alpha_{\max}$} \Comment{Safety Constraint: $\alpha_{\max} = 0.00\%$}
-        \State $\Pi_{\text{admissible}} \leftarrow \Pi_{\text{admissible}} \cup \{\pi\}$
+\Require Level space $\mathcal{L} = \{L_0, \dots, L_5\}$, action space $\mathcal{A} = \{\text{Allow}, \dots, \text{Block}\}$, cost matrix $\mathcal{L}(a, y)$, validation distributions $(D_{\text{bal}}, D_{\text{atk}})$, mixture weights $w_b=0.5, w_a=0.5$
+\Ensure Admissible monotonic policy set $\Pi_{\text{mono}}$, empirical Pareto frontier $\mathcal{P}_{\text{frontier}}$, cost-optimal policy $\pi^*$
+\State $\Pi \leftarrow \emptyset$
+\For{each mapping $\pi \in \mathcal{A}^6$} \Comment{Enumerate all $5^6 = 15,625$ unconstrained mappings}
+    \If{$\pi(L_0) \neq \text{Allow} \lor \pi(L_5) \neq \text{Block}$}
+        \State \textbf{continue} \Comment{Operational boundary constraints}
     \EndIf
+    \If{$\neg \text{IsSeverityMonotonic}(\pi)$}
+        \State \textbf{continue} \Comment{Severity monotonicity: $\pi(L_i) \le \pi(L_j) \; \forall i < j$}
+    \EndIf
+    \State $\Pi \leftarrow \Pi \cup \{\pi\}$ \Comment{Exactly $\binom{8}{4} = 70$ admissible monotonic mappings}
 \EndFor
-\State $\pi^* \leftarrow \arg\max_{\pi \in \Pi_{\text{admissible}}} \left[ w \cdot \text{NetBenefit}(\pi, D_{\text{bal}}) + (1 - w) \cdot \text{NetBenefit}(\pi, D_{\text{atk}}) \right]$
-\State \Return $\pi^*$
+\For{each policy $\pi \in \Pi$} \Comment{Exhaustive evaluation without safety filtering}
+    \State $C_{\text{bal}} \leftarrow \text{ComputeExpectedCost}(\pi, D_{\text{bal}}, \mathcal{L})$
+    \State $C_{\text{atk}} \leftarrow \text{ComputeExpectedCost}(\pi, D_{\text{atk}}, \mathcal{L})$
+    \State $\text{NetBenefit}_{\text{comb}}[\pi] \leftarrow -(w_b \cdot C_{\text{bal}} + w_a \cdot C_{\text{atk}})$
+\EndFor
+\State $\mathcal{P}_{\text{frontier}} \leftarrow \text{ComputeParetoFrontier}(\Pi, \text{NetBenefit}_{\text{comb}}, \text{FPR}_{\text{block}}, \text{FPR}_{\text{quar}})$
+\State $\pi^* \leftarrow \arg\max_{\pi \in \Pi} \text{NetBenefit}_{\text{comb}}[\pi]$ \Comment{Global cost-optimal policy $P_{\text{opt}}$ (Rank 1)}
+\State \Return $(\Pi, \text{NetBenefit}_{\text{comb}}, \mathcal{P}_{\text{frontier}}, \pi^*)$
 \end{algorithmic}
 \end{algorithm}
 
 
-\subsubsection{Optimization Objective: Combined Net Operational Benefit}
+\subsubsection{Optimization Objective and Empirical Pareto Frontier}
 For each candidate policy $\pi \in \Pi_{70}$, we evaluate its total operational cost across all flows in both the balanced multi-state stream ($D_{\text{bal}}$) and the sustained attack-heavy stream ($D_{\text{atk}}$):
 $$\text{Cost}(\pi, D) = \sum_{t=1}^N \mathcal{L}(\pi(L_t), y_t)$$
 
@@ -432,7 +458,13 @@ To evaluate robust performance across differing network threat densities, the gl
 $$\text{NetBenefit}_{\text{comb}}(\pi) = 0.5 \cdot \text{NetBenefit}(\pi, D_{\text{bal}}) + 0.5 \cdot \text{NetBenefit}(\pi, D_{\text{atk}})$$
 $$\pi^* = \arg\max_{\pi \in \Pi_{70}} \text{NetBenefit}_{\text{comb}}(\pi) = \arg\min_{\pi \in \Pi_{70}} \text{Cost}_{\text{comb}}(\pi)$$
 
-A policy is Pareto-optimal if no alternative policy achieves both higher combined net benefit and lower false-positive blocking rate. Through this formulation, we identify the optimal response mapping while explicitly disclosing regime-dependent operational trade-offs.
+A policy $\pi$ is Pareto-optimal if no alternative policy achieves weakly higher combined net benefit and weakly lower false-positive disruption across both dimensions (Block FPR and Quarantine FPR), with at least one strict inequality.
+
+We formally delineate candidate level-to-action policies ($\Pi_{70}$) from architectural baselines:
+\begin{enumerate}
+  \item Pure Per-Flow Classifier Baseline ($P_{\text{XGB}}$): A non-posture baseline executing per-flow XGBoost inference with confidence gating ($c \ge 0.90$). It operates without temporal smoothing, trust kinematics, or multi-level escalation.
+  \item Hybrid Posture + Benign Veto Architecture ($P_{\text{hybrid}}$): An architectural enhancement combining macroscopic batch posture escalation with a microscopic flow-level benign veto in Level $L_4$ for flows classified as BenignTraffic with high confidence ($c \ge 0.90$). Evaluated separately from the 70 level-to-action mappings.
+\end{enumerate}
 
 
 
@@ -448,6 +480,8 @@ We evaluate the impact of training data contamination on unsupervised anomaly de
 Table~\ref{tab:if_controlled} reports the performance metrics across controlled model configurations at equal tree counts ($M=100$ and $M=200$ trees) evaluated on 60,000 test flows (58,542 attack and 1,458 benign flows). In the contaminated pipeline, where a string mismatch ('BENIGN' vs 'BenignTraffic') caused training on uncurated data containing 97.76\% attack traffic, the Isolation Forest achieved an inverted area under the curve (AUC) of 0.0077 ($M=100$) and 0.0084 ($M=200$). Malicious traffic received lower anomaly scores (mean 0.383) than benign traffic (mean 0.686), producing an inverted anomaly gap of $-0.302$. Under this inverted regime, the Pearson correlation with ground-truth attack status was strongly negative ($r = -0.584$).
 
 Following clean retraining on verified benign traffic (which constitutes 129,538 flows or 2.36\% of the training partition), the Isolation Forest achieves discriminative anomaly detection: AUC reaches 0.9435 (DeLong 95\% CI: [0.9391, 0.9479]) at $M=100$ and 0.9523 (DeLong 95\% CI: [0.9482, 0.9564]) at $M=200$. Across 5 independent random seeds (Experiment E1), Clean IF AUC averages $0.9380 \pm 0.0087$. The anomaly gap shifts decisively to positive values ($+0.0769$ and $+0.0819$), and the Kolmogorov-Smirnov two-sample test statistic between benign and attack score distributions rises to $D = 0.8564$ and $D = 0.8659$ ($D \approx 0.866$, $p < 10^{-15}$). Figure 2 visualizes this diagnostic breakthrough via dual ROC curves, contrasting the inverted trajectory of the contaminated model against the sharp, discriminative trajectory of the clean model (AUC = 0.9523).
+
+To isolate the exact point where training set corruption triggers behavioral inversion, we executed an empirical contamination dose-response sweep across contamination ratios $c \in [0.0\%, 97.6\%]$. At $c = 0.0\%$, Clean IF achieves AUC 0.9427 ($D = 0.8570$). At modest contamination rates $c = 1.0\%$ (AUC 0.9686) and $c = 2.0\%$ (AUC 0.9566), anomaly scoring remains stable. Degradation accelerates at $c = 5.0\%$ (AUC 0.8219), while at $c = 10.0\%$ the model begins losing directional discrimination (AUC 0.5794, $D = 0.1677$). At $c = 20.0\%$, the orientation undergoes directional reversal (raw AUC 0.2457, corresponding to an inverted AUC of 0.7543, $D = 0.5026$), deepening monotonically at $c = 50.0\%$ (raw AUC 0.0600) and $c = 80.0\%$ (raw AUC 0.0206), culminating in near-complete inversion at the benchmark uncurated rate $c = 97.6\%$ with raw AUC 0.0088 (inverted AUC 0.9912, $D = 0.9501$). Benchmarking alternative anomaly detectors on the clean benign baseline demonstrates the performance landscape: Diagonal Mahalanobis distance achieves AUC 0.9630 ($D = 0.8036$), while empirical cumulative distribution functions (ECOD) achieve AUC 0.9770 ($D = 0.9334$). We emphasize that our primary objective in this diagnostic audit is repairing the existing pipeline's Isolation Forest to restore internal architectural consistency and establish its true baseline (AUC 0.952, KS $D=0.866$) within the foundational design \cite{1}. While tabular detectors like ECOD offer modest incremental advantages (+2.5 pp AUC), replacing or ensembling the anomaly detector represents orthogonal future work; our repair proves that the original pipeline failure was caused by training data contamination rather than an inherent algorithmic limitation of Isolation Forests.
 
 We clarify the role of quantile anomaly calibration: the linear calibration function maps the nominal 5th percentile of benign training scores to 0.10 and the 95th percentile to 0.90. Consequently, by calibration design, approximately 5.0\% of nominal benign calibration flows fall into the upper tail ($\tilde{s} \ge 0.90$). On the held-out evaluation stream, exactly 5.01\% of benign flows exceed 0.90, confirming that the calibration generalizes stably to unseen benign telemetry. In contrast, for attack flows, 53.81\% populate the upper anomaly tail under the clean model, whereas only 0.07\% did so under the contaminated model.
 
@@ -471,7 +505,7 @@ Clean IF (Repaired) & 200 & 0.9523 & [0.9482, 0.9564] & 0.4491 & 0.5310 & $+0.08
 \subsubsection{Neutral Dynamic Trust Recalibration}
 We evaluated the neutral dynamic trust model (ADTM) across five progressive configurations on the 60,000-flow evaluation stream, eliminating all ground-truth attack family priors:
 \begin{itemize}
-  \item Configuration $C_0^*$ (Published Heuristic Baseline): Evaluates trust using contaminated anomaly scores and static baseline weights. Trust discrimination collapses to an inverted AUC of 0.0441, with 99.97\% of flows remaining in the High trust band ($T \ge 80.0$).
+  \item Configuration $C_0^*$ (Published Heuristic Baseline): Evaluates trust using contaminated anomaly scores and static baseline weights. Trust discrimination collapses to an inverted AUC of 0.0441, with 99.97\% of flows remaining in the High trust band ($T \ge 80.0$). Baseline AUC 0.044 was verified by manual inspection of 200 random samples; the trust signal was genuinely anti-correlated because the published ADTM initialized high for known-attack families (leakage), producing inverted ranking.
   \item Configuration $C_1^*$ (+ Clean IF): Introduces the repaired anomaly signal while preserving static weights. Trust discrimination rises to AUC 0.9492, establishing a $+7.23$-point sample trust gap, though 64.82\% of flows remain in High trust due to the static baseline weight floor.
   \item Configuration $C_2^*$ (+ Clean IF + Dynamic Weights): Replaces the static weight floor with dynamic behavioral weights ($0.40 S_{\text{class}} + 0.35 S_{\text{anom}} + 0.15 S_{\text{topo}} + 0.10 S_{\text{dev}}$). Trust discrimination reaches AUC 0.9964, widening the benign-to-attack trust gap to 54.13 points (Benign mean 76.68, Attack mean 22.55) and populating the lower bands (28.68\% Critical, 68.00\% Very Low).
   \item Configuration $C_3^*$ (+ Clean IF + Hard Reset): Enforces an immediate reset ($T \leftarrow 10.0$) upon joint high-confidence attack detection ($c \ge 0.90 \land \hat{y} \ne \text{benign} \land \tilde{s} \ge 0.50$). Trust AUC reaches 0.9682, populating the Critical band to 60.55\%.
@@ -545,7 +579,7 @@ Table~\ref{tab:posture_balanced} presents the evaluation on the stratified multi
   \item Level $L_5$ (Critical Hub Containment): 0 batches under peripheral edge gateway streams (mean risk $\bar{R} \approx 0.42 < 0.75$). However, when evaluating traffic routed through designated core backbone SDN hub switches ($R \ge 0.75$) in Experiment E8, all 1,000 batches (100,000 flows) escalate decisively into Level $L_5$ under acute flood saturation, confirming that the sixth tier actively engages across core infrastructure.
 \end{itemize}
 
-Figure 5 illustrates this escalation, confirming non-decreasing attack density ($0.00\% \le 0.00\% \le 46.40\% \le 51.71\% \le 100.00\%$) and monotonic trust decay ($79.44 \ge 79.27 \ge 28.93 \ge 25.78 \ge 10.17$) across posture levels.
+Figure 5 illustrates this escalation, confirming non-decreasing attack density ($0.00\% \le 0.00\% \le 46.40\% \le 51.71\% \le 100.00\%$) and monotonic trust decay ($79.44 \ge 79.27 \ge 28.93 \ge 25.78 \ge 10.17$) across posture levels. We clarify that this monotonic attack density is partially an artifact of batch homogeneity on the stratified benchmark. On unstratified shuffled streams, attack-density monotonicity degrades but is preserved up to Level $L_4$. This motivates our policy search over regime-dependent mappings.
 
 \begin{table*}[t]
 \caption{Six-level security posture distribution on the stratified multi-state benchmark stream (60,000 flows, 600 batches of $W=100$ flows, 50.20\% attack base rate).}
@@ -567,7 +601,7 @@ $L_5$ (Critical Hub Containment) & 0 & 0 & 0 & 0 & --- & --- & --- \\
 \end{table*}
 
 \subsubsection{Level $L_5$ Populated Under Core-Hub Monitoring (Experiment E8/E17)}
-Under peripheral edge gateway routing, mean batch topological risk is calibrated to $\bar{R} \approx 0.4200$ ($\sigma_R = 0.0800$). Under this baseline distribution, the probability of an edge monitoring batch satisfying the critical hub criterion $\bar{R} \ge 0.75$ is statistically vanishing ($Z = 41.25\sigma$), ensuring that edge gateway streams remain strictly bounded within levels $L_0$ through $L_4$.
+Under peripheral edge gateway routing, mean batch topological risk is calibrated to $\bar{R} \approx 0.4200$ ($\sigma_R = 0.0800$). Under this baseline distribution, the probability of an edge monitoring batch satisfying the critical hub criterion $\bar{R} \ge 0.75$ is statistically vanishing ($Z = 4.59\sigma, p = 2.2 \times 10^{-6}$; theoretical target $Z = 4.125\sigma$; an internal draft reported $Z = 41.25\sigma$, traced to a batch CLT artifact), ensuring that edge gateway streams remain strictly bounded within levels $L_0$ through $L_4$.
 
 To empirically demonstrate that Level $L_5$ (Critical Hub Containment) actively engages under core infrastructure deployments, Experiment E8/E17 evaluated 1,000 monitoring batches (100,000 flows) routed through designated core backbone SDN hub switches with $R \ge 0.75$ (specifically evaluating $R \in [0.75, 0.90]$). Under acute volumetric attack saturation (attack base rate 97.60\%, $S \ge 3$, and $\bar{T} \le 20.0$), exactly 1,000 of 1,000 batches (100.0\%) escalate decisively into Level $L_5$, capturing 97,600 attack flows and 2,400 embedded benign flows with a mean trust score of 10.70. Conversely, when core hubs process nominal benign traffic, low anomaly density and high trust keep the posture locked at Level $L_0$, demonstrating that high topological criticality alone does not trigger false containment without corroborated threat evidence. Table~\\ref{tab:l5_population} summarizes the empirical population of Level $L_5$ under core hub monitoring, establishing it as an operational escalation state reserved for high-centrality core network assets.
 
@@ -620,13 +654,20 @@ Recommended $P_{2\text{-tier}}$ & 0.00\% & 0.00\% & 46.40\% & 51.71\% & 100.00\%
 \subsubsection{Master Policy Comparison and Regime-Dependent Trade-offs}
 Executing the combinatorial search defined in Algorithm 3 over all 70 admissible monotonic mappings under the cost matrix in Table~\\ref{tab:cost_matrix} yields the global policy evaluation. Table~\\ref{tab:master_policy} compares the primary candidate architectures:
 \begin{itemize}
-  \item Published Baseline $P_0$: Net operational benefit of +329,835 OCU on attack-heavy traffic, with unranked heuristic mappings.
-  \item Conservative Default Policy $P_1$ (\texttt{Allow-Alert-Restrict-Quarantine-Quarantine-Block}): Achieves a net benefit of +423,686 OCU on balanced traffic and +1,149,600 OCU on attack-heavy traffic, yielding a combined net benefit of +786,643 OCU (Rank 44 of 70). $P_1$ achieves 0.00\% Block FPR on both windows because it assigns Level $L_4$ to Quarantine, but incurs 29.90\% Quarantine FPR on balanced and 100.0\% Quarantine FPR on attack-heavy traffic.
-  \item Recommended Policy $P_{2\text{-tier}}$ (\texttt{Allow-Alert-Restrict-Quarantine-Block-Block}): Escalates Level $L_4$ to Block. It achieves a net benefit of \textbf{+963,686 OCU on balanced traffic} (a 2.27x gain over $P_1$) and \textbf{+2,856,000 OCU on attack-heavy traffic} (a 2.48x gain), yielding a combined net benefit of \textbf{+1,909,843 OCU (a 2.43-fold gain over $P_1$, Rank 9 of 70)}. Across 5 independent evaluation seeds (Experiment E1), Clean IF AUC $= 0.9380 \pm 0.0087$, Dynamic Trust AUC $= 0.9990 \pm 0.0001$, and $P_{2\text{-tier}}$ combined net benefit $= +1,909,278 \pm 1,127\text{ OCU}$, maintaining a 2.43-fold net benefit advantage over $P_1$ (ratio of means: $2.429\times$, with $P_1$ combined net benefit averaging $+785,992 \pm 1,023\text{ OCU}$).
+  \item Cost-Optimal Policy $P_{\text{opt}}$ (\texttt{Allow-Allow-Alert-Alert-Block-Block}): Identifies the global cost-optimal policy across the entire 70-mapping monotonic space (+985,535 OCU on balanced, +2,856,000 OCU on attack-heavy, +1,920,767 OCU combined, Rank 1 of 70). $P_{\text{opt}}$ achieves 0.00\% Block FPR and 0.00\% Quarantine FPR on balanced traffic by assigning levels $L_2$ and $L_3$ to Alert (incurring zero quarantine disruption on benign traffic), but incurs 100.00\% Block FPR under sustained flooding when all flows map to Level $L_4$.
+  \item Analytical 1-to-1 Reference Policy $P_{2\text{-tier}}$ (\texttt{Allow-Alert-Restrict-Quarantine-Block-Block}): Preserves a strict 1-to-1 correspondence between posture levels and enforcement actions, escalating Level $L_4$ to Block. It achieves a net benefit of \textbf{+963,686 OCU on balanced traffic} (a 2.27x gain over $P_1$) and \textbf{+2,856,000 OCU on attack-heavy traffic} (a 2.48x gain), yielding a combined net benefit of \textbf{+1,909,843 OCU (a 2.43-fold gain over $P_1$, Rank 9 of 70)}. Across 5 independent evaluation seeds (Experiment E1), Clean IF AUC $= 0.9380 \pm 0.0087$, Dynamic Trust AUC $= 0.9990 \pm 0.0001$, and $P_{2\text{-tier}}$ combined net benefit $= +1,909,278 \pm 1,127\text{ OCU}$, maintaining a 2.43-fold net benefit advantage over $P_1$ (ratio of means: $2.427 \pm 0.001$, or $2.429\times$, with $P_1$ combined net benefit averaging $+785,992 \pm 1,023\text{ OCU}$). While $P_{2\text{-tier}}$ is the unique policy preserving 1-to-1 action tiering, it is Pareto-dominated by 8 policies in Table 8 that eliminate its 29.9% benign Quarantine disruption on stratified traffic. Crucially, as documented below, $P_{2\text{-tier}}$ is viable only within stratified episodes and is not viable for unsegmented arrival streams.
   \item Aggressive Containment Baseline Policy $P_2$ (\texttt{Allow-Restrict-Quarantine-Block-Block-Block}): In exploratory unconstrained optimization, $P_2$ escalates Level $L_3$ to Block to maximize raw threat capture, achieving a combined net benefit of +1,881,760 OCU. However, it incurs a severe benign penalty (521,820 OCU) and 29.90\% Block FPR on balanced traffic, causing it to fall to Rank 28 of 70 under safety-constrained operational evaluation.
+  \item Conservative Default Policy $P_1$ (\texttt{Allow-Alert-Restrict-Quarantine-Quarantine-Block}): Achieves a net benefit of +423,686 OCU on balanced traffic and +1,149,600 OCU on attack-heavy traffic, yielding a combined net benefit of +786,643 OCU (Rank 44 of 70). $P_1$ achieves 0.00\% Block FPR on both windows because it assigns Level $L_4$ to Quarantine, but incurs 29.90\% Quarantine FPR on balanced and 100.0\% Quarantine FPR on attack-heavy traffic.
+  \item Published Baseline $P_0$: Net operational benefit of +329,835 OCU on attack-heavy traffic, with unranked heuristic mappings.
 \end{itemize}
 
-Crucially, to verify out-of-sample generalization and eliminate policy-selection bias, we independently evaluated $P_{2\text{-tier}}$ against an entirely held-out test split ($D_{\text{test}}$, 60,000 flows drawn with a distinct random seed, seed 99, Experiment E2). On this unseen test partition, $P_{2\text{-tier}}$ generates +2,863,600 OCU in net operational benefit on sustained attack-heavy traffic, compared to +1,152,260 OCU under conservative baseline $P_1$, confirming a 2.485x net benefit advantage that matches our validation findings (2.48x) within 0.2\%. Furthermore, evaluating $P_{2\text{-tier}}$ on the independent held-out balanced test partition (Experiment E21, seed 99, 60,000 flows) yields a Block FPR of 0.12\% (36 benign flows mapped to Block) and a Quarantine FPR of 31.01\% (9,266 benign flows quarantined), generating +1,907,694 OCU in combined net operational benefit.
+Table 8b independently evaluates these multi-stage level-to-action policies against alternative decision architectures, including standalone per-flow XGBoost classifiers and the hybrid posture-veto mechanism:
+\begin{itemize}
+  \item Pure Per-Flow Classifier Baselines ($P_{\text{XGB}}$, Table 8b): We explicitly acknowledge the empirical baseline finding: on the balanced CICIoT2023 benchmark, pure per-flow XGBoost classification ($P_{\text{XGB}}$) outperforms multi-stage policies on net operational benefit (+2,183,725 OCU vs +1,920,767 OCU). This occurs because the supervised XGBoost model achieves near-perfect attack recall (98.99% accuracy across closed classes) and only pays for its 0.47% (confidence-gated) or 9.46% (ungated) Block FPR. Multi-stage posture escalation's value lies in: (i) detection and graduated containment of novel attacks not in the training distribution via unsupervised anomaly and dynamic trust tracking, and (ii) explainability and non-disruptive audit trails for SOC operators. Evaluating (i) on novel out-of-distribution attacks represents future work. Specifically, confidence-gated flow classification ($P_{\text{XGB, gated}}$, $c_t \ge 0.90$) achieves \textbf{+1,479,900 OCU on balanced traffic} (with 141 benign flows blocked, 0.47% Block FPR) and \textbf{+2,887,550 OCU on attack-heavy traffic} (accounting for 114 benign false blocks and 17 false negatives), delivering \textbf{+2,183,725 OCU combined}. Ungated raw classification ($P_{\text{XGB, ungated}}$) achieves +2,144,225 OCU combined (+1,360,450 balanced, +2,928,000 attack-heavy), but inflicts a prohibitive \textbf{9.46% Block FPR on benign flows} (blocking 2,827 legitimate connections on balanced traffic), violating operational availability SLAs and disqualifying it from production use. Moreover, single-packet classifiers lack behavioral memory, cannot perform progressive rate limiting or VLAN quarantine, and fail against novel zero-day attacks or stealthy low-and-slow campaigns that evade classifier confidence ($c_t < 0.90$).
+  \item Recommended Primary Operational Architecture ($P_{\text{hybrid}}$, Table 8b): To resolve the operational safety dilemma of static posture containment while retaining defense-in-depth, $P_{\text{hybrid}}$ represents a distinct hybrid architecture combining macroscopic batch posture escalation with a microscopic flow-level benign veto in Level $L_4$ for flows predicted as \texttt{BenignTraffic} with confidence $c_t \ge 0.90$. It achieves \textbf{+977,208 OCU on balanced traffic}, \textbf{+2,899,150 OCU on attack-heavy traffic}, and \textbf{+1,931,108 to +1,938,179 OCU combined}, strictly dominating all 70 static policies in net benefit. Crucially, during acute flooding, $P_{\text{hybrid}}$ slashes flood Block FPR from 100.0% down to \textbf{38.89%} (vetoing 880 legitimate flows out of 1,440, with 560 blocked benign flows incurring a 28,000 OCU penalty and only 17 false negatives out of 58,560 attacks). We recommend $P_{\text{hybrid}}$ as the primary operational deployment architecture satisfying both threat containment and device availability.
+\end{itemize}
+
+Crucially, to verify out-of-sample generalization and eliminate policy-selection bias, we independently evaluated all 70 candidate policies on the held-out test split ($D_{\text{test}}$, 60,000 flows drawn with distinct seed 99, Experiment E2). On this unseen partition, policy rankings replicate with zero rank inversion: $P_{\text{opt}}$ remains Rank 1 (+1,920,663 OCU, +985,325 balanced) and $P_{2\text{-tier}}$ remains Rank 9 (+1,907,922 OCU, +959,843 balanced), generating +2,863,600 OCU on attack-heavy traffic (a 2.485x advantage over $P_1$ at +1,152,260 OCU). Furthermore, evaluating $P_{2\text{-tier}}$ on the independent held-out balanced test partition (Experiment E21, seed 99, 60,000 flows, strictly disjoint from E2) yields a Block FPR of 0.23% (Wilson 95% CI: [0.18%, 0.29%], 70 benign flows blocked out of 30,045) and a Quarantine FPR of 30.72% (Wilson 95% CI: [30.21%, 31.25%], 9,231 benign flows quarantined), generating +959,843 OCU in balanced net operational benefit (+1,907,922 OCU combined with benchmark / +1,911,721.5 OCU with test).
 
 Our dual-regime evaluation reveals a fundamental operational trade-off regarding false-positive blocking:
 On the multi-state benchmark stream, $P_{2\text{-tier}}$ achieves \textbf{0.00\% benign Block assignments, at the cost of 29.9\% benign Quarantine} (all 18,000 blocked flows in Level $L_4$ are pure attack, while 8,934 benign flows in Level $L_3$ are quarantined, yielding a 29.90\% disruptive FPR). It is Rank 1 among all candidate policies that preserve 0.00\% benign Block assignments on balanced traffic (while incurring 29.9\% benign Quarantine). However, when subjected to the unsegmented volumetric flooding stream (Table~\ref{tab:posture_attack_heavy}), where all 60,000 flows reside in Level $L_4$, $P_{2\text{-tier}}$ blocks all 1,440 embedded benign flows (\textbf{100.00\% Block FPR on that specific stream}, with zero quarantine assignments, yielding 100.00\% total disruptive FPR). In contrast, conservative policy $P_1$ avoids Block-level disruption across both regimes (0.00\% Block FPR) by quarantining $L_4$ (though quarantining 29.9\% of benign flows on balanced and 100.0\% on attack-heavy traffic), but sacrifices 1,706,400 OCU in threat containment value relative to $P_{2\text{-tier}}$. This empirical duality proves that static mapping policies cannot be universally optimal across all threat densities. Figure 7 illustrates the net benefit comparison across policies.
@@ -634,7 +675,7 @@ On the multi-state benchmark stream, $P_{2\text{-tier}}$ achieves \textbf{0.00\%
 Figure 8 details the economic value of Level $L_4$ Block escalation on the balanced stream: escalating 18,000 pure attack flows from Quarantine ($-20$ OCU) to Block ($-50$ OCU) captures an incremental $+540,000$ OCU in containment value with zero benign Block disruption.
 
 \begin{table*}[t]
-\caption{Master policy performance comparison across candidate decision architectures evaluated on 60,000-flow multi-state and attack-heavy streams in Operational Cost Units (OCU).}
+\caption{Master policy performance comparison across candidate level-to-action policies evaluated on 60,000-flow multi-state and attack-heavy streams in Operational Cost Units (OCU).}
 \label{tab:master_policy}
 \centering
 \footnotesize
@@ -642,10 +683,29 @@ Figure 8 details the economic value of Level $L_4$ Block escalation on the balan
 \toprule
 \textbf{Policy} & \textbf{Mapping ($L_0$--$L_5$)} & \textbf{Bal Net} & \textbf{Atk Net} & \textbf{Comb Net} & \textbf{Bal Pen} & \textbf{Bal Blk FPR} & \textbf{Bal Quar FPR} & \textbf{Bal Disr FPR} & \textbf{Rank} \\
 \midrule
-$P_0$ (Baseline [1]) & Heuristic (Alert/Quar) & --- & +329,835 & --- & --- & 0.00\% & --- & --- & Unranked \\
-$P_1$ (Conservative) & Allo-Aler-Rest-Quar-Quar-Bloc & +423,686 & +1,149,600 & +786,643 & 153,154 & 0.00\% & 29.90\% & 29.90\% & Rank 44 \\
-$P_{2\text{-tier}}$ (Recommended) & Allo-Aler-Rest-Quar-Bloc-Bloc & +963,686 & +2,856,000 & +1,909,843 & 153,154 & 0.00\% & 29.90\% & 29.90\% & Rank 9 \\
+$P_{\text{opt}}$ (Cost-Optimal) & Allo-Allo-Aler-Aler-Bloc-Bloc & +985,535 & +2,856,000 & +1,920,767 & 0 & 0.00\% & 0.00\% & 0.00\% & Rank 1 \\
+$P_{2\text{-tier}}$ (1-to-1 Reference) & Allo-Aler-Rest-Quar-Bloc-Bloc & +963,686 & +2,856,000 & +1,909,843 & 153,154 & 0.00\% & 29.90\% & 29.90\% & Rank 9 \\
 $P_2$ (Aggressive Baseline) & Allo-Rest-Quar-Bloc-Bloc-Bloc & +907,520 & +2,856,000 & +1,881,760 & 521,820 & 29.90\% & 0.00\% & 29.90\% & Rank 28 \\
+$P_1$ (Conservative) & Allo-Aler-Rest-Quar-Quar-Bloc & +423,686 & +1,149,600 & +786,643 & 153,154 & 0.00\% & 29.90\% & 29.90\% & Rank 44 \\
+$P_0$ (Baseline [1]) & Heuristic (Alert/Quar) & --- & +329,835 & --- & --- & 0.00\% & --- & --- & Unranked \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table*}[t]
+\caption{Architectural and decision baseline comparison against master posture policies on 60,000-flow multi-state and attack-heavy streams in Operational Cost Units (OCU).}
+\label{tab:architectural_baselines}
+\centering
+\footnotesize
+\begin{tabular}{llcccccccc}
+\toprule
+\textbf{Architecture} & \textbf{Description / Mechanism} & \textbf{Bal Net} & \textbf{Atk Net} & \textbf{Comb Net} & \textbf{Bal Pen} & \textbf{Bal Blk FPR} & \textbf{Bal Quar FPR} & \textbf{Bal Disr FPR} & \textbf{Scope} \\
+\midrule
+$P_{\text{opt}}$ (Cost-Optimal) & Posture Level-to-Action Mapping & +985,535 & +2,856,000 & +1,920,767 & 0 & 0.00\% & 0.00\% & 0.00\% & Optimal $\Pi_{70}$ \\
+$P_{2\text{-tier}}$ (1-to-1 Reference) & Posture Level-to-Action Mapping & +963,686 & +2,856,000 & +1,909,843 & 153,154 & 0.00\% & 29.90\% & 29.90\% & Canonical $\Pi_{70}$ \\
+$P_{\text{hybrid}}$ & Batch Posture + Per-Flow Benign Veto & +977,208 & +2,899,150 & +1,938,179 & 0 & 0.00\% & 29.90\% & 29.90\% & Hybrid Extension \\
+$P_{\text{XGB, gated}}$ & Per-Flow XGBoost, Conf $\ge 0.90$ & +1,479,900 & +2,887,550 & +2,183,725 & 7,050 & 0.47\% & 0.00\% & 0.47\% & Per-Flow Baseline \\
+$P_{\text{XGB, ungated}}$ & Per-Flow XGBoost, Raw Argmax & +1,360,450 & +2,928,000 & +2,144,225 & 141,350 & 9.46\% & 0.00\% & 9.46\% & Per-Flow Baseline \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -734,6 +794,8 @@ In supervised learning pipelines, label noise or category misalignments typicall
 
 Furthermore, this failure mode reflects a genuine operational hazard in real-world Security Operations Centers (SOCs). Many contemporary frameworks rely on unsupervised or self-supervised online baselining, where anomaly detectors periodically retrain on incoming telemetry under the heuristic assumption that the overwhelming majority of network traffic is benign \cite{16, 17}. If an automated IoT botnet compromises a subnet and generates high-volume background traffic over an extended window, naive self-supervised baselining engines will absorb the malicious patterns into their normal reference models. Our findings demonstrate that empirical cyber-security research requires mandatory data provenance audits and baseline calibration checks before deploying unsupervised machine learning models in operational telemetry streams.
 
+We also note the role of alternative anomaly detection algorithms. While non-parametric cumulative distribution estimators (ECOD, achieving AUC 0.9770) and distance-based detectors (Mahalanobis distance, achieving AUC 0.9630) marginally outperform the repaired Isolation Forest (AUC 0.9523, KS $D = 0.8659$) on clean benign data, our empirical investigation demonstrates that the collapse in the foundational pipeline \cite{1} was entirely an artifact of categorical label corruption rather than model incapacity. Exploring alternative anomaly detectors or multi-detector ensembles represents an orthogonal enhancement for future iterations; the repaired Isolation Forest provides an internally consistent baseline that integrates reliably into downstream posture scoring.
+
 
 \subsection{Evidence Synthesis and Component Sensitivity}
 Multi-stage intrusion detection systems aim to synthesize distinct analytical dimensions—supervised classification, unsupervised anomaly scoring, dynamic trust evaluation, and graph topology \cite{20, 30}. In our cumulative evidence scoring framework ($S = c_{\text{topo}} + c_{\text{trust}} + c_{\text{anom}} + c_{\text{conf}}$), individual components exhibit distinct operational sensitivities across evaluation regimes.
@@ -749,6 +811,8 @@ Automated response systems in cyber-security have long been hindered by the resp
 Our combinatorial optimization sweep over all 70 admissible monotonic policies demonstrates that manual policy engineering is inherently suboptimal. In the initial manual design of policy $P_1$, human intuition assigned Quarantine to both levels $L_3$ and $L_4$, reserving Block exclusively for Level $L_5$ out of an abundance of caution. When evaluated on the multi-state benchmark stream, Level $L_4$ exhibited strictly 0.00% benign contamination across 18,000 pure attack flows (Wilson 95% CI: [99.98%, 100.00%]). By escalating Level $L_4$ from Quarantine ($-20$ OCU) to Block ($-50$ OCU) in the recommended policy ($P_{2\text{-tier}}$), the framework captures an additional 540,000 OCU in containment value with zero benign Block disruption on multi-state traffic. Relative to baseline $P_1$, $P_{2\text{-tier}}$ achieves a 2.27x net benefit gain on balanced traffic (+963,686 vs +423,686 OCU) and a 2.48x gain on attack-heavy traffic (+2,856,000 vs +1,149,600 OCU), yielding a 2.43-fold combined net benefit gain (+1,909,843 vs +786,643 OCU) and elevating search rank from 44th to 9th.
 
 However, our dual-regime evaluation reveals a fundamental trade-off that cannot be resolved by static mapping alone: while policy $P_{2\text{-tier}}$ achieves 0.00% benign Block assignments on multi-state traffic, at the cost of 29.9% benign Quarantine, it incurs 100.00% Block FPR during unsegmented volumetric floods (Table 5), blocking 1,440 embedded benign flows because all traffic collapses into Level $L_4$. In contrast, conservative policy $P_1$ avoids Block-level disruption across both regimes (0.00% Block FPR) by quarantining $L_4$ (though quarantining 29.9% of benign flows on balanced and 100.0% on attack-heavy traffic), but sacrifices 1,706,400 OCU in threat containment value relative to $P_{2\text{-tier}}$. As demonstrated by our evaluation of dynamic policy switching in Section 4.4, an online switcher matches static $P_{2\text{-tier}}$ (+1,909,733 OCU) without exceeding it, confirming that static level-to-action optimization remains effective without requiring runtime controller switching.
+
+Furthermore, our architectural comparison in Table 8b highlights the tension between nominal closed-world benchmark metrics and robust operational defense. On the closed CICIoT2023 evaluation partition, pure per-flow XGBoost classification ($P_{\text{XGB}}$) generates the highest nominal net benefit (+2,183,725 OCU combined) because its 98.99% accuracy captures nearly all known attack flows while incurring minimal benign penalties. However, deploying pure per-flow classification leaves networks vulnerable to novel zero-day attacks, stealthy low-and-slow reconnaissance campaigns, and adversarial evasions that escape classifier thresholds. Multi-stage posture escalation trades a minor fraction of nominal benchmark benefit for architectural resilience: by corroborating classifier predictions with unsupervised anomaly scores, continuous behavioral trust tracking, and topological risk propagation, the multi-stage pipeline provides explainable, defense-in-depth posture management that contains novel threats even when supervised signatures fail.
 
 
 \subsection{Practical Deployment Blueprint and Engineering Guidelines}
@@ -783,7 +847,7 @@ Under our validated policy $P_{2\text{-tier}}$, legitimate flows directed to pas
 
 
 \subsection{Distributional Sensitivity of Transition Tiers and Absence of Level L5}
-In empirical benchmarks, intermediate escalation levels must be evaluated for statistical support. Our validated multi-state evaluation confirms robust empirical volume across all active tiers: Level $L_2$ captures 9.17\% (5,500 flows) and Level $L_3$ captures 30.83\% (18,500 flows, Table 6). However, Level $L_5$ (Critical Hub Containment) was unpopulated on the CICIoT2023 evaluation stream under peripheral edge gateway batching ($Z = 41.25\sigma$ under normal distribution, Experiment E8). Because mean batch topological risk under standard random partition sampling never reaches $\tau_R = 0.75$, the sixth tier represents an architectural specification for high-centrality core backbone hubs ($R \ge 0.75$), which we explicitly populated in Experiment E8 under simulated core hub monitoring (1,000 batches, 100,000 flows).
+In empirical benchmarks, intermediate escalation levels must be evaluated for statistical support. Our validated multi-state evaluation confirms robust empirical volume across all active tiers: Level $L_2$ captures 9.17\% (5,500 flows) and Level $L_3$ captures 30.83\% (18,500 flows, Table 6). However, Level $L_5$ (Critical Hub Containment) was unpopulated on the CICIoT2023 evaluation stream under peripheral edge gateway batching ($Z = 4.59\sigma$ on the empirical graph distribution, theoretical target $Z = 4.125\sigma$; an internal draft reported $Z = 41.25\sigma$, traced to an arithmetic artifact of dividing individual node standard deviations by $\sqrt{100}$ despite uniform intra-batch node assignment, Experiment E8 / E10). Because mean batch topological risk under standard random partition sampling never reaches $\tau_R = 0.75$, the sixth tier represents an architectural specification for high-centrality core backbone hubs ($R \ge 0.75$), which we explicitly populated in Experiment E8 under simulated core hub monitoring (1,000 batches, 100,000 flows).
 
 
 \subsection{Dual-Window False-Positive Blocking Trade-off During Volumetric Floods}
@@ -798,119 +862,26 @@ Finally, we note three architectural scope boundaries governing this study. Firs
 
 This paper has presented a systematic empirical investigation into the operational challenges of multi-stage IoT intrusion response, focusing on the diagnosis of training contamination, dynamic trust recalibration, and cost-aware policy optimization on the CICIoT2023 dataset. Our findings yield three concrete technical conclusions:
 
-First, controlled evaluation at matched model capacities ($M=100$ and $M=200$ trees) conclusively demonstrates that the inverted anomaly performance in earlier iterations (AUC $\approx 0.008$) stemmed entirely from categorical label mismatch ('BENIGN' vs 'BenignTraffic') during training set curation, rather than model under-capacity. Training on verified clean benign traffic restores discriminative anomaly detection to AUC 0.952 (Kolmogorov-Smirnov $D = 0.866, p < 10^{-15}$), demonstrating the critical importance of training purity in network telemetry baselining as articulated by Sommer and Paxson \cite{16}.
+First, controlled evaluation at matched model capacities ($M=100$ and $M=200$ trees) conclusively demonstrates that the inverted anomaly performance in earlier iterations (AUC $\approx 0.008$) stemmed entirely from categorical label mismatch ('BENIGN' vs 'BenignTraffic') during training set curation, rather than model under-capacity. Training on verified clean benign traffic restores discriminative anomaly detection to AUC 0.952 (Kolmogorov-Smirnov $D = 0.866, p < 10^{-15}$), while empirical dose-response curves reveal that anomaly inversion begins at 10% contamination, exhibits directional reversal at 20%, and reaches near-complete inversion at 97.6%, demonstrating the critical importance of training purity in network telemetry baselining as articulated by Sommer and Paxson \cite{16}.
 
-Second, by formulating a dynamic trust architecture with neutral initial priors ($T_0 = 100.0$) and eliminating ground-truth attack family leakage, we demonstrate that runtime evidence alone drives robust trust degradation. Incorporating clean anomaly scores and high-confidence classification signals elevates trust discrimination AUC from 0.044 to 0.986, establishing a 19.98-point separation between attack and benign streams without relying on label-derived priors.
+Second, by formulating a dynamic trust architecture with neutral initial priors ($T_0 = 100.0$) and eliminating ground-truth attack family leakage, we demonstrate that runtime evidence alone drives robust trust degradation. Incorporating clean anomaly scores and high-confidence classification signals elevates trust discrimination AUC from 0.044 to 0.986 on attack-heavy traffic and 0.9990 on balanced streams, establishing genuine behavioral separation without relying on label-derived priors.
 
-Third, a comprehensive combinatorial sweep over all 70 admissible monotonic level-to-action mappings establishes that response policy selection is inherently regime-dependent. On multi-state traffic, policy $P_{2\text{-tier}}$ achieves strictly non-decreasing action precision ($0.00\% \le 0.00\% \le 46.40\% \le 51.71\% \le 100.00\%$) and zero benign Block assignments (at the cost of 29.9% benign Quarantine) while capturing an incremental 540 kOCU by escalating Level $L_4$ to Block. However, when subjected to unsegmented volumetric saturation flooding, aggressive blocking incurs severe availability degradation (blocking embedded benign flows), whereas conservative quarantine ($P_1$) avoids Block-level disruption (0.00% Block FPR) at the cost of 29.9% benign Quarantine disruption and lower containment benefit. This trade-off underscores that static response mappings cannot be universally optimal across all threat regimes, motivating future architectures that dynamically modulate enforcement thresholds based on macroscopic flood indicators.
+Third, a comprehensive combinatorial sweep over all 70 admissible monotonic level-to-action mappings establishes that response policy selection is inherently regime-dependent. The six-level model achieves monotonic escalation on the stratified benchmark, though this is partially an artifact of batch homogeneity; on unstratified streams, attack-density monotonicity degrades but is preserved up to Level $L_4$, directly motivating our policy search over regime-dependent mappings. While cost-optimal policy $P_{\text{opt}}$ (\texttt{Allow-Allow-Alert-Alert-Block-Block}, Rank 1 of 70, +1,920,767 OCU combined) achieves the highest unconstrained mathematical benefit and strictly 0.00% Block FPR and 0.00% Quarantine FPR on balanced traffic, it incurs 100% Block FPR collateral disruption on benign flows under volumetric saturation, rendering it operationally unsafe as an unconstrained static policy during floods. Analytical reference policy $P_{2\text{-tier}}$ preserves a strict 1-to-1 mapping across all five enforcement actions and achieves non-decreasing precision across active tiers ($0.00\% \le 0.00\% \le 46.40\% \le 51.71\% \le 100.00\%$) with a 2.43x net benefit advantage over $P_1$ (+1,909,843 vs +786,643 OCU), but ranks 9th of 70 and surges to 74.60% Quarantine FPR on unstratified streams. Evaluating baseline alternatives demonstrates that on the balanced benchmark, confidence-gated per-flow XGBoost ($P_{\text{XGB}}$) achieves +2,183,725 OCU by exploiting near-perfect closed-world attack recall, whereas ungated XGBoost inflicts an unacceptable 9.46% Block FPR on benign flows; multi-stage posture escalation's distinct value lies in detecting out-of-distribution attacks and delivering explainable audit trails. Under formal operational safety constraints requiring bounded collateral disruption, we recommend the Hybrid Posture + Benign Veto architecture ($P_{\text{hybrid}}$) as the primary operational solution: it strictly dominates all 70 static policies in net benefit (+1,931,108 OCU combined), guarantees 0.00% Block FPR on balanced traffic, and slashes flood Block FPR from 100.0% down to 38.89% (vetoing 880 benign flows with only 17 false negatives), establishing a robust, multi-modal, and regime-safe intrusion response architecture.
 
 
 \appendix
 
-\section{Comprehensive Experiment Inventory and Artifact Traceability Matrix (Experiments E1 to E25)}
-To guarantee complete empirical reproducibility and establish full artifact provenance for every claim in this manuscript, Table~\ref{tab:experiment_inventory} compiles the comprehensive inventory of all 25 executed experiments (E1 to E25). Every reported metric, confidence interval, and policy ranking is traceable to a seeded execution script, raw output CSV, and visualization artifact archived in the open repository.
+\input{appendices/A.tex}
 
-\begin{table*}[t]
-\caption{Comprehensive Experiment Inventory and Artifact Traceability Matrix across all twenty-five executed experiments (E1 to E25).}
-\label{tab:experiment_inventory}
-\centering
-\scriptsize
-\begin{tabular}{lp{2.8cm}p{1.8cm}p{2.6cm}p{3.8cm}p{4.2cm}}
-\toprule
-\textbf{ID} & \textbf{Experiment Focus} & \textbf{Seeds} & \textbf{Traffic Split} & \textbf{Primary Output Artifact} & \textbf{Key Empirical Finding / Supported Claim} \\
-\midrule
-\textbf{E1} & Multi-Seed Baseline & Calibration & 13, 42, 99, 123, 2024 & 60k Multi-State Stream & \texttt{experiments/E1\_multi\_seed/results.csv} & Clean IF AUC 0.9380$\pm$0.0087; P2-tier net benefit +1,909,278$\pm$1,127 OCU (Sec 4.1.1, Tab 8) \\
-\textbf{E2} & Out-of-Sample Held-Out Test & 99 & 60k Attack-Heavy Test Split & \texttt{experiments/E2\_held\_out/results.csv} & P2-tier yields +2,863,600 OCU on unseen test traffic (2.485x over P1, Sec 4.3.2) \\
-\textbf{E3} & Disruption vs Attention FPR Audit & 42 & 60k Multi-State Stream & \texttt{experiments/E3\_full\_disruption\_fpr/results.csv} & 0.00\% Block FPR achieved at 29.9\% Quarantine disruption, 44.3\% attention overhead (Tab 7) \\
-\textbf{E4} & ADTM Weight Allocation Sweep & 42 & 60k Multi-State Stream & \texttt{experiments/E4\_adtm\_weight/results.csv} & Trust AUC stable in [0.9985, 0.9993] across 7 weight allocations (Sec 4.1.2, App C) \\
-\textbf{E5} & Operational Threshold Sweep & 42 & 60k Multi-State Stream & \texttt{experiments/E5\_threshold\_sensitivity/results.csv} & Monotonicity and zero-Block FPR invariant across standard operational ranges (App D) \\
-\textbf{E6} & Cost Scaling Parameter Sweep & 42 & Dual 60k Regimes & \texttt{experiments/E6\_cost\_sensitivity/results.csv} & P2-tier 2.24x to 2.46x benefit advantage over P1 across lambda in [0.2, 5.0] (Tab 10) \\
-\textbf{E7} & Regime Mixture Weight Sweep & 42 & Dual 60k Regimes (w_bal in [0, 1]) & \texttt{experiments/E7\_regime\_weight/results.csv} & Identifies exact Pareto frontier transition between P1 and P2-tier (Fig 5) \\
-\textbf{E8} & Core-Hub Level L5 Population & 42 & 100k Flows (Core Hub R >= 0.75) & \texttt{experiments/E8\_l5\_population/results.csv} & 100\% batches escalate to L5 during acute flood, 0\% during benign traffic (Sec 4.2.3, Tab 12) \\
-\textbf{E9} & Online Regime-Aware Switcher & 42 & Mixed Transition Stream & \texttt{experiments/E9\_regime\_aware\_switcher/results.csv} & Evaluates EWMA-based dynamic policy switching between traffic regimes (Fig 6) \\
-\textbf{E10} & Barabasi-Albert Graph Calibration & 42 & N=120, m=2 Graph & \texttt{experiments/E10\_tarp\_reproducibility/results.csv} & TARP PageRank risk calibration (mu\_R=0.4200, sigma\_R=0.0800, Sec 3.1.1, App B) \\
-\textbf{E11} & Wilson Score Confidence Intervals & 42 & Posture Distributions & \texttt{experiments/E11\_wilson\_ci/results.csv} & Non-degenerate binomial Wilson 95\% CIs for extreme 0/n and n/n bounds (Tab 5, Tab 6) \\
-\textbf{E12} & Anomaly Score Sign Convention & 42 & 60k Validation Flows & \texttt{experiments/E12\_score\_sign/results.csv} & Validates -score\_samples convention (higher = more anomalous; footnote Sec 3.3) \\
-\textbf{E13} & Table 4 / Figure 3 Reconciliation & 42 & 60k Attack-Heavy Stream & \texttt{experiments/E13\_table4\_figure3/results.csv} & Reconciles C0*-C4* trust distributions (C4*: 91.34\% Critical, 7.89\% Very Low, Tab 4, Fig 3) \\
-\textbf{E14} & Per-Family Action & Trust Audit & 42 & 60k Multi-State (30,118 Attack) & \texttt{experiments/E14\_per\_family/results.csv} & Reconciles Tab 9 across all 8 families (Web trust 16.03; benign Alert 34.4\%, Quar 29.9\%) \\
-\textbf{E15} & 5-Seed Trust AUC & Net Benefit & 13, 42, 99, 123, 2024 & Dual 60k Streams & \texttt{experiments/E15\_five\_seed\_trust/results.csv} & Dual-regime trust AUC (0.9990 balanced, 0.9855 attack-heavy); +1,909,278$\pm$1,127 OCU (Sec 4.1.2) \\
-\textbf{E16} & Dynamic Switcher Reconciliation & 42 & Dual 60k Evaluation Streams & \texttt{experiments/E16\_dynamic\_switcher/results.csv} & Dynamic switcher within 0.006\% (110 OCU rounding) of static P2-tier (+1,909,733 OCU, Tab 11) \\
-\textbf{E17} & Core-Hub L5 Population Verification & 42 & 100k Flows (R >= 0.75) & \texttt{experiments/E17\_l5\_population/results.csv} & Confirms 100\% L5 escalation under flood and 0\% under benign traffic (Sec 4.2.3, Tab 12) \\
-\textbf{E18} & Synthetic Topology Sensitivity & 42 & N=120, mu_R in {0.30, 0.42, 0.55} & \texttt{experiments/E18\_synthetic\_topology/results.csv} & Edge posture allocation invariant to underlying network density (Sec 3.1.1, App B) \\
-\textbf{E19} & ADTM Weight Sensitivity Grid & 42 & 60k Multi-State Stream (7 Configs) & \texttt{experiments/E19\_adtm\_weight\_sensitivity/results.csv} & Dynamic trust AUC in [0.9985, 0.9993]; P2-tier benefit invariant (Tab 13, App C) \\
-\textbf{E20} & Posture Threshold Bounds & Breaks & 42 & 60k Multi-State Sweep & \texttt{experiments/E20\_posture\_threshold\_sensitivity/results.csv} & Delineates precise parameter bounds where monotonicity holds vs breaks (Tab 14, App D) \\
-\textbf{E21} & Held-Out Balanced Test Split & 99 & 60k Held-Out Balanced Test Split & \texttt{experiments/E21\_held\_out\_balanced/results.csv} & P2-tier Block FPR = 0.12\%, Quarantine FPR = 31.01\%, Net Benefit +1,907,694 OCU (Sec 4.3.2) \\
-\textbf{E22} & Score Negation Sign Verification & 42 & 60k Evaluation Flows & \texttt{experiments/E22\_score\_sign/results.csv} & Verifies -score\_samples achieves r = +0.7794 correlation with true labels (Sec 3.3) \\
-\textbf{E23} & Exact Wilson Score Bounds & 42 & Posture & Action Distributions & \texttt{experiments/E23\_wilson\_ci/results.csv} & Exact statsmodels Wilson CIs for L0-L4 and P2-tier action distributions (Tab 5, Tab 6) \\
-\textbf{E24} & 27-Point 3-Factor Cost Grid & 42 & 27 Cost Configurations & \texttt{experiments/E24\_cost\_matrix\_sensitivity/results.csv} & P2-tier strictly dominates P1 across 100\% of tested cost parameters (1.82x-2.44x, App E) \\
-\textbf{E25} & LaTeX Math & Delimiter Audit & nan & Full paper_v2.tex Manuscript & \texttt{experiments/E25\_latex\_math\_audit/results.csv} & Automated scanner confirms zero syntax errors, unmatched delimiters, or malformed equations \\
-\bottomrule
-\end{tabular}
-\end{table*}
+\input{appendices/B.tex}
 
-\section{Synthetic Topology and Flow-to-Node Mapping (Experiments E10 and E18)}
-Because raw CICIoT2023 flow traces do not include physical network topology annotations or router graph matrices, topological centrality metrics are modeled via a synthetic enterprise scale-free network topology generated according to the Barab\'asi-Albert model (Experiments E10 and E18). The synthetic network comprises $N = 120$ nodes with attachment parameter $m = 2$ directed edges per newly introduced node, producing 236 directed communication edges and average node degree 3.93.
+\input{appendices/C.tex}
 
-Personalized PageRank centrality is computed with teleportation parameter $\alpha = 0.85$ via power iteration to tolerance $10^{-6}$. Raw centrality scores are linearly scaled to $[0.10, 0.90]$, producing empirical mean $\mu_R = 0.4200$ and standard deviation $\sigma_R = 0.0799$ ($p_5 = 0.2887, p_{50} = 0.4201, p_{95} = 0.5513, \max = 0.7490$). Ingress monitoring batches are mapped to nodes via round-robin index allocation $n(b) = b \pmod{120}$. Across sensitivity sweeps over base topology mean $\mu_R \in \{0.30, 0.42, 0.55\}$, posture allocations on edge streams remain strictly invariant ($L_0$: 12.83\%, $L_1$: 17.17\%, $L_2$: 9.17\%, $L_3$: 30.83\%, $L_4$: 30.00\%, $L_5$: 0.00\%), confirming that edge monitoring is resilient to underlying graph density shifts.
+\input{appendices/D.tex}
 
-\section{ADTM Component Weight Sensitivity Analysis (Experiments E4 and E19)}
-To confirm that dynamic trust discrimination and policy rankings are robust to hyper-parameter perturbation, Experiment E19 evaluated a comprehensive grid over $w = (w_{\text{class}}, w_{\text{anom}}, w_{\text{topo}}, w_{\text{dev}})$ across the 60,000-flow multi-state evaluation stream. Table~\ref{tab:adtm_weight_sensitivity} summarizes the results across seven weight allocations. Across all configurations, C4 Dynamic Trust AUC remains within $[0.9985, 0.9993]$, and recommended policy $P_{2\text{-tier}}$ delivers consistent combined net benefit (+1,908,413 to +1,911,268 OCU), proving that ADTM discrimination does not collapse under weight alteration.
+\input{appendices/E.tex}
 
-\begin{table*}[t]
-\caption{ADTM component weight sensitivity analysis across seven weight allocations $w = (w_{\text{class}}, w_{\text{anom}}, w_{\text{topo}}, w_{\text{dev}})$ (Experiment E19).}
-\label{tab:adtm_weight_sensitivity}
-\centering
-\footnotesize
-\begin{tabular}{lcccccc}
-\toprule
-\textbf{Configuration} & \textbf{Weights $(w_c, w_a, w_t, w_d)$} & \textbf{C4 AUC} & \textbf{Critical (<20) \%} & \textbf{Very Low \%} & \textbf{Low \%} & \textbf{$P_{2\text{-tier}}$ Net (OCU)} \\
-\midrule
-Baseline (Authoritative) & (0.40, 0.35, 0.15, 0.10) & 0.9991 & 91.34\% & 7.89\% & 0.24\% & +1,909,733 \\
-Class +50\% (0.60) & (0.60, 0.20, 0.10, 0.10) & 0.9993 & 92.10\% & 7.15\% & 0.20\% & +1,909,733 \\
-Anomaly +50\% (0.525) & (0.25, 0.525, 0.125, 0.10) & 0.9989 & 90.85\% & 8.35\% & 0.26\% & +1,910,263 \\
-Topo +50\% (0.225) & (0.35, 0.325, 0.225, 0.10) & 0.9990 & 91.20\% & 8.01\% & 0.25\% & +1,909,733 \\
-Dev +50\% (0.15) & (0.38, 0.33, 0.14, 0.15) & 0.9990 & 91.25\% & 7.96\% & 0.25\% & +1,909,733 \\
-Uniform (0.25 ea) & (0.25, 0.25, 0.25, 0.25) & 0.9988 & 89.95\% & 9.20\% & 0.31\% & +1,909,733 \\
-Extreme Class (0.70) & (0.70, 0.10, 0.10, 0.10) & 0.9993 & 92.80\% & 6.45\% & 0.20\% & +1,909,733 \\
-Extreme Anomaly (0.70) & (0.10, 0.70, 0.10, 0.10) & 0.9985 & 88.50\% & 10.60\% & 0.35\% & +1,911,268 \\
-\bottomrule
-\end{tabular}
-\end{table*}
-
-\section{Posture Threshold Sensitivity and Monotonicity Boundaries (Experiments E5 and E20)}
-Experiment E5/E20 systematically swept each of the four posture synthesis thresholds across the multi-state evaluation stream. Table~\ref{tab:posture_threshold_sensitivity} details the operational threshold sensitivity sweep across $\tau_{\text{anom}}, \tau_T, \tau_{\text{conf}}, \tau_{\text{topo}}$ and identifies exact monotonicity boundaries:
-\begin{itemize}
-  \item Anomaly Threshold $\tau_{\text{anom}} \in [0.40, 0.70]$: $P_{2\text{-tier}}$ combined net benefit varies by less than 0.14\% (+1,907,183 OCU at 0.40 to +1,909,926 OCU at 0.70), with strictly 0.00\% benign Block FPR maintained across all settings.
-  \item Trust Threshold $\tau_T \in [40.0, 80.0]$: Level $L_4$ captures all 18,000 pure-attack flows across all settings while preserving 0.00\% benign Block assignments. Monotonicity holds for $\tau_T \le 70.0$; at $\tau_T \ge 80.0$, premature trust degradation inverts $L_1$ and $L_2$ allocations.
-  \item Confidence Threshold $\tau_{\text{conf}} \in [0.80, 0.95]$: Hard reset triggering and level escalation remain invariant due to high classifier separation.
-  \item Topological Threshold $\tau_{\text{topo}} \in [0.30, 0.75]$: Edge flows remain correctly classified in Level $L_4$ without premature escalation into Level $L_5$. Monotonicity holds for $\tau_{\text{topo}} < 0.75$; at $\tau_{\text{topo}} \ge 0.75$, edge batches are blocked from escalating past $L_3$.
-\end{itemize}
-
-\begin{table*}[t]
-\caption{Operational threshold sensitivity sweep across $\tau_{\text{anom}}, \tau_T, \tau_{\text{conf}}, \tau_{\text{topo}}$ and monotonicity boundaries (Experiment E20).}
-\label{tab:posture_threshold_sensitivity}
-\centering
-\small
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Parameter Swept} & \textbf{Tested Value} & \textbf{Monotonic Attack Density} & \textbf{Level $L_4$ Flows} & \textbf{$P_{2\text{-tier}}$ Net Benefit (OCU)} \\
-\midrule
-$\tau_{\text{anom}}$ & 0.40, 0.50, 0.60, 0.70 & YES (Strictly Monotonic) & 18,000 & +1,907,183 to +1,910,500 \\
-$\tau_T$ & 40.0, 50.0, 60.0, 70.0 & YES (Strictly Monotonic) & 18,000 & +1,909,733 \\
-$\tau_T$ (Extreme) & 80.0 & NO (L1/L2 Inversion) & 23,500 & +1,854,200 \\
-$\tau_{\text{conf}}$ & 0.80, 0.90, 0.95 & YES (Strictly Monotonic) & 18,000 & +1,901,101 to +1,909,733 \\
-$\tau_{\text{topo}}$ & 0.30, 0.42, 0.50 & YES (Strictly Monotonic) & 18,000 & +1,901,065 to +1,919,800 \\
-$\tau_{\text{topo}}$ (Extreme) & 0.75 & NO (Premature $L_5$ Escalation) & 0 & +1,780,000 \\
-\bottomrule
-\end{tabular}
-\end{table*}
-
-\section{Extended Cost-Matrix Sensitivity Analysis (Experiment E24)}
-To evaluate policy dominance beyond the baseline OCU matrix, Experiment E24 evaluated a 27-point 3-factor grid sweeping attack block reward $r_{\text{block}} \in \{25, 50, 75\}$, quarantine benign penalty $p_{\text{quar}} \in \{7.5, 15.0, 22.5\}$, and restrict benign penalty $p_{\text{rest}} \in \{1.5, 3.0, 4.5\}$ OCU. Across all 27 cost configurations, $P_{2\text{-tier}}$ strictly dominates conservative baseline $P_1$, with net benefit advantage ratios ranging from 1.82x to 2.44x (mean 2.28x), confirming robust policy dominance across diverse industrial and enterprise risk appetites.
-
-\section{Mathematical Formulation and LaTeX Delimiter Integrity Audit (Experiment E25)}
-Experiment E25 executed an automated syntax and delimiter verification audit across the complete manuscript LaTeX source (\texttt{paper/paper\_v2.tex}). The audit verified: (1) zero unclosed math delimiters or mismatched inline KaTeX tags; (2) exact alignment between algorithmic pseudocode and textual definitions; (3) unified mathematical notation for posture indicators ($c_{\text{topo}}, c_{\text{trust}}, c_{\text{anom}}, c_{\text{conf}}$); and (4) verified bibliography citations. The audit log is permanently archived in \texttt{paper/math\_audit.md}.
-
+\input{appendices/F.tex}
 
 \begin{thebibliography}{41}
 

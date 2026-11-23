@@ -1,0 +1,7 @@
+level,flows_count,batches_count,observed_density_pct,base_rate_pct,observed_enrichment_pct,null_mean_enrichment_pct,null_ci95_low_pct,null_ci95_high_pct,p_value_enrichment,interpretation
+L0,7700,77,0.00%,50.20%,-50.20%,+0.02%,-1.23%,+1.21%,1.0000,Exclusionary filter on benign traffic
+L1,10300,103,0.00%,50.20%,-50.20%,-0.01%,-0.80%,+0.80%,1.0000,Topology prior on unattacked infrastructure (0% attack)
+L2,5500,55,46.40%,50.20%,-3.80%,+0.02%,-0.94%,+0.97%,0.9990,Mixed contextual transition tier
+L3,18500,185,51.71%,50.20%,+1.51%,-0.06%,-2.05%,+1.93%,0.0920,Moderate attack enrichment tier
+L4,18000,180,100.00%,50.20%,+49.80%,+0.00%,-0.41%,+0.38%,0.0000,Statistically significant pure attack concentration
+L5,0,0,N/A,50.20%,0.00%,0.00%,0.00%,0.00%,N/A,Dormant on edge gateways (mean risk R < 0.75)

@@ -1,9 +1,7 @@
-Policy,Enforcement Mapping (L0-L5),Balanced Net (OCU),Attack-Heavy Net (OCU),Combined Net (OCU),Balanced Block FPR,Balanced Quarantine FPR,Flood Block FPR,Search Rank
-P0 (Baseline [1]),Heuristic (Alert / Quarantine),"+572,478","+1,169,760","+871,119",0.00%,0.00%,0.00%,Heuristic Baseline
-P_opt (Global Optimum),"[Allow, Allow, Restrict, Restrict, Block, Block]","+985,534","+2,856,000","+1,920,767",0.00%,0.00%,100.00%,Rank 1 of 70
-P1 (Conservative Default),"[Allow, Alert, Restrict, Quarantine, Quarantine, Block]","+423,686","+1,149,600","+786,643",0.00%,29.90%,0.00%,Rank 44 of 70
-P2-tier (Canonical 1-to-1),"[Allow, Alert, Restrict, Quarantine, Block, Block]","+963,686","+2,856,000","+1,909,843",0.00%,29.90%,100.00%,Rank 9 of 70
-P2 (Aggressive Baseline),"[Allow, Restrict, Quarantine, Block, Block, Block]","+907,520","+2,856,000","+1,881,760",29.90%,9.86%,100.00%,Rank 28 of 70
-P_XGB (Confidence-Gated),Flow Classifier (c >= 0.90),"+1,479,900","+2,887,550","+2,183,725",0.47%,0.00%,0.42%,Unranked (0.47% FPR)
-P_XGB (Ungated Raw),Flow Classifier (argmax),"+1,360,450","+2,928,000","+2,144,225",9.46%,0.00%,9.46%,Unranked (9.46% FPR)
-P_hybrid (Posture + Benign Veto),Tiered Posture + Flow Veto (L4),"+977,208","+2,899,150","+1,938,179",0.00%,29.90%,38.89%,Dominates Static
+Policy,Enforcement Mapping (L0-L5),Held-Out Test Net (OCU),Balanced Mean Net (OCU),50-Run Overall Mean (OCU),Balanced Block FPR,Balanced Quarantine FPR,Flood Block FPR,Search Rank
+P_opt (Rank 1 Static),"[Allow, Allow, Allow, Allow, Block, Block]","1,467,700","1,470,740","2,052,438",0.80%,0.00%,N/A (0 benign),Rank 1 of 70
+P_0_0_2_2_4_4 (Restrict Intermediate),"[Allow, Allow, Restrict, Restrict, Block, Block]","1,439,948","1,443,660","2,033,585",0.80%,0.00%,N/A (0 benign),Rank 8 of 70
+P2-tier (Canonical Reference),"[Allow, Alert, Restrict, Quarantine, Block, Block]","1,404,974","1,410,822","2,009,493",0.80%,9.56%,N/A (0 benign),Rank 15 of 70
+P2 (Aggressive Baseline),"[Allow, Restrict, Quarantine, Block, Block, Block]","1,228,502","1,228,502","1,873,685",29.90%,9.56%,N/A (0 benign),Rank 28 of 70
+P1 (Conservative Default),"[Allow, Alert, Restrict, Quarantine, Quarantine, Block]",786643,529293,778666,0.00%,38.61%,N/A (0 benign),Rank 50 of 70
+P0 (MDPI Baseline [1]),Heuristic (Alert / Quarantine),+572478,+572478,+871119,0.00%,0.00%,0.00%,Heuristic Baseline

@@ -1,0 +1,202 @@
+[
+    {
+        "ID":  "E1",
+        "Experiment Focus":  "Multi-Seed Baseline \u0026 Calibration",
+        "Seeds":  "13, 42, 99, 123, 2024",
+        "Split / Dataset":  "60k Multi-State Stream",
+        "Primary Artifact":  "experiments/E1_multi_seed/results.csv",
+        "Key Finding / Supported Claim":  "Clean IF AUC 0.9380+/-0.0087; P2-tier net benefit +1,909,278+/-1,127 OCU (Sec 4.1.1, Tab 8)"
+    },
+    {
+        "ID":  "E2",
+        "Experiment Focus":  "Out-of-Sample Held-Out Test",
+        "Seeds":  "99",
+        "Split / Dataset":  "60k Attack-Heavy Test Split",
+        "Primary Artifact":  "experiments/E2_held_out/results.csv",
+        "Key Finding / Supported Claim":  "P2-tier yields +2,863,600 OCU on unseen test traffic (2.485x over P1, Sec 4.3.2)"
+    },
+    {
+        "ID":  "E3",
+        "Experiment Focus":  "Disruption vs Attention FPR Audit",
+        "Seeds":  "42",
+        "Split / Dataset":  "60k Multi-State Stream",
+        "Primary Artifact":  "experiments/E3_full_disruption_fpr/results.csv",
+        "Key Finding / Supported Claim":  "0.00% Block FPR achieved at 29.9% Quarantine disruption, 44.3% attention overhead (Tab 7)"
+    },
+    {
+        "ID":  "E4",
+        "Experiment Focus":  "ADTM Weight Allocation Sweep",
+        "Seeds":  "42",
+        "Split / Dataset":  "60k Multi-State Stream",
+        "Primary Artifact":  "experiments/E4_adtm_weight/results.csv",
+        "Key Finding / Supported Claim":  "Trust AUC stable in [0.9985, 0.9993] across 7 weight allocations (Sec 4.1.2, App C)"
+    },
+    {
+        "ID":  "E5",
+        "Experiment Focus":  "Operational Threshold Sweep",
+        "Seeds":  "42",
+        "Split / Dataset":  "60k Multi-State Stream",
+        "Primary Artifact":  "experiments/E5_threshold_sensitivity/results.csv",
+        "Key Finding / Supported Claim":  "Monotonicity and zero-Block FPR invariant across standard operational ranges (App D)"
+    },
+    {
+        "ID":  "E6",
+        "Experiment Focus":  "Cost Scaling Parameter Sweep",
+        "Seeds":  "42",
+        "Split / Dataset":  "Dual 60k Regimes",
+        "Primary Artifact":  "experiments/E6_cost_sensitivity/results.csv",
+        "Key Finding / Supported Claim":  "P2-tier 2.24x to 2.46x benefit advantage over P1 across lambda in [0.2, 5.0] (Tab 10)"
+    },
+    {
+        "ID":  "E7",
+        "Experiment Focus":  "Regime Mixture Weight Sweep",
+        "Seeds":  "42",
+        "Split / Dataset":  "Dual 60k Regimes (w_bal in [0, 1])",
+        "Primary Artifact":  "experiments/E7_regime_weight/results.csv",
+        "Key Finding / Supported Claim":  "Identifies exact Pareto frontier transition between P1 and P2-tier (Fig 5)"
+    },
+    {
+        "ID":  "E8",
+        "Experiment Focus":  "Core-Hub Level L5 Population",
+        "Seeds":  "42",
+        "Split / Dataset":  "100k Flows (Core Hub R \u003e= 0.75)",
+        "Primary Artifact":  "experiments/E8_l5_population/results.csv",
+        "Key Finding / Supported Claim":  "100% batches escalate to L5 during acute flood, 0% during benign traffic (Sec 4.2.3, Tab 12)"
+    },
+    {
+        "ID":  "E9",
+        "Experiment Focus":  "Online Regime-Aware Switcher",
+        "Seeds":  "42",
+        "Split / Dataset":  "Mixed Transition Stream",
+        "Primary Artifact":  "experiments/E9_regime_aware_switcher/results.csv",
+        "Key Finding / Supported Claim":  "Evaluates EWMA-based dynamic policy switching between traffic regimes (Fig 6)"
+    },
+    {
+        "ID":  "E10",
+        "Experiment Focus":  "Barabasi-Albert Graph Calibration",
+        "Seeds":  "42",
+        "Split / Dataset":  "N=120, m=2 Graph",
+        "Primary Artifact":  "experiments/E10_tarp_reproducibility/results.csv",
+        "Key Finding / Supported Claim":  "TARP PageRank risk calibration (mu_R=0.4200, sigma_R=0.0800, Sec 3.1.1, App B)"
+    },
+    {
+        "ID":  "E11",
+        "Experiment Focus":  "Wilson Score Confidence Intervals",
+        "Seeds":  "42",
+        "Split / Dataset":  "Posture Distributions",
+        "Primary Artifact":  "experiments/E11_wilson_ci/results.csv",
+        "Key Finding / Supported Claim":  "Non-degenerate binomial Wilson 95% CIs for extreme 0/n and n/n bounds (Tab 5, Tab 6)"
+    },
+    {
+        "ID":  "E12",
+        "Experiment Focus":  "Anomaly Score Sign Convention",
+        "Seeds":  "42",
+        "Split / Dataset":  "60k Validation Flows",
+        "Primary Artifact":  "experiments/E12_score_sign/results.csv",
+        "Key Finding / Supported Claim":  "Validates -score_samples convention (higher = more anomalous; footnote Sec 3.3)"
+    },
+    {
+        "ID":  "E13",
+        "Experiment Focus":  "Table 4 / Figure 3 Reconciliation",
+        "Seeds":  "42",
+        "Split / Dataset":  "60k Attack-Heavy Stream",
+        "Primary Artifact":  "experiments/E13_table4_figure3/results.csv",
+        "Key Finding / Supported Claim":  "Reconciles C0*-C4* trust distributions (C4*: 91.34% Critical, 7.89% Very Low, Tab 4, Fig 3)"
+    },
+    {
+        "ID":  "E14",
+        "Experiment Focus":  "Per-Family Action \u0026 Trust Audit",
+        "Seeds":  "42",
+        "Split / Dataset":  "60k Multi-State (30,118 Attack)",
+        "Primary Artifact":  "experiments/E14_per_family/results.csv",
+        "Key Finding / Supported Claim":  "Reconciles Tab 9 across all 8 families (Web trust 19.04; benign Alert 34.47%, Quar 29.90%, Block 0.00%)"
+    },
+    {
+        "ID":  "E15",
+        "Experiment Focus":  "5-Seed Trust AUC \u0026 Net Benefit",
+        "Seeds":  "13, 42, 99, 123, 2024",
+        "Split / Dataset":  "Dual 60k Streams",
+        "Primary Artifact":  "experiments/E15_five_seed_trust/results.csv",
+        "Key Finding / Supported Claim":  "Dual-regime trust AUC (0.9990 balanced, 0.9855 attack-heavy); +1,909,278+/-1,127 OCU (Sec 4.1.2)"
+    },
+    {
+        "ID":  "E16",
+        "Experiment Focus":  "Dynamic Switcher Reconciliation",
+        "Seeds":  "42",
+        "Split / Dataset":  "Dual 60k Evaluation Streams",
+        "Primary Artifact":  "experiments/E16_dynamic_switcher/results.csv",
+        "Key Finding / Supported Claim":  "Dynamic switcher within 0.006% (110 OCU rounding) of static P2-tier (+1,909,733 OCU, Tab 11)"
+    },
+    {
+        "ID":  "E17",
+        "Experiment Focus":  "Core-Hub L5 Population Verification",
+        "Seeds":  "42",
+        "Split / Dataset":  "100k Flows (R \u003e= 0.75)",
+        "Primary Artifact":  "experiments/E17_l5_population/results.csv",
+        "Key Finding / Supported Claim":  "Confirms 100% L5 escalation under flood and 0% under benign traffic (Sec 4.2.3, Tab 12)"
+    },
+    {
+        "ID":  "E18",
+        "Experiment Focus":  "Synthetic Topology Sensitivity",
+        "Seeds":  "42",
+        "Split / Dataset":  "N=120, mu_R in {0.30, 0.42, 0.55}",
+        "Primary Artifact":  "experiments/E18_synthetic_topology/results.csv",
+        "Key Finding / Supported Claim":  "Edge posture allocation invariant to underlying network density (Sec 3.1.1, App B)"
+    },
+    {
+        "ID":  "E19",
+        "Experiment Focus":  "ADTM Weight Sensitivity Grid",
+        "Seeds":  "42",
+        "Split / Dataset":  "60k Multi-State Stream (7 Configs)",
+        "Primary Artifact":  "experiments/E19_adtm_weight_sensitivity/results.csv",
+        "Key Finding / Supported Claim":  "Dynamic trust AUC in [0.9985, 0.9993]; P2-tier benefit invariant (Tab 13, App C)"
+    },
+    {
+        "ID":  "E20",
+        "Experiment Focus":  "Posture Threshold Bounds \u0026 Breaks",
+        "Seeds":  "42",
+        "Split / Dataset":  "60k Multi-State Sweep",
+        "Primary Artifact":  "experiments/E20_posture_threshold_sensitivity/results.csv",
+        "Key Finding / Supported Claim":  "Delineates precise parameter bounds where monotonicity holds vs breaks (Tab 14, App D)"
+    },
+    {
+        "ID":  "E21",
+        "Experiment Focus":  "Held-Out Balanced Test Split",
+        "Seeds":  "99",
+        "Split / Dataset":  "60k Held-Out Balanced Test Split",
+        "Primary Artifact":  "experiments/E21_held_out_balanced/results.csv",
+        "Key Finding / Supported Claim":  "P2-tier Block FPR = 0.23% (Wilson CI [0.18%, 0.29%]), Quarantine FPR = 30.72%, Net Benefit +959,843 OCU (+1,907,922 OCU combined; Sec 4.3.2)"
+    },
+    {
+        "ID":  "E22",
+        "Experiment Focus":  "Score Negation Sign Verification",
+        "Seeds":  "42",
+        "Split / Dataset":  "60k Evaluation Flows",
+        "Primary Artifact":  "experiments/E22_score_sign/results.csv",
+        "Key Finding / Supported Claim":  "Verifies -score_samples achieves r = +0.7794 correlation with true labels (Sec 3.3)"
+    },
+    {
+        "ID":  "E23",
+        "Experiment Focus":  "Exact Wilson Score Bounds",
+        "Seeds":  "42",
+        "Split / Dataset":  "Posture \u0026 Action Distributions",
+        "Primary Artifact":  "experiments/E23_wilson_ci/results.csv",
+        "Key Finding / Supported Claim":  "Exact statsmodels Wilson CIs for L0-L4 and P2-tier action distributions (Tab 5, Tab 6)"
+    },
+    {
+        "ID":  "E24",
+        "Experiment Focus":  "27-Point 3-Factor Cost Grid",
+        "Seeds":  "42",
+        "Split / Dataset":  "27 Cost Configurations",
+        "Primary Artifact":  "experiments/E24_cost_matrix_sensitivity/results.csv",
+        "Key Finding / Supported Claim":  "P2-tier strictly dominates P1 across 100% of tested cost parameters (1.82x-2.44x, App E)"
+    },
+    {
+        "ID":  "E25",
+        "Experiment Focus":  "LaTeX Math \u0026 Delimiter Audit",
+        "Seeds":  "N/A",
+        "Split / Dataset":  "Full paper_v2.tex Manuscript",
+        "Primary Artifact":  "experiments/E25_latex_math_audit/results.csv",
+        "Key Finding / Supported Claim":  "Automated scanner confirms zero syntax errors, unmatched delimiters, or malformed equations"
+    }
+]

@@ -1,0 +1,6 @@
+regime,mean_ocu_P_hybrid,mean_ocu_P_XGB,mean_diff_ocu,bootstrap_ci95_lower,bootstrap_ci95_upper,wilcoxon_stat,wilcoxon_p_value,significance,superior_policy_on_ocu
+balanced,1391654.0,1472830.0,-81176.0,-84745.2,-78125.3,0.0,0.002,p < 0.05,P_XGB
+attack-heavy,2896960.6,2891120.0,5840.6,5399.3,6304.2,0.0,0.002,p < 0.05,P_hybrid
+multi-state,1391352.6,1472830.0,-81477.4,-85619.8,-77451.1,0.0,0.002,p < 0.05,P_XGB
+unstratified,1326419.4,1472830.0,-146410.6,-152348.7,-140822.8,0.0,0.002,p < 0.05,P_XGB
+flood,2974176.0,2960105.0,14071.0,13416.0,14723.0,0.0,0.002,p < 0.05,P_hybrid

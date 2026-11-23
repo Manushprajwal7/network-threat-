@@ -1,0 +1,6 @@
+Action,Baseline Precision,Relaxed Precision,Interpretation
+Allow,N/A (not triggered),11.59%,Intended for benign traffic; low precision is better (88.41% genuine benign)
+Alert,100.00%,100.00%,Share of Alert-assigned flows that were attack-labelled
+Restrict,N/A (not triggered),97.62%,Share of Restrict-assigned flows that were attack-labelled (medium-risk / topology exposure)
+Quarantine,70.50%,98.25%,Share of Quarantine-assigned flows that were attack-labelled (purged of false benign quarantines)
+Block,N/A (not triggered),N/A (not triggered),Requires persistent degradation (Low/Very Low Trust < 60) not present in test subset
