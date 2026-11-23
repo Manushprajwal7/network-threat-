@@ -1,0 +1,10 @@
+family,test_set_flow_count,share_pct
+DDoS,855981,72.7349
+DoS,204245,17.3552
+Mirai,66749,5.6718
+Benign,27709,2.3545
+Spoofing,12410,1.0545
+Recon,8812,0.7488
+Web,537,0.0456
+BruteForce,319,0.0271
+Malware,89,0.0076

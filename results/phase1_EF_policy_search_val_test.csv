@@ -1,0 +1,5 @@
+selection_rule,mapping,val_net_benefit,val_block_fpr,val_quar_fpr,test_net_benefit,test_block_fpr,test_quar_fpr,generalization_gap
+Unconstrained_Val_Argmax,Allow-Restrict-Restrict-Restrict-Block-Block,1605911.5,0.23666666666666666,0.0,1905467.0,0.0,0.0,-299555.5
+Zero_Disruptive_FPR_Val,Allow-Restrict-Restrict-Restrict-Restrict-Block,405000.0,0.0,0.0,408107.0,0.0,0.0,-3107.0
+Quar_LE_10pct_Val,Allow-Restrict-Restrict-Restrict-Quarantine-Block,705219.0,0.0,0.23666666666666666,782267.0,0.0,0.0,-77048.0
+Canonical_P2_tier,Allow-Alert-Restrict-Quarantine-Block-Block,1589260.5,0.23666666666666666,73.21333333333332,1909733.0,0.0,30.0983869888227,-320472.5

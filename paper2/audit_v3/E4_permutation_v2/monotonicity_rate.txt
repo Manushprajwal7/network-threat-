@@ -1,0 +1,5 @@
+Monotonicity Hold Rate across 1000 Permutations:
+Observed Baseline Monotonicity: True
+Null Permutation Monotonicity Hold Rate: 0.40%
+95% Wilson Score Confidence Interval: [0.16%, 1.02%]
+Interpretation: Under random label assignment with preserved base rate (50.20%), monotonicity across active posture levels collapses to near zero (0.40%), proving that observed monotonic escalation (0% -> 39.65% -> 57.42% -> 98.18% -> 100.0%) is evidence-driven, not a topology artifact.

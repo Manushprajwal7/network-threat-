@@ -1,0 +1,88 @@
+CODE DEFECT — "BENIGN" vs "BenignTraffic" string mismatch
+============================================================
+
+File:   backend/ml_model/unknown_attack_detector.py
+Lines:  67-76 (function train_isolation_forest, defined at line 51)
+
+Surrounding code:
+
+    def train_isolation_forest(
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        label_encoder,
+        contamination: float = 0.05,
+    ) -> None:
+        """
+        Train an Isolation Forest on BENIGN samples only.
+        The IF learns the normal traffic distribution; deviations -> anomaly.
+        """
+        try:
+            from sklearn.ensemble import IsolationForest
+        except ImportError:
+            log.error("scikit-learn not available. Cannot train Isolation Forest.")
+            return
+
+        benign_idx = list(label_encoder.classes_).index("BENIGN") \
+            if "BENIGN" in label_encoder.classes_ else -1
+
+        if benign_idx >= 0:
+            benign_mask = y_train == benign_idx
+            X_benign    = X_train[benign_mask]
+            log.info(f"Training Isolation Forest on {len(X_benign):,} BENIGN samples")
+        else:
+            X_benign = X_train
+            log.warning("BENIGN class not found — training IF on all training samples")
+
+        iforest = IsolationForest(
+            n_estimators  = 200,
+            contamination = contamination,
+            random_state  = 42,
+            n_jobs        = -1,
+        )
+        iforest.fit(X_benign)
+
+Defect:
+    The function checks for the literal string "BENIGN" in
+    label_encoder.classes_. The CICIoT2023 label encoder actually saved to
+    backend/ml_model/saved_models/label_encoder.pkl uses the class name
+    "BenignTraffic" (confirmed by loading the encoder directly — 34 classes,
+    no class named "BENIGN" is present). Because "BENIGN" != "BenignTraffic",
+    the condition "BENIGN" in label_encoder.classes_ evaluates to False, so
+    benign_idx is set to -1.
+
+Consequence:
+    With benign_idx == -1, execution falls into the `else` branch (line
+    75-76): X_benign = X_train (the ENTIRE training set, including every
+    attack class), and a warning "BENIGN class not found — training IF on
+    all training samples" is logged. The function's stated purpose — "Train
+    an Isolation Forest on BENIGN samples only" — is silently defeated. Any
+    Isolation Forest trained by calling this function on the current
+    label encoder would be fit on a mix of benign and attack traffic, which
+    is the opposite of its intended novelty-detection design (an IF meant to
+    model "normal" traffic should never see attack samples during fitting).
+    This is a silent failure: no exception is raised, the pipeline completes
+    and produces a model file, and only the log warning (easy to miss in a
+    long training run) hints that something is wrong.
+
+Scope / does this affect the manuscript's reported results?
+    No. The manuscript's reported unknown-traffic detection numbers (679
+    unknown samples, 1,176,172 known samples, UTDR 88.51% / 95.14%) come
+    from a different code path: evaluate_unknown_threats.py's
+    get_isolation_forest() / build_cache(), which trains the Isolation
+    Forest on "known" traffic (all training samples EXCEPT the 7
+    configured UNKNOWN_CLASSES — this includes benign traffic AND all
+    non-held-out attack classes, by design, not due to the bug above). That
+    function does not reference the "BENIGN" string at all and is unaffected
+    by this defect. train_isolation_forest() in unknown_attack_detector.py
+    is a separate, unused-in-this-evaluation code path (referenced only by
+    the live/production ensemble detector's training utilities), and it was
+    not what produced saved_models/isolation_forest.pkl for the manuscript's
+    figures or tables.
+
+Recommendation (not applied — out of scope for this task):
+    Fix the string comparison to check for "BenignTraffic" (or better,
+    resolve the benign class name dynamically / case-insensitively) so that
+    if this function is ever invoked again — e.g. by a future maintainer
+    retraining the live detector — it actually trains on benign-only traffic
+    as documented, rather than silently training on the full mixed-class
+    training set.

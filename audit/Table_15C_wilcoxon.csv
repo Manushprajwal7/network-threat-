@@ -1,0 +1,7 @@
+Comparison,Metric,Mean Difference (XGB - Baseline),Wilcoxon Statistic (W),p-value,Statistically Significant (p < 0.05)
+XGBoost vs. Random Forest,Accuracy,+0.0049,0.0000,0.0020,Yes (p < 0.01)
+XGBoost vs. Random Forest,Macro F1,+0.0771,0.0000,0.0020,Yes (p < 0.01)
+XGBoost vs. Decision Tree,Accuracy,+0.0144,0.0000,0.0020,Yes (p < 0.01)
+XGBoost vs. Decision Tree,Macro F1,+0.0555,0.0000,0.0020,Yes (p < 0.01)
+XGBoost vs. Naive Bayes,Accuracy,+0.8153,0.0000,0.0020,Yes (p < 0.01)
+XGBoost vs. Naive Bayes,Macro F1,+0.5460,0.0000,0.0020,Yes (p < 0.01)

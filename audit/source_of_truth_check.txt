@@ -1,0 +1,145 @@
+SOURCE-OF-TRUTH VERIFICATION — classification_report_*_ciciot2023.txt
+==============================================================================
+
+--- xgboost ---
+File: backend\ml_model\reports\classification_report_xgboost_ciciot2023.txt
+First 5 lines:
+  Classification Report - XGBOOST
+  Dataset: CICIoT2023
+  ======================================================================
+                           precision    recall  f1-score   support
+  
+Last 5 lines:
+                      XSS     0.0909    0.0097    0.0175       103
+  
+                 accuracy                         0.9899   1176851
+                macro avg     0.7378    0.7098    0.7151   1176851
+             weighted avg     0.9895    0.9899    0.9897   1176851
+[PASS] Class count: 34 (expected 34)
+[PASS] macro avg F1 in .txt = 0.7151 vs model_comparison_ciciot2023.csv macro_f1 = 0.7151
+[PASS] accuracy in .txt = 0.9899 vs model_comparison_ciciot2023.csv accuracy = 0.9899
+[PASS] Sum of per-class support = 1176851 (expected 1176851)
+[PASS] 'accuracy' row support = 1176851 (expected 1176851)
+
+--- random_forest ---
+File: backend\ml_model\reports\classification_report_random_forest_ciciot2023.txt
+First 5 lines:
+  Classification Report - RANDOM_FOREST
+  Dataset: CICIoT2023
+  ======================================================================
+                           precision    recall  f1-score   support
+  
+Last 5 lines:
+                      XSS     0.0000    0.0000    0.0000       103
+  
+                 accuracy                         0.9851   1176851
+                macro avg     0.6833    0.6301    0.6395   1176851
+             weighted avg     0.9844    0.9851    0.9830   1176851
+[PASS] Class count: 34 (expected 34)
+[PASS] macro avg F1 in .txt = 0.6395 vs model_comparison_ciciot2023.csv macro_f1 = 0.6395
+[PASS] accuracy in .txt = 0.9851 vs model_comparison_ciciot2023.csv accuracy = 0.9851
+[PASS] Sum of per-class support = 1176851 (expected 1176851)
+[PASS] 'accuracy' row support = 1176851 (expected 1176851)
+
+--- decision_tree ---
+File: backend\ml_model\reports\classification_report_decision_tree_ciciot2023.txt
+First 5 lines:
+  Classification Report - DECISION_TREE
+  Dataset: CICIoT2023
+  ======================================================================
+                           precision    recall  f1-score   support
+  
+Last 5 lines:
+                      XSS     0.0150    0.0388    0.0217       103
+  
+                 accuracy                         0.9756   1176851
+                macro avg     0.6599    0.6867    0.6623   1176851
+             weighted avg     0.9844    0.9756    0.9794   1176851
+[PASS] Class count: 34 (expected 34)
+[PASS] macro avg F1 in .txt = 0.6623 vs model_comparison_ciciot2023.csv macro_f1 = 0.6623
+[PASS] accuracy in .txt = 0.9756 vs model_comparison_ciciot2023.csv accuracy = 0.9756
+[PASS] Sum of per-class support = 1176851 (expected 1176851)
+[PASS] 'accuracy' row support = 1176851 (expected 1176851)
+
+--- naive_bayes ---
+File: backend\ml_model\reports\classification_report_naive_bayes_ciciot2023.txt
+First 5 lines:
+  Classification Report - NAIVE_BAYES
+  Dataset: CICIoT2023
+  ======================================================================
+                           precision    recall  f1-score   support
+  
+Last 5 lines:
+                      XSS     0.0063    0.1553    0.0121       103
+  
+                 accuracy                         0.1747   1176851
+                macro avg     0.2422    0.2275    0.1713   1176851
+             weighted avg     0.1969    0.1747    0.1124   1176851
+[PASS] Class count: 34 (expected 34)
+[PASS] macro avg F1 in .txt = 0.1713 vs model_comparison_ciciot2023.csv macro_f1 = 0.1713
+[PASS] accuracy in .txt = 0.1747 vs model_comparison_ciciot2023.csv accuracy = 0.1747
+[PASS] Sum of per-class support = 1176851 (expected 1176851)
+[PASS] 'accuracy' row support = 1176851 (expected 1176851)
+
+--- logistic_regression ---
+File: backend\ml_model\reports\classification_report_logistic_regression_ciciot2023.txt
+First 5 lines:
+  Classification Report - LOGISTIC_REGRESSION
+  Dataset: CICIoT2023
+  ======================================================================
+                           precision    recall  f1-score   support
+  
+Last 5 lines:
+                      XSS     0.0000    0.0000    0.0000       103
+  
+                 accuracy                         0.0015   1176851
+                macro avg     0.0057    0.0356    0.0050   1176851
+             weighted avg     0.0013    0.0015    0.0011   1176851
+[PASS] Class count: 34 (expected 34)
+[PASS] macro avg F1 in .txt = 0.005 vs model_comparison_ciciot2023.csv macro_f1 = 0.005
+[PASS] accuracy in .txt = 0.0015 vs model_comparison_ciciot2023.csv accuracy = 0.0015
+[PASS] Sum of per-class support = 1176851 (expected 1176851)
+[PASS] 'accuracy' row support = 1176851 (expected 1176851)
+
+--- knn ---
+File: backend\ml_model\reports\classification_report_knn_ciciot2023.txt
+First 5 lines:
+  Classification Report - KNN
+  Dataset: CICIoT2023
+  ======================================================================
+                           precision    recall  f1-score   support
+  
+Last 5 lines:
+                      XSS     0.0000    0.0000    0.0000       103
+  
+                 accuracy                         0.0075   1176851
+                macro avg     0.0022    0.0298    0.0020   1176851
+             weighted avg     0.0017    0.0075    0.0013   1176851
+[PASS] Class count: 34 (expected 34)
+[PASS] macro avg F1 in .txt = 0.002 vs model_comparison_ciciot2023.csv macro_f1 = 0.002
+[PASS] accuracy in .txt = 0.0075 vs model_comparison_ciciot2023.csv accuracy = 0.0075
+[PASS] Sum of per-class support = 1176851 (expected 1176851)
+[PASS] 'accuracy' row support = 1176851 (expected 1176851)
+
+--- svm ---
+File: backend\ml_model\reports\classification_report_svm_ciciot2023.txt
+First 5 lines:
+  Classification Report - SVM
+  Dataset: CICIoT2023
+  ======================================================================
+                           precision    recall  f1-score   support
+  
+Last 5 lines:
+                      XSS     0.0000    0.0000    0.0000       103
+  
+                 accuracy                         0.0235   1176851
+                macro avg     0.0007    0.0294    0.0014   1176851
+             weighted avg     0.0006    0.0235    0.0011   1176851
+[PASS] Class count: 34 (expected 34)
+[PASS] macro avg F1 in .txt = 0.0014 vs model_comparison_ciciot2023.csv macro_f1 = 0.0014
+[PASS] accuracy in .txt = 0.0235 vs model_comparison_ciciot2023.csv accuracy = 0.0235
+[PASS] Sum of per-class support = 1176851 (expected 1176851)
+[PASS] 'accuracy' row support = 1176851 (expected 1176851)
+
+==============================================================================
+OVERALL: ALL CHECKS PASSED

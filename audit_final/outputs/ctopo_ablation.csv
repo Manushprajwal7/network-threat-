@@ -1,0 +1,3 @@
+configuration,pure_benign_batches,L0_batches,L0_percentage,L1_batches,L1_percentage,other_levels,escalation_cause
+Default Pipeline (with c_topo),180,78,43.33,102,56.67,0,c_topo alone (PageRank >= 0.42)
+Ablated Pipeline (c_topo removed),180,180,100.0,0,0.0,0,None (100% nominal L0)

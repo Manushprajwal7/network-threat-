@@ -1,0 +1,5 @@
+strategy,balanced_net_ocu,attack_net_ocu,combined_net_ocu,balanced_quar_fpr,balanced_block_fpr
+Static_P2_tier,963466,2856000,1909733.0,30.0983869888227,0.0
+Static_P_opt,985534,2856000,1920767.0,0.0,0.0
+Reported_Table6_P2_tier,963686,2856000,1909843.0,29.9,0.0
+Offset_Explanation,-220,0,-110.0,0.0,0.0

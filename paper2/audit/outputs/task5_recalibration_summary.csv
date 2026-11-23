@@ -1,0 +1,4 @@
+method,threshold,benign_exceedance_pct,attack_recall_pct,precision_pct,notes
+Current Unified Threshold,0.5,25.85,99.22,79.46,Current operational threshold; balanced trade-off
+Optimal PR F1-Score,0.664,12.6,98.21,88.71,Maximizes harmonic mean of precision and recall
+Upper-Quartile (p75 Benign),0.5116,24.36,99.18,80.41,Limits nominal benign escalation to top quartile

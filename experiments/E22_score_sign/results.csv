@@ -1,0 +1,4 @@
+Function,Benign Mean,Attack Mean,Pearson r with Attack Label,Monotonic with Attack
+score_samples (Raw Scikit-Learn),-0.4888,-0.5691,-0.7794,NO (Inverted)
+decision_function,0.0888,0.0085,-0.7794,NO (Inverted)
+-score_samples (Paper Convention),0.4888,0.5691,0.7794,YES (Aligned)

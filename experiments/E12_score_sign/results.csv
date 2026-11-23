@@ -1,0 +1,9 @@
+Parameter,Value
+status,PASSED
+mean_raw_benign,-0.48878916700212893
+mean_raw_attack,-0.5690736245319685
+mean_neg_benign,0.48878916700212893
+mean_neg_attack,0.5690736245319685
+pearson_corr_negated,0.7793619381011778
+roc_auc_negated,0.9504925
+elapsed_s,9.94

@@ -1,0 +1,4 @@
+Configuration,"Alert (count, %)","Quarantine (count, %)",Allow,Restrict,Block
+Full TARP (baseline),"54,553 (90.92%)","5,447 (9.08%)",0,0,0
+"Without topology penalty (A1, lambda = 0)","58,000 (96.67%)","2,000 (3.33%)",0,0,0
+Difference,"+3,447 (+5.75%)","-3,447 (-5.75%)",0,0,0

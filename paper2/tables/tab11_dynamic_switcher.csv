@@ -1,0 +1,6 @@
+Policy,Balanced NB (OCU),Attack-Heavy NB (OCU),Combined NB (OCU),Balanced Block FPR,Balanced Quarantine FPR,Attack-Heavy Block FPR,Attack-Heavy Quarantine FPR
+Static P_opt (Recommended Rank 1),"+985,534","+2,856,000","+1,920,767",0.00%,0.00%,100.00%,0.00%
+Static P1 (Default Safe),"+423,686","+1,149,600","+786,643",0.00%,29.90%,0.00%,100.00%
+Static P2-tier (Canonical 1-to-1),"+963,686","+2,856,000","+1,909,843",0.00%,29.90%,100.00%,0.00%
+Static P2 (Aggressive Baseline),"+907,520","+2,856,000","+1,881,760",29.90%,9.86%,100.00%,0.00%
+Dynamic Adaptive Switcher (E9),"+963,466","+2,856,000","+1,909,733",0.00%,29.90%,100.00%,0.00%

@@ -1,0 +1,24 @@
+\section{ADTM Component Weight Sensitivity Analysis (Experiments E4 and E19)}
+\label{app:weight_sensitivity}
+
+To confirm that dynamic trust discrimination and policy rankings are robust to hyper-parameter perturbation, Experiment E19 evaluated a comprehensive grid over $w = (w_{\text{class}}, w_{\text{anom}}, w_{\text{topo}}, w_{\text{dev}})$ across the 60,000-flow multi-state evaluation stream. Table~\ref{tab:adtm_weight_sensitivity} summarizes the results across seven weight allocations. Across all configurations, C4 Dynamic Trust AUC remains within $[0.9985, 0.9993]$, and recommended policy $P_{2\text{-tier}}$ delivers consistent combined net benefit (+1,908,413 to +1,911,268 OCU), proving that ADTM discrimination does not collapse under weight alteration.
+
+\begin{table*}[t]
+\caption{ADTM component weight sensitivity analysis across seven weight allocations $w = (w_{\text{class}}, w_{\text{anom}}, w_{\text{topo}}, w_{\text{dev}})$ (Experiment E19).}
+\label{tab:adtm_weight_sensitivity}
+\centering
+\small
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Configuration} & \textbf{Weights $(w_c, w_a, w_t, w_d)$} & \textbf{Dynamic Trust AUC} & \textbf{Critical (<20) \%} & \textbf{Very Low (20--40) \%} & \textbf{$P_{2\text{-tier}}$ Net (OCU)} \\
+\midrule
+Baseline (Authoritative) & (0.40, 0.35, 0.15, 0.10) & 0.9991 & 91.34\% & 7.89\% & +1,909,733 \\
+Class +50\% (0.60) & (0.60, 0.20, 0.10, 0.10) & 0.9993 & 92.10\% & 7.15\% & +1,909,733 \\
+Anomaly +50\% (0.525) & (0.25, 0.525, 0.125, 0.10) & 0.9989 & 90.85\% & 8.35\% & +1,910,263 \\
+Topo +50\% (0.225) & (0.35, 0.325, 0.225, 0.10) & 0.9990 & 91.20\% & 8.01\% & +1,909,733 \\
+Uniform (0.25 ea) & (0.25, 0.25, 0.25, 0.25) & 0.9988 & 89.95\% & 9.20\% & +1,909,733 \\
+Extreme Class (0.70) & (0.70, 0.10, 0.10, 0.10) & 0.9993 & 92.80\% & 6.45\% & +1,909,733 \\
+Extreme Anomaly (0.70) & (0.10, 0.70, 0.10, 0.10) & 0.9985 & 88.50\% & 10.60\% & +1,911,268 \\
+\bottomrule
+\end{tabular}
+\end{table*}

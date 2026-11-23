@@ -1,0 +1,5 @@
+Policy,Mapping,Balanced Net Benefit (OCU),Attack-Heavy Net Benefit (OCU),Combined Net Benefit (OCU),Balanced Block FPR (%),Attack-Heavy Block FPR (%),Rank in 70
+P0 (Published Table 19A),Heuristic (Alert/Quarantine),N/A,"+329,835",N/A,0.00%,0.00%,Unranked
+P1 (Default Posture Policy),Allo-Aler-Rest-Quar-Quar-Bloc,"+423,686","+1,149,600","+786,643.0",0.00%,0.00%,Rank 44 of 70
+P2-tier (Balanced Zero-Disruption),Allo-Aler-Rest-Quar-Bloc-Bloc,"+963,686","+2,856,000","+1,909,843.0",0.00%,100.00%,Rank 9 of 70
+P2 (Global Cost-Optimal),Allo-Rest-Quar-Bloc-Bloc-Bloc,"+907,520","+2,856,000","+1,881,760.0",29.90%,100.00%,Rank 28 of 70

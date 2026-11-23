@@ -1,0 +1,2 @@
+mapping_str,mapping_tuple,balanced_net_ocu,attack_heavy_net_ocu,combined_net_ocu,balanced_block_fpr_pct,balanced_quar_fpr_pct,balanced_disruptive_fpr_pct,balanced_any_action_pct,is_strictly_monotonic,rank_of_70
+Allow-Allow-Restrict-Restrict-Block-Block,"(0, 0, 2, 2, 4, 4)",985534,2856000,1920767.0,0.0,0.0,0.0,39.7631,False,1

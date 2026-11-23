@@ -1,0 +1,5 @@
+Controller,Balanced Net (OCU),Attack-Heavy Net (OCU),Combined Net (OCU),Bal Block FPR (%),Atk Block FPR (%)
+Static P1 (Default Safe),423466,1149600,786533.0,0.0,0.0
+Static P2-tier (Aggressive Containment),963466,2856000,1909733.0,0.0,100.0
+Static P2 (Cost-Optimal),906920,2856000,1881460.0,30.0983869888227,100.0
+Dynamic Adaptive Switcher (E9),963466,2856000,1909733.0,0.0,100.0

@@ -1,0 +1,45 @@
+======================================================================
+CICIoT2023 DATASET SHAPES, DTYPES, AND CLASS DISTRIBUTIONS
+======================================================================
+Source: ../audit/lofo/cache/
+Number of Features: 46
+Number of Classes: 34
+Benign Class: BenignTraffic (idx: 1)
+
+--- D_train Partition ---
+Shape: (5491971, 46)
+Features Dtype: float32, Labels Dtype: int32
+Total flows: 5,491,971
+Benign flows: 129,538 (2.359%)
+Attack flows: 5,362,433 (97.641%)
+
+--- D_val Partition (60,000 flows, Primary Seed 42, Stratified Balanced) ---
+Shape: (60000, 46), Dtype: float32
+Total flows: 60,000
+Benign flows: 29,882 (49.80%)
+Attack flows: 30,118 (50.20%)
+Attack Family Breakdown:
+  Benign         : 29,882 (49.80%)
+  DDoS           : 22,424 (37.37%)
+  DoS            : 5,328 (8.88%)
+  Mirai          : 1,788 (2.98%)
+  Spoofing       : 322 (0.54%)
+  Recon          : 235 (0.39%)
+  Web            : 16 (0.03%)
+  BruteForce     : 5 (0.01%)
+
+--- D_test Partition (60,000 flows, Held-Out Seed 99, Stratified Balanced) ---
+Shape: (60000, 46), Dtype: float32
+Total flows: 60,000
+Benign flows: 30,035 (50.06%)
+Attack flows: 29,965 (49.94%)
+Attack Family Breakdown:
+  Benign         : 30,035 (50.06%)
+  DDoS           : 22,259 (37.10%)
+  DoS            : 5,415 (9.03%)
+  Mirai          : 1,695 (2.83%)
+  Spoofing       : 343 (0.57%)
+  Recon          : 229 (0.38%)
+  Web            : 15 (0.03%)
+  BruteForce     : 9 (0.01%)
+

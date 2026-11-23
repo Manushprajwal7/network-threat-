@@ -1,0 +1,10 @@
+contamination_rate,training_benign_flows,training_attack_flows,total_training_flows,raw_roc_auc,inverted_roc_auc,ks_statistic_D,ks_pvalue,orientation
+0.0,20000,0,20000,0.9427,0.0573,0.857,0.0,Standard (Attacks Anomaly)
+0.01,20000,202,20202,0.9686,0.0314,0.8934,0.0,Standard (Attacks Anomaly)
+0.02,20000,408,20408,0.9566,0.0434,0.8595,0.0,Standard (Attacks Anomaly)
+0.05,20000,1052,21052,0.8219,0.1781,0.6792,0.0,Standard (Attacks Anomaly)
+0.1,20000,2222,22222,0.5794,0.4206,0.1677,5.367246587248622e-35,Standard (Attacks Anomaly)
+0.2,20000,5000,25000,0.2457,0.7543,0.5026,0.0,Inverted (Benign Anomaly)
+0.5,20000,20000,40000,0.06,0.94,0.8361,0.0,Inverted (Benign Anomaly)
+0.8,20000,80000,100000,0.0206,0.9794,0.9293,0.0,Inverted (Benign Anomaly)
+0.976,20000,827457,847457,0.0088,0.9912,0.9501,0.0,Inverted (Benign Anomaly)

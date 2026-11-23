@@ -1,0 +1,13 @@
+{
+  "num_nodes": 120,
+  "num_edges": 236,
+  "graph_type": "Barabasi-Albert Scale-Free (m=2)",
+  "mean_degree": 3.933333333333333,
+  "max_degree": 41,
+  "hub_nodes_count": 5,
+  "empirical_mean_risk": 0.4189,
+  "empirical_std_risk": 0.0721,
+  "min_risk": 0.3853,
+  "max_risk": 0.9,
+  "nodes_above_hub_threshold_0_75": 2
+}

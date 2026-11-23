@@ -1,0 +1,6 @@
+Action,Benign Cost (OCU),Attack Containment (OCU),Net Benefit on Attack,Operational Description
+Allow,0,0,0,Normal packet routing with zero inspection overhead
+Alert,1,-5,+5,Passive alert notification to SIEM with baseline triage
+Restrict,3,-10,+10,Rate limiting and TCP window throttling applied
+Quarantine,15,-20,+20,VLAN isolation and deep packet inspection
+Block,50,-50,+50,Immediate dropping at hardware flow table / TCAM

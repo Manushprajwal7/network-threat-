@@ -1,0 +1,4 @@
+stream,evaluation_source,L0_flows,L1_flows,L2_flows,L3_flows,L4_flows,P1_net_benefit_ocu,P2_tier_net_benefit_ocu,switcher_net_benefit_ocu,difference_p2_minus_switcher_ocu
+Balanced Benchmark,Table 6 Fixed Stratified Batches,10600,10300,5500,18500,18000,423686,963686,963686,0
+Balanced Benchmark,Seed 42 Binomial-Sampled Stream (E9),7800,10200,5400,18600,18000,423466,963466,963466,220
+Combined (0.5 Balanced + 0.5 Attack-Heavy),Table 8 Master vs Seed 42 Dynamic Stream,N/A,N/A,N/A,N/A,N/A,786643,1909843,1909733,110

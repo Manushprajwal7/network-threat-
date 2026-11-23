@@ -1,0 +1,2 @@
+n_trials,P_opt_mean_rank,P_opt_rank1_pct,P_opt_top5_pct,P2_tier_mean_rank,P2_tier_rank1_pct,P2_tier_top5_pct
+2000,26.274,0.5,1.2,16.857,0.0,3.5999999999999996

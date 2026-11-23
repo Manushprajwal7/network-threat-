@@ -1,0 +1,6 @@
+action,cost_true_benign,cost_true_attack,severity_order,operational_meaning
+Allow,0,100,0,Correct pass-through for benign / False negative worst case for attack
+Alert,1,-5,1,Minor triage overhead for benign / Non-blocking audit visibility for attack
+Restrict,3,-10,2,Bandwidth throttling disruption for benign / Throughput throttling for attack
+Quarantine,15,-20,3,Sandbox isolation friction for benign / Active containment for attack
+Block,50,-50,4,Severe SLA downtime outage for benign / Complete edge termination for attack

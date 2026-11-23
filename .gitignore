@@ -47,3 +47,5 @@ backend/ml_model/saved_models/_unknown_cache/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+paper2/audit_v3/cache/

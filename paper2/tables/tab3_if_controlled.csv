@@ -1,0 +1,5 @@
+Configuration,Trees (M),Training Data,ROC AUC,KS D,Anomaly Gap,Benign Mean,Attack Mean
+Contaminated (M=100),100,97.5% Contaminated,0.0077,0.953,-0.3077,0.6901,0.3825
+Contaminated (M=200),200,97.5% Contaminated,0.0084,0.9504,-0.2973,0.681,0.3837
+Repaired Clean (M=100),100,100% Clean Benign,0.9435,0.8564,0.0769,0.4843,0.5612
+Repaired Clean (M=200),200,100% Clean Benign,0.9523,0.8659,0.0819,0.4829,0.5649

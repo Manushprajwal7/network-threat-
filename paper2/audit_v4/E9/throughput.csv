@@ -1,0 +1,18 @@
+component,hardware,batch_size,total_flows,elapsed_sec,throughput_fps,amortized_latency_us
+XGBoost (GPU),RTX 3050 Laptop GPU (CUDA),32,9984,5.8831,1697.1,589.25
+XGBoost (GPU),RTX 3050 Laptop GPU (CUDA),64,9984,2.8363,3520.1,284.09
+XGBoost (GPU),RTX 3050 Laptop GPU (CUDA),128,9984,1.437,6948.0,143.93
+XGBoost (GPU),RTX 3050 Laptop GPU (CUDA),256,9984,0.6954,14357.3,69.65
+XGBoost (GPU),RTX 3050 Laptop GPU (CUDA),512,9728,0.3362,28935.7,34.56
+XGBoost (GPU),RTX 3050 Laptop GPU (CUDA),1024,9216,0.1546,59595.6,16.78
+XGBoost (GPU),RTX 3050 Laptop GPU (CUDA),2048,8192,0.0765,107126.6,9.33
+XGBoost (GPU),RTX 3050 Laptop GPU (CUDA),4096,8192,0.0462,177340.2,5.64
+XGBoost (CPU),Host CPU (Multithreaded),1024,1024,0.0004,2489666.9,0.4
+Isolation Forest,Host CPU (n_jobs=-1),64,9984,1.2575,7939.5,125.95
+Isolation Forest,Host CPU (n_jobs=-1),256,9984,0.3581,27883.1,35.86
+Isolation Forest,Host CPU (n_jobs=-1),1024,9216,0.1183,77933.7,12.83
+Isolation Forest,Host CPU (n_jobs=-1),2048,8192,0.0743,110189.7,9.08
+Isolation Forest,Host CPU (n_jobs=-1),4096,8192,0.0557,147015.5,6.8
+ADTM Trust Manager,Host CPU,1,10000,0.0086,1156350.1,0.86
+Benign Veto Logic,Host CPU,10000,10000,2.2e-05,454545451.0,0.0022
+End-to-End P_hybrid Pipeline,GPU + CPU Hybrid,1024,8192,0.449,18244.3,54.81

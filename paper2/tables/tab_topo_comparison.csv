@@ -1,0 +1,9 @@
+Structural Metric,MDPI Anchor Topology [1],Proposed BA(m=2) Topology,Reconciliation / Derivation
+Node Count (N),120,120,Identical 120-node scale-free network
+Edge / Link Count (E),342,236,MDPI uses m=3 on 114 nodes (114*3=342); BA(m=2) yields 2*(120-2)=236 edges
+Mean Degree (k_bar),5.70,3.93,2E / N ratio
+Centrality Metric,Personalized PageRank (α=0.85),Personalized PageRank (α=0.85),Identical Google PageRank with 0.85 damping factor
+Mean Risk (μ_R),≈ 0.42,μ_R = 0.4189,Empirical realization of target N(0.42; 0.08)
+Risk Std Deviation (σ_R),—,σ_R = 0.0721,Empirical standard deviation across all 120 network nodes
+Core Routing Hubs (R >= 0.75),8 critical nodes,2 critical hubs (Node 0: 0.9000; Node 4: 0.8089),Hub gating criteria for Level L5 activation
+Hub Centrality Z-Score,—,Z = 4.5931 σ (p = 2.18e-6),Empirical Z-score; theoretical target Z = 4.1250 σ (p = 1.85e-5)

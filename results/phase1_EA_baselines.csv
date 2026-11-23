@@ -1,0 +1,5 @@
+detector,training_data,roc_auc,ks_D,status
+"One-Class SVM (RBF, nu=0.05)",Clean Benign (5k),0.6996,0.4083,Baseline Anomaly Detector
+Local Outlier Factor (k=20),Clean Benign (5k),0.9931,0.9588,Baseline Anomaly Detector
+PCA Reconstruction Error (n_comp=10),Clean Benign (20k),0.98,0.9091,Baseline Anomaly Detector
+Diagonal Mahalanobis Distance,Clean Benign (20k),0.9621,0.8048,Baseline Anomaly Detector

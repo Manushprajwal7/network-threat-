@@ -1,0 +1,20 @@
+sweep_parameter,parameter_value,optimal_policy,mean_balanced_ocu,notes
+lambda,0.1,"(0, 0, 0, 0, 4, 4)",138843.5,Attack containment weight x0.1
+lambda,0.5,"(0, 0, 0, 0, 4, 4)",730797.5,Attack containment weight x0.5
+lambda,1.0,"(0, 0, 0, 0, 4, 4)",1470740.0,Attack containment weight x1.0
+lambda,2.0,"(0, 0, 0, 0, 4, 4)",2950625.0,Attack containment weight x2.0
+lambda,5.0,"(0, 0, 0, 1, 4, 4)",7390761.5,Attack containment weight x5.0
+lambda,10.0,"(0, 0, 1, 2, 4, 4)",14796718.0,Attack containment weight x10.0
+lambda,25.0,"(0, 0, 2, 4, 4, 4)",37045396.0,Attack containment weight x25.0
+lambda,50.0,"(0, 1, 4, 4, 4, 4)",74294088.0,Attack containment weight x50.0
+lambda,100.0,"(0, 2, 4, 4, 4, 4)",149128416.0,Attack containment weight x100.0
+c_quarantine,5.0,"(0, 0, 0, 0, 4, 4)",1470740.0,Quarantine disruption cost = 5
+c_quarantine,10.0,"(0, 0, 0, 0, 4, 4)",1470740.0,Quarantine disruption cost = 10
+c_quarantine,15.0,"(0, 0, 0, 0, 4, 4)",1470740.0,Quarantine disruption cost = 15
+c_quarantine,20.0,"(0, 0, 0, 0, 4, 4)",1470740.0,Quarantine disruption cost = 20
+c_quarantine,30.0,"(0, 0, 0, 0, 4, 4)",1470740.0,Quarantine disruption cost = 30
+c_block,25.0,"(0, 0, 0, 0, 4, 4)",1475312.5,Block disruption cost = 25
+c_block,50.0,"(0, 0, 0, 0, 4, 4)",1470740.0,Block disruption cost = 50
+c_block,75.0,"(0, 0, 0, 0, 4, 4)",1466167.5,Block disruption cost = 75
+c_block,100.0,"(0, 0, 0, 0, 4, 4)",1461595.0,Block disruption cost = 100
+c_block,150.0,"(0, 0, 0, 0, 4, 4)",1452450.0,Block disruption cost = 150

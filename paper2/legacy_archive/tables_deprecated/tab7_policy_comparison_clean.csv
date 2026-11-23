@@ -1,0 +1,6 @@
+Policy,Mapping (L0-L5),Balanced Net Benefit,Attack-Heavy Net Benefit,Combined Net Benefit,Benign Disruption,Block FPR (%),Search Rank
+P0 (Published Table 19A),Heuristic (Alert/Quarantine),N/A,"+$329,835",N/A,N/A,0.00%,Unranked
+P0 (Recomputed),Heuristic (commit 7e6ebda),"+$153,952","+$395,769","+$274,861","$54,688",0.00%,Unranked
+P1 (Default),Allow-Alert-Restrict-Quar-Quar-Block,"+$453,286","+$1,259,475","+$856,381","$26,609",0.00%,Rank 34 of 65
+P2-tier (Recommended),Allow-Alert-Restrict-Quar-Block-Block,"+$921,286","+$2,802,480","+$1,861,883","$26,609",0.00%,Rank 10 of 65
+P2 (Cost-Optimal),Allow-Restrict-Quar-Block-Block-Block,"+$943,582","+$2,851,800","+$1,897,691","$101,238",0.99%,Rank 1 of 65

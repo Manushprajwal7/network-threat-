@@ -1,0 +1,7 @@
+Configuration,Accuracy_Pct,Macro_F1_Pct,ADR_Pct,FPR_Pct,Unknown_Threat,Trust_Scoring,Topology_Risk,Automated_Response
+XGBoost Only,98.99,71.51,70.35,8.13,No,No,No,No
+XGBoost + IF,98.99,71.51,70.35,8.13,Yes,No,No,No
+XGBoost + ADTM,98.99,71.51,70.35,8.13,No,Yes,No,No
+XGBoost + TARP,98.99,71.51,70.35,8.13,No,No,Yes,No
+XGBoost + IF + ADTM,98.99,71.51,70.35,8.13,Yes,Yes,No,No
+Full Framework,98.99,71.51,70.35,8.13,Yes,Yes,Yes,Yes

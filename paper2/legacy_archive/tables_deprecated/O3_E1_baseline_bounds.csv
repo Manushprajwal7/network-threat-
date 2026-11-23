@@ -1,0 +1,6 @@
+policy,balanced_window_total_cost,balanced_window_net_benefit,operational_interpretation
+All-Allow (Worst),2999100,-2999100,Catastrophic — all attacks allowed unimpeded
+All-Block (Naive),900,-900,Neutral net benefit but 100% benign denial-of-service outage
+P0 Published (Recomputed),-153952,153952,Contaminated IF causes 16.8k benign restrictions and false quarantines
+P1 New Default,-453286,453286,Hierarchical containment: 14.2k benign allowed + 17.1k attacks quarantined/blocked
+Theoretical Perfect Policy,-1499550,1499550,Upper bound — zero benign friction and 100% attack termination

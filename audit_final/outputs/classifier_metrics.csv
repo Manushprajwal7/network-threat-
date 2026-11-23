@@ -1,0 +1,12 @@
+metric,scope,value
+Overall Accuracy,All 34 Classes,0.9899
+Balanced Accuracy,All 34 Classes,0.7098
+Macro Precision,All 34 Classes,0.7098
+Macro Recall,All 34 Classes,0.7098
+Macro F1-Score,All 34 Classes,0.7098
+Weighted F1-Score,All 34 Classes,0.9899
+Attack Detection Rate (Macro Recall),33 Attack Classes,0.7035
+Attack Macro F1,33 Attack Classes,0.7035
+8-Family Macro Precision,8 Operational Families,0.884
+8-Family Macro Recall,8 Operational Families,0.885
+8-Family Macro F1,8 Operational Families,0.8842

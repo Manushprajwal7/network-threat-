@@ -1,0 +1,115 @@
+EXECUTIVE SUMMARY — CICIoT2023 Table 12 / Table 15 Audit
+==============================================================================
+
+CORRECTED TABLE 15 (7 sklearn models; CNN/LSTM excluded, see below)
+------------------------------------------------------------------------------
+Model                     Acc%  MacroF1%    ADR%    FPR%   WtF1%
+XGBoost                  98.99     71.51   70.98    0.31   98.97
+Random Forest            98.51     63.95   63.01    1.02   98.30
+Decision Tree            97.56     66.23   68.67    0.20   97.94
+Naive Bayes              17.47     17.13   22.75    0.65   11.24
+Logistic Regression       0.15      0.50    3.56    0.00    0.11
+KNN                       0.75      0.20    2.98    1.43    0.13
+SVM                       2.35      0.14    2.94  100.20    0.11
+
+VALUES THAT MUST CHANGE IN THE MANUSCRIPT (old -> new)
+------------------------------------------------------------------------------
+Table 12: every per-class 'F1' value is actually recall. Replace entire table with
+audit/Table_12_corrected.csv (true per-class F1, 34 classes x 7 models).
+
+Table 15:
+  XGBoost: no change needed (verified correct).
+  Random Forest: no change needed (verified correct).
+  Decision Tree: no change needed (verified correct).
+  Naive Bayes: no change needed (verified correct).
+  Logistic Regression: accuracy 81.61% -> 0.15%, macro-F1 47.70% -> 0.50%
+  KNN: accuracy 17.47% -> 0.75%, macro-F1 17.13% -> 0.20%
+  SVM: accuracy 0.15% -> 2.35%, macro-F1 0.50% -> 0.14%
+
+SECTION NUMBERS WHERE CHANGES APPLY
+------------------------------------------------------------------------------
+This audit was run against the codebase only; the manuscript text (§5.2, §5.4, §8, Abstract)
+was not provided, so exact section numbers cannot be confirmed here. Wherever Table 12,
+Table 15, or their prose summaries (typically Results/Discussion, and the Abstract's headline
+accuracy/F1 claims) are cited, they must be updated to match audit/Table_12_corrected.csv and
+audit/Table_15_corrected.csv.
+
+ROOT CAUSE OF TABLE 12 CORRUPTION
+------------------------------------------------------------------------------
+In train_ciciot2023_models.py (lines ~326-350), per-class precision, recall, and F1 are computed
+with average='micro' on a subset of y_test masked to a single class. Since average='micro' on a
+single-class subset always returns TP_c / support_c, the three metrics collapse to the same value
+— per-class recall — and precision/recall/F1 are identical in every row of
+per_class_metrics_ciciot2023.csv. Table 12 of the manuscript is derived from this corrupted file.
+Table 15 was generated separately (via a correct classification_report() call) and is not affected.
+
+DISCREPANCY SUMMARY AND LIKELY CAUSE (one paragraph)
+------------------------------------------------------------------------------
+The reviewer's observed gap between Table 12 (mean per-class F1) and Table 15 (Macro-F1) is real but
+Table 15 is not the source of the error: for XGBoost, Random Forest, Decision Tree, and Naive Bayes,
+Table 15's Macro-F1 values match genuine sklearn classification_report macro-avg F1 to 0.00 pp. The
+reviewer's mean of Table 12, instead, matches true macro-RECALL almost exactly for all four models
+(e.g. XGBoost 70.98% vs true macro-recall 70.98%), proving Table 12 was populated from a buggy script
+that computes per-class recall and mislabels it as precision/recall/F1 alike. The reviewer's separate
+suspicion that Decision Tree's Table 15 columns (Macro-F1 vs ADR) were transposed is not supported —
+DT's true macro-F1 (66.23%) and true macro-recall/ADR (68.67%) are both independently correct and
+merely close in value by coincidence.
+
+CNN/LSTM PROVENANCE ISSUE
+------------------------------------------------------------------------------
+cnn_research.keras and lstm_research.keras were produced by train_research_models.py, which imports
+from research_preprocess.py — a pipeline whose docstring states it is for CICIDS2017 and whose default
+dataset directory is the CICIDS2017 folder. These two models cannot have produced 34-class CICIoT2023
+metrics. The manuscript's CNN/LSTM rows in Table 15 and Table 15A must be removed or replaced with
+CNN/LSTM models trained on CICIoT2023 with the same pipeline as the sklearn models.
+
+Note: the paper's Table 15 reportedly includes CNN and LSTM rows, even though the Table 15 values given
+for this audit listed only 7 sklearn models. This means the CNN/LSTM numbers currently in the manuscript
+came from a source this audit cannot verify or locate in this codebase. Flagged for manual investigation.
+
+MANUSCRIPT ERRORS DISCOVERED BEYOND THE REVIEWER'S FINDINGS
+------------------------------------------------------------------------------
+1. Table 15's Logistic Regression row does not correspond to any model in this codebase.
+2. Table 15's KNN row shares Macro-F1, ADR, and FPR with the Naive Bayes row — a copy-paste
+   error in the manuscript.
+3. Table 15's SVM row appears to be the real Logistic Regression output.
+4. Table 12's per-class F1 column is actually per-class recall due to the average='micro'
+   bug on masked subsets.
+These are more serious than the reviewer's two findings and must be disclosed in the revision.
+
+CORRECTED TABLE 12 CLASS LIST (34 classes, canonical model output order)
+------------------------------------------------------------------------------
+  [ 0] Backdoor_Malware
+  [ 1] BenignTraffic
+  [ 2] BrowserHijacking
+  [ 3] CommandInjection
+  [ 4] DDoS-ACK_Fragmentation
+  [ 5] DDoS-HTTP_Flood
+  [ 6] DDoS-ICMP_Flood
+  [ 7] DDoS-ICMP_Fragmentation
+  [ 8] DDoS-PSHACK_Flood
+  [ 9] DDoS-RSTFINFlood
+  [10] DDoS-SYN_Flood
+  [11] DDoS-SlowLoris
+  [12] DDoS-SynonymousIP_Flood
+  [13] DDoS-TCP_Flood
+  [14] DDoS-UDP_Flood
+  [15] DDoS-UDP_Fragmentation
+  [16] DNS_Spoofing
+  [17] DictionaryBruteForce
+  [18] DoS-HTTP_Flood
+  [19] DoS-SYN_Flood
+  [20] DoS-TCP_Flood
+  [21] DoS-UDP_Flood
+  [22] MITM-ArpSpoofing
+  [23] Mirai-greeth_flood
+  [24] Mirai-greip_flood
+  [25] Mirai-udpplain
+  [26] Recon-HostDiscovery
+  [27] Recon-OSScan
+  [28] Recon-PingSweep
+  [29] Recon-PortScan
+  [30] SqlInjection
+  [31] Uploading_Attack
+  [32] VulnerabilityScan
+  [33] XSS

@@ -1,0 +1,6 @@
+Policy,Mapping,Balanced (50.2%),Attack-Heavy (97.6%),Multi-State (50.2%),Unstratified (50.2%),Flood (100%),50-Run Mean (Unweighted),Rank (pi_70),Notes
+P_opt,Allow-Allow-Restrict-Restrict-Block-Block,+1439948,+2860580,+1439948,+988914,+2962800,+2052438,Rank 1,Rank 1 static posture policy; 0.00% quarantine FPR
+P_2-tier,Allow-Alert-Restrict-Quarantine-Block-Block,+1404974,+2860580,+1909843,+180261,+2962800,+2027332,Rank 9,Canonical 1-to-1 tiering; 29.90% quarantine FPR
+P_hybrid,Batch Posture + Benign Veto (L4),+1404974,+2896961,+1909843,+846171,+2974176,+2044425,Hybrid,Equals P_2-tier on D_test (0 benign in L4); wins on flood
+P_XGB (gated),Per-Flow XGBoost (c >= 0.90),+1472830,+2891120,+1472830,+1472830,+2960105,+2053543,Baseline,Wins on stationary closed-world; collapses on novel LOFO
+P_1 (baseline),Allow-Alert-Restrict-Quarantine-Quarantine-Block,+786643,+1154180,+786643,+180261,+1188000,+1184210,Rank 44,Conservative baseline; avoids block FPR during flood

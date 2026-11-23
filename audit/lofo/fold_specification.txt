@@ -1,0 +1,192 @@
+LEAVE-ONE-FAMILY-OUT (LOFO) FOLD SPECIFICATION
+================================================================================
+Dataset: CICIoT2023 (recovered via Kaggle: himadri07/ciciot2023)
+Dataset path: C:\Users\Manus\OneDrive\Desktop\L-thirupathi\dataset\CICIoT2023
+Preprocessing: backend/ml_model/preprocess_ciciot2023.py (unmodified)
+Base cached arrays: audit/lofo/cache/{X_train,X_train_scaled,y_train,X_test,X_test_scaled,y_test}.npy
+  (cached once from a single preprocess_ciciot2023() run; not modified afterward;
+   every fold below is derived from these same arrays by boolean masking only)
+
+Total train samples (all classes): 5,491,971
+Total test samples (all classes):  1,176,851
+BenignTraffic — train: 129,538 | test: 27,709
+  BenignTraffic is never held out. It is present in every fold's training set
+  and every fold's test-known set (see "Benign retained/included" rows below).
+
+Class coverage check: all 34 label-encoder classes are assigned to exactly one
+of the 7 families or to Benign. No class is left uncovered (verified
+programmatically: uncovered-class set is empty).
+
+================================================================================
+FAMILY TABLE (as confirmed)
+================================================================================
+F1  DDoS        (12 classes): DDoS-ACK_Fragmentation, DDoS-HTTP_Flood, DDoS-ICMP_Flood,
+                 DDoS-ICMP_Fragmentation, DDoS-PSHACK_Flood, DDoS-RSTFINFlood, DDoS-SYN_Flood,
+                 DDoS-SlowLoris, DDoS-SynonymousIP_Flood, DDoS-TCP_Flood, DDoS-UDP_Flood,
+                 DDoS-UDP_Fragmentation
+F2  DoS         (4 classes):  DoS-HTTP_Flood, DoS-SYN_Flood, DoS-TCP_Flood, DoS-UDP_Flood
+F3  Mirai       (3 classes):  Mirai-greeth_flood, Mirai-greip_flood, Mirai-udpplain
+F4  Recon       (5 classes):  Recon-HostDiscovery, Recon-OSScan, Recon-PingSweep,
+                 Recon-PortScan, VulnerabilityScan
+F5  Web         (6 classes):  SqlInjection, XSS, CommandInjection, BrowserHijacking,
+                 Uploading_Attack, Backdoor_Malware
+F6  Spoofing    (2 classes):  DNS_Spoofing, MITM-ArpSpoofing
+F7  BruteForce  (1 class):    DictionaryBruteForce
+—   Benign      (1 class):    BenignTraffic (never held out)
+Total: 12 + 4 + 3 + 5 + 6 + 2 + 1 + 1 = 34 classes. Coverage complete.
+
+================================================================================
+PER-FOLD SIZES (computed directly from the cached y_train / y_test arrays)
+================================================================================
+
+FOLD F1 — DDoS (12 member classes)
+  Members: DDoS-ACK_Fragmentation, DDoS-HTTP_Flood, DDoS-ICMP_Flood, DDoS-ICMP_Fragmentation,
+           DDoS-PSHACK_Flood, DDoS-RSTFINFlood, DDoS-SYN_Flood, DDoS-SlowLoris,
+           DDoS-SynonymousIP_Flood, DDoS-TCP_Flood, DDoS-UDP_Flood, DDoS-UDP_Fragmentation
+  Training set size (family excluded):     1,493,471
+  Training samples excluded (family):      3,998,500
+  Benign training samples retained:          129,538
+  Test-unknown size (family, held out):      855,981
+  Test-known size (family excluded):         320,870
+  Benign test samples in test-known:          27,709
+
+FOLD F2 — DoS (4 member classes)
+  Members: DoS-HTTP_Flood, DoS-SYN_Flood, DoS-TCP_Flood, DoS-UDP_Flood
+  Training set size (family excluded):     4,541,315
+  Training samples excluded (family):        950,656
+  Benign training samples retained:          129,538
+  Test-unknown size (family, held out):      204,245
+  Test-known size (family excluded):         972,606
+  Benign test samples in test-known:          27,709
+
+FOLD F3 — Mirai (3 member classes)
+  Members: Mirai-greeth_flood, Mirai-greip_flood, Mirai-udpplain
+  Training set size (family excluded):     5,182,203
+  Training samples excluded (family):        309,768
+  Benign training samples retained:          129,538
+  Test-unknown size (family, held out):       66,749
+  Test-known size (family excluded):       1,110,102
+  Benign test samples in test-known:          27,709
+
+FOLD F4 — Recon (5 member classes, includes VulnerabilityScan)
+  Members: Recon-HostDiscovery, Recon-OSScan, Recon-PingSweep, Recon-PortScan, VulnerabilityScan
+  Training set size (family excluded):     5,450,354
+  Training samples excluded (family):         41,617
+  Benign training samples retained:          129,538
+  Test-unknown size (family, held out):        8,812
+  Test-known size (family excluded):       1,168,039
+  Benign test samples in test-known:          27,709
+
+FOLD F5 — Web (6 member classes)
+  Members: SqlInjection, XSS, CommandInjection, BrowserHijacking, Uploading_Attack, Backdoor_Malware
+  Training set size (family excluded):     5,489,150
+  Training samples excluded (family):          2,821
+  Benign training samples retained:          129,538
+  Test-unknown size (family, held out):          626
+  Test-known size (family excluded):       1,176,225
+  Benign test samples in test-known:          27,709
+
+  Note: F5 (Web, 626 test-unknown) has 6 member classes with support ranging
+  from 33 (Uploading_Attack) to 148 (SqlInjection). The fold's UTDR will be
+  dominated by the larger classes; per-class breakdown will be reported in
+  per_class_breakdown.csv (Phase 6).
+
+FOLD F6 — Spoofing (2 member classes)
+  Members: DNS_Spoofing, MITM-ArpSpoofing
+  Training set size (family excluded):     5,434,441
+  Training samples excluded (family):         57,530
+  Benign training samples retained:          129,538
+  Test-unknown size (family, held out):       12,410
+  Test-known size (family excluded):       1,164,441
+  Benign test samples in test-known:          27,709
+
+FOLD F7 — BruteForce (1 member class)
+  Members: DictionaryBruteForce
+  Training set size (family excluded):     5,490,430
+  Training samples excluded (family):          1,541
+  Benign training samples retained:          129,538
+  Test-unknown size (family, held out):          319
+  Test-known size (family excluded):       1,176,532
+  Benign test samples in test-known:          27,709
+
+RELIABILITY FLAG CHECK (threshold: test-unknown < 50 samples):
+  No fold falls below 50 test-unknown samples. Smallest fold is F5-Web with
+  626 test-unknown samples (sum of its 6 low-frequency classes); the smallest
+  single-class fold is F7-BruteForce with 319. No fold requires an asterisk.
+  Note for interpretation: F4 (8,812), F5 (626), F6 (12,410), and F7 (319) are
+  still small relative to F1 (855,981) — micro- vs macro-aggregation will
+  diverge substantially (see aggregate_metrics.csv in Phase 5), but none is
+  below the 50-sample reliability floor you specified.
+
+================================================================================
+MODEL / METHOD CONFIGURATION (fixed across all folds — not tuned per fold)
+================================================================================
+
+Isolation Forest hyperparameters (read from the currently saved
+saved_models/isolation_forest.pkl via .get_params(), matching
+evaluate_unknown_threats.get_isolation_forest()'s construction call):
+  n_estimators   = 200
+  contamination  = 0.05
+  random_state   = 42
+  n_jobs         = -1
+  bootstrap      = False
+  max_features   = 1.0
+  max_samples    = 'auto'
+  warm_start     = False
+These are identical for all 7 folds. Each fold's Isolation Forest is a freshly
+fit sklearn.ensemble.IsolationForest instance trained ONLY on that fold's
+training set (family excluded), using the identical hyperparameters above.
+
+Anomaly decision rule / "threshold":
+  evaluate_unknown_threats.py does NOT define a separate numeric anomaly-score
+  cutoff. It classifies via `if_pred = iforest.predict(X_test_scaled)`
+  (line 461), which uses scikit-learn's internal decision boundary (the
+  fitted `offset_` attribute) established automatically during `.fit()` from
+  contamination=0.05. There is no independent "threshold" value to hold fixed
+  beyond contamination itself. Per fold, each Isolation Forest computes its
+  own `offset_` as a direct, deterministic consequence of fitting with the
+  same contamination=0.05 on that fold's own training data — this is REQUIRED
+  for LOFO to be meaningful (the model must be trained on data that excludes
+  the held-out family) and is NOT the same thing as retuning a threshold
+  per fold. No manual threshold search or adjustment is performed anywhere.
+  (Note: an unrelated constant ANOMALY_THRESHOLD = 0.55 exists in
+  unknown_attack_detector.py, but that belongs to a different, differently-
+  normalized scoring path used only by the live/production detect_unknown()
+  function — it is not used by evaluate_unknown_threats.py and is not used
+  here.)
+
+XGBoost classifier (fixed, not retrained per fold):
+  Model path: backend/ml_model/saved_models/xgboost.pkl
+  Trained on the FULL original training set (all 34 classes), unmodified.
+  Used identically across all 7 folds to compute per-flow confidence
+  (max predict_proba) on each fold's test-unknown and test-known sets.
+  Confidence threshold: CONFIDENCE_THRESHOLD = 0.60
+    (evaluate_unknown_threats.py, line 82)
+
+Hybrid fusion rule (OR-fusion, read verbatim from evaluate_unknown_threats.py
+line 477 — not invented):
+    pred_unknown = (confidence < CONFIDENCE_THRESHOLD) | (if_pred == -1)
+  i.e. a flow is flagged "unknown" if EITHER XGBoost's top-class confidence
+  is below 0.60 OR the fold's Isolation Forest flags it as anomalous
+  (if_pred == -1). Applied identically in every fold.
+
+Feature preprocessing asymmetry (preserved per fold, per instruction):
+  - XGBoost confidence is computed on CLIPPED, UNSCALED features
+    (fold's X_test slice from audit/lofo/cache/X_test.npy — same clip
+    bounds as used for the original full-dataset preprocessing, since
+    XGBoost was trained on data clipped that same way).
+  - Isolation Forest is trained and scored on CLIPPED, SCALED features
+    (fold's X_train_scaled / X_test_scaled slices from
+    audit/lofo/cache/X_train_scaled.npy / X_test_scaled.npy).
+  - clip_lower.pkl, clip_upper.pkl, scaler.pkl, label_encoder.pkl,
+    feature_columns.pkl are NOT refit per fold. The cached arrays already
+    embed the ONE clip+scale transformation fit on the full original
+    training set (backend/ml_model/saved_models/{scaler,clip_lower,
+    clip_upper,label_encoder,feature_columns}.pkl, unmodified, verified
+    byte-identical to the git-committed versions via `git diff --exit-code`
+    after this dataset-recovery work). Per-fold train/test arrays are pure
+    boolean-mask slices of these same base arrays — no re-fitting occurs.
+
+Output paths for Phase 2 (not yet written):
+  audit/lofo/models/if_fold_F1.pkl ... if_fold_F7.pkl  (gitignored, regenerable)
+  audit/lofo/cache/  contains only the shared base arrays above (gitignored)

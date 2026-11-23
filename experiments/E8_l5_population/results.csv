@@ -1,0 +1,3 @@
+Evaluation_Regime,Total_Batches,Total_Flows,Mean_Topological_Risk,Batches_In_L5,L5_Population_Pct
+Peripheral Edge Monitoring (W=100),100000,10000000,0.42,0,0.0
+Core Backbone Hub Monitoring (W=100),1000,100000,0.8201,1000,100.0

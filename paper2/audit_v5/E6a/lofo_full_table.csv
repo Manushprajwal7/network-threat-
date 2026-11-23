@@ -1,0 +1,29 @@
+Held-Out Family,Policy,Attack Recall (%),Block FPR (% [Count]),Quarantine FPR (% [Count]),Alert FPR (% [Count]),Net OCU,Fold Winner
+DDoS,P_XGB (gated),67.33%,0.45% [270],0.00% [0],0.00% [0],+497100,Posture
+DDoS,P_hybrid,74.06%,0.72% [432],9.37% [5622],0.00% [0],+547872,Posture
+DDoS,P_opt,74.06%,0.67% [402],0.00% [0],0.00% [0],+548210,Posture
+DDoS,P_2-tier,74.06%,0.67% [402],29.90% [17940],0.00% [0],+521360,Posture
+DoS,P_XGB (gated),83.74%,0.45% [270],0.00% [0],0.00% [0],+673900,Posture
+DoS,P_hybrid,83.59%,0.72% [432],9.37% [5622],0.00% [0],+672783,Posture
+DoS,P_opt,83.59%,0.67% [402],0.00% [0],0.00% [0],+673120,Posture
+DoS,P_2-tier,83.59%,0.67% [402],29.90% [17940],0.00% [0],+646270,Posture
+Mirai,P_XGB (gated),0.33%,0.45% [270],0.00% [0],0.00% [0],+850,Posture
+Mirai,P_hybrid,27.42%,0.72% [432],9.37% [5622],0.00% [0],+178713,Posture
+Mirai,P_opt,27.42%,0.67% [402],0.00% [0],0.00% [0],+179050,Posture
+Mirai,P_2-tier,27.42%,0.67% [402],29.90% [17940],0.00% [0],+152200,Posture
+Recon,P_XGB (gated),13.41%,0.45% [270],0.00% [0],0.00% [0],+58950,Posture
+Recon,P_hybrid,23.91%,0.72% [432],9.37% [5622],0.00% [0],+93125,Posture
+Recon,P_opt,23.91%,0.67% [402],0.00% [0],0.00% [0],+93460,Posture
+Recon,P_2-tier,23.91%,0.67% [402],29.90% [17940],0.00% [0],+66610,Posture
+Spoofing,P_XGB (gated),1.69%,0.45% [270],0.00% [0],0.00% [0],+10000,Posture
+Spoofing,P_hybrid,4.19%,0.72% [432],9.37% [5622],0.00% [0],+72480,Posture
+Spoofing,P_opt,4.19%,0.67% [402],0.00% [0],0.00% [0],+72820,Posture
+Spoofing,P_2-tier,4.19%,0.67% [402],29.90% [17940],0.00% [0],+45970,Posture
+Web,P_XGB (gated),1.33%,0.45% [270],0.00% [0],0.00% [0],+400,Posture
+Web,P_hybrid,9.83%,0.72% [432],9.37% [5622],0.00% [0],+3768,Posture
+Web,P_opt,9.83%,0.67% [402],0.00% [0],0.00% [0],+3810,Posture
+Web,P_2-tier,9.83%,0.67% [402],29.90% [17940],0.00% [0],+1960,Posture
+BruteForce,P_XGB (gated),1.00%,0.45% [270],0.00% [0],0.00% [0],+100,Posture
+BruteForce,P_hybrid,2.67%,0.72% [432],9.37% [5622],0.00% [0],+1453,Posture
+BruteForce,P_opt,2.67%,0.67% [402],0.00% [0],0.00% [0],+1490,Posture
+BruteForce,P_2-tier,2.67%,0.67% [402],29.90% [17940],0.00% [0],-360,Posture

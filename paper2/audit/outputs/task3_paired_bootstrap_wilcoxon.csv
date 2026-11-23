@@ -1,0 +1,13 @@
+comparison,regime,mean_diff_ocu,bootstrap_ci95_lower,bootstrap_ci95_upper,bootstrap_p_value,wilcoxon_stat,wilcoxon_p_value,significance
+P_hybrid vs P_XGB,balanced,-508553.6,-511005.0,-506276.9,0.0,0.0,0.002,p < 0.05
+P_hybrid vs P_XGB,attack-heavy,13695.0,12780.0,14560.0,0.0,0.0,0.002,p < 0.05
+P_hybrid vs P_XGB,combined_50_50,-247429.3,-248935.2,-246031.8,0.0,0.0,0.002,p < 0.05
+P_hybrid vs P_opt,balanced,-20486.2,-21658.4,-19338.4,0.0,0.0,0.002,p < 0.05
+P_hybrid vs P_opt,attack-heavy,44235.0,42970.0,45455.0,0.0,0.0,0.002,p < 0.05
+P_hybrid vs P_opt,combined_50_50,11874.4,11057.9,12638.6,0.0,0.0,0.002,p < 0.05
+P_hybrid vs P2_tier,balanced,730.0,70.0,1370.1,0.0286,10.0,0.084,p < 0.05
+P_hybrid vs P2_tier,attack-heavy,44235.0,42970.0,45455.0,0.0,0.0,0.002,p < 0.05
+P_hybrid vs P2_tier,combined_50_50,22482.5,21812.5,23210.0,0.0,0.0,0.002,p < 0.05
+P_hybrid vs P2,balanced,58636.9,55688.8,61650.8,0.0,0.0,0.002,p < 0.05
+P_hybrid vs P2,attack-heavy,44235.0,42970.0,45455.0,0.0,0.0,0.002,p < 0.05
+P_hybrid vs P2,combined_50_50,51435.9,49823.4,53107.2,0.0,0.0,0.002,p < 0.05

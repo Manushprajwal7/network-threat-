@@ -1,0 +1,10 @@
+Split Pair,Intersection Count,Is Disjoint,Status
+Train vs Validation,0,True,PASS (Strictly Separate Sets)
+Train vs Test,0,True,PASS (Strictly Separate Sets)
+Validation vs Test,0,True,PASS (Strictly Separate Sets)
+E2 vs E21 (Legacy),2821,False,"FAIL (2,821 Overlapping Flows)"
+E2 vs E21 (Disjoint Remediated),0,True,PASS (Strictly Disjoint Partition)
+E2 vs E1 (Disjoint Remediated),0,True,PASS (Strictly Disjoint Partition)
+E2 vs E8 (Disjoint Remediated),0,True,PASS (Strictly Disjoint Partition)
+E21 vs E8 (Disjoint Remediated),0,True,PASS (Strictly Disjoint Partition)
+E1 vs E8 (Disjoint Remediated),0,True,PASS (Strictly Disjoint Partition)

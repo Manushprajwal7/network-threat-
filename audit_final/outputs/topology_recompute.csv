@@ -1,0 +1,4 @@
+metric_scope,mean,std,threshold,z_score,formula,gaussian_p_value,notes
+Target Theoretical Formulation,0.42,0.08,0.75,4.125,(0.75 - 0.42) / 0.08,1.854e-05,Source of 4.125 sigma in abstract and text
+Theoretical Batch Mean (W=100),0.42,0.008,0.75,41.25,4.125 * sqrt(100),0.000e+00,Source of 41.25 sigma in Section 4.2.3
+Empirical Node Distribution (120 nodes),0.4189,0.0721,0.75,4.5931,(0.75 - 0.4189) / 0.0721,2.184e-06,Exact empirical Z on 120-node BA graph (4.59 sigma)

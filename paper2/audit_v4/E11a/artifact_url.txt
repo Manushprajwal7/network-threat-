@@ -1,0 +1,13 @@
+# Open Science Reproducibility Package Pointers
+
+1. **Public Repository (Blinded for Double-Blind Peer Review)**:
+   https://anonymous.4open.science/r/iot-posture-reproducibility/
+
+2. **Persistent DOI Archive (Zenodo / OSF)**:
+   https://doi.org/10.5281/zenodo.[Pending Final Acceptance / Blinded for Review]
+
+3. **Deterministic Seeds Catalog**:
+   - Master Split Seed: `42`
+   - Evaluation Hold-Out Seed: `99`
+   - Baseline Anomaly Seed: `2024`
+   - 10-Seed Multi-Regime Ensemble: `[13, 42, 99, 123, 2024, 7, 77, 101, 2023, 31415]`

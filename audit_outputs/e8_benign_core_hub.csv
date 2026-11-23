@@ -1,0 +1,7 @@
+posture_level,benign_control_flows,benign_control_pct,attack_experiment_flows,attack_experiment_pct,assigned_p2_action
+L0,0,0.0,0,0.0,Allow
+L1,100000,100.0,0,0.0,Alert
+L2,0,0.0,0,0.0,Restrict
+L3,0,0.0,0,0.0,Quarantine
+L4,0,0.0,0,0.0,Block
+L5,0,0.0,100000,100.0,Block

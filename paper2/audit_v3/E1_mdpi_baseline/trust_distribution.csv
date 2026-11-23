@@ -1,0 +1,7 @@
+Band,Range,Count,Share_Pct,Attack_Count,Attack_Pct
+High Trust (L0),"[80, 100]",56553,94.26,55071,97.38
+Moderate Trust (L1),"[60, 79]",3447,5.74,3447,100.0
+Low Trust (L2),"[40, 59]",0,0.0,0,0.0
+Quarantine Trust (L3),"[20, 39]",0,0.0,0,0.0
+Very Low Trust (L4),"[10, 19]",0,0.0,0,0.0
+Critical Trust (L5),"[0, 9]",0,0.0,0,0.0

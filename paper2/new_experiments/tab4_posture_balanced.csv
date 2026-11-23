@@ -1,0 +1,7 @@
+Window,Level,Batches,Total Flows,Attack Flows,Benign Flows,Attack %,95% CI,Mean Trust
+Balanced Stratified 60k,L0,0,72,72,0,100.00%,"[100.0%, 100.0%]",10.20
+Balanced Stratified 60k,L1,38,"3,800",466,"3,334",12.26%,"[11.2%, 13.3%]",28.72
+Balanced Stratified 60k,L2,65,"6,500","1,388","5,112",21.35%,"[20.4%, 22.4%]",26.72
+Balanced Stratified 60k,L3,28,"2,800",974,"1,826",34.79%,"[33.0%, 36.6%]",23.74
+Balanced Stratified 60k,L4,286,"28,600","27,100","1,500",94.76%,"[94.5%, 95.0%]",11.27
+Balanced Stratified 60k,L5,0,0,0,0,0.00%,N/A,0.00

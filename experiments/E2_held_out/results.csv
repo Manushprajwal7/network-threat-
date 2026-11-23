@@ -1,0 +1,4 @@
+Policy,Mapping,Held-Out Balanced Net (OCU),Held-Out Balanced Benign Penalty (OCU),Held-Out Balanced Block FPR (%),Held-Out Balanced Disruptive FPR (%),Attack-Heavy Net (OCU),Combined Net Benefit (OCU)
+P1 (Default),Allo-Aler-Rest-Quar-Quar-Bloc,418728,157567,0.0,31.013817213251205,1149600,784164.0
+P2-tier (Recommended),Allo-Aler-Rest-Quar-Bloc-Bloc,959388,158827,0.11986016314299984,31.013817213251205,2856000,1907694.0
+P2 (Global Cost-Optimal),Allo-Rest-Quar-Bloc-Bloc-Bloc,894198,535242,31.013817213251205,39.873480938904606,2856000,1875099.0

@@ -1,0 +1,6 @@
+action,count,share%,atk_count,ben_count,atk_prec%,ben_share%,mean_trust,mean_anom,mean_tarp,monotonicity
+Allow,0,0.0,0,0,0.0,0.0,0.0,0.0,0.0,N/A (empty)
+Alert,54553,90.92,54553,0,100.0,0.0,83.21,0.87,0.42,Baseline
+Restrict,0,0.0,0,0,0.0,0.0,0.0,0.0,0.0,N/A (empty)
+Quarantine,5447,9.08,3840,1607,70.5,29.5,82.66,0.985,0.42,INVERTED (70.50% < 100.00%)
+Block,0,0.0,0,0,0.0,0.0,0.0,0.0,0.0,N/A (empty)

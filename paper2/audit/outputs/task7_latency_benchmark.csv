@@ -1,0 +1,7 @@
+component,batch_time_sec,per_flow_latency_us,pct_overhead
+XGBoost Supervised Classification,0.2814,28.14,80.4
+Isolation Forest Anomaly Scoring,0.0267,2.67,7.6
+TARP Topological Risk Lookup,2.9e-05,0.0029,0.01
+ADTM Dynamic Trust EWMA Update,0.0382,3.82,10.9
+Posture Window Escalation (W=100),0.0036,0.36,1.0
+Full Multi-Stage Pipeline Total,0.35,35.0,100.0

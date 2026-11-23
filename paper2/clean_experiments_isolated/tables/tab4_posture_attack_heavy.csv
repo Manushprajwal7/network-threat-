@@ -1,0 +1,7 @@
+Window,Level,Batches,Total Flows,Attack Flows,Benign Flows,Attack %,95% CI,Mean Trust
+Attack-Heavy 60k,L0,0,0,0,0,0.00%,N/A,0.00
+Attack-Heavy 60k,L1,0,0,0,0,0.00%,N/A,0.00
+Attack-Heavy 60k,L2,0,0,0,0,0.00%,N/A,0.00
+Attack-Heavy 60k,L3,0,0,0,0,0.00%,N/A,0.00
+Attack-Heavy 60k,L4,600,"60,000","58,560","1,440",97.60%,"[97.5%, 97.7%]",10.70
+Attack-Heavy 60k,L5,0,0,0,0,0.00%,N/A,0.00

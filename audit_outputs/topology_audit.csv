@@ -1,0 +1,2 @@
+total_nodes,total_edges,min_risk,p5_risk,median_risk,mean_risk,std_risk,p95_risk,max_risk,hub_nodes_count,hub_node_ids,tau_R_hub,individual_Z_score,batch_mean_Z_score
+120,236,0.3853,0.3859,0.3905,0.4189,0.0721,0.5014,0.9,2,"[0, 4]",0.75,4.125,41.25

@@ -1,0 +1,106 @@
+<USER_REQUEST>
+ fix all these properlly 
+
+
+TASK: Revise paper2_manuscript so every claim is (a) a continuation of the base paper [1], (b) limited to what the existing code and outputs actually show, and (c) honest about results and limitations.
+
+RULES
+- Do NOT run new experiments or retrain anything. You may READ existing code, CSVs and logs.
+- Every number in the paper must trace to an existing output file. If you can't trace it, delete it or mark it "not verified". Never invent a number.
+- Never strengthen a claim. Never delete a limitation. If a fix makes results look worse, keep the honest version.
+- Edit in place, keep formatting. At the end give a change log: item # | section | old text | new text | source file.
+- If code and paper disagree and the right answer isn't obvious, STOP and ask me. Don't pick silently.
+
+========== P0: NUMBERS THAT CONTRADICT EACH OTHER (fix first) ==========
+
+1. HEADLINE OCU DOES NOT REPRODUCE FROM TABLE 6
+ISSUE: Table 6 level counts + Table 2 cost matrix give P2-tier = +963,686, P_opt = +985,534, P1 = +423,686 OCU on the balanced stratified stream. Max possible attack reward on that stream is 30,118 x 50 = 1,505,900. Yet Abstract, 1.3, Table 1, Tables 8/8b/8e, 4.3.2 report +1.40M to +1.47M for posture policies. The "+1,909,843 combined" (4.3.2, Table 10, Fig 7/8, Conclusion) equals (963,686 + 2,856,000)/2, i.e. the OLD dual-regime protocol. The "~500k reconciliation" paragraph in 3.4 doesn't explain this: the old balanced component was 985,534, not 1.44M.
+WHERE: Abstract; 1.3 (Contribution 3); Table 1 (last row); 3.4 "Clarification of Historical OCU Shift"; 4.3.2; Tables 8, 8b, 8c, 8e, 10; Figs 7-8; Appendix C and E; Table A1 rows E1/E2/E16/E21/E24.
+FIX: (a) Read the code that produced the 50-run, test-split (seed 99) and balanced-mean numbers, and the code that produced Table 6. State whether they use the same stream and the same level assignment. (b) Pick ONE evaluation protocol per table and label each number with its stream. (c) If the two protocols can't be reconciled, report both with explicit labels, headline neither, and rewrite or delete the "~500k reconciliation" paragraph so it states only what the code shows. (d) Add one sentence: on the Table 6 stream posture policies capture ~64% of achievable OCU.
+
+2. TABLE 8c RANK-1 ROW IS NOT P_opt
+ISSUE: The numbers labelled P_opt (2,052,438.1; 1,470,740; flood 2,962,515; recall 98.67) match mapping (0,0,0,0,4,4) = Allow-Allow-Allow-Allow-Block-Block, not Allow-Allow-Restrict-Restrict-Block-Block (that mapping is rank 8, 2,033,585.0). The P2-tier numbers (2,027,331.5; 1,438,976.8) match (0,0,1,3,4,4) = Allow-Allow-Alert-Quarantine-Block-Block (rank 10); true P2-tier (0,1,2,3,4,4) is rank 15 (2,009,492.8). P1's "Rank 44 / 1,184,210" isn't in 8c; the P1 mapping is rank 50 (778,666.2).
+WHERE: Tables 8, 8b, 8c, 8e; Abstract; 1.3; 3.4.2; 4.3.2; 6.2; 6.4; 6.12; Conclusion (every "Rank 1 / Rank 9 / Rank 44" and every claim that P_opt maps L2/L3 to Restrict with 0.00% Quarantine FPR).
+FIX: Check the action-code encoding and policy naming in code. Correct either the mapping labels or the numbers so name, mapping, rank and OCU agree everywhere. If the true rank-1 is Allow-Allow-Allow-Allow-Block-Block, rewrite the P_opt discussion accordingly.
+
+3. TABLE 8d (LOFO) NET OCU IS IMPOSSIBLE
+ISSUE: Max net OCU = 50 x attack flows. Reported: DoS 672,783 (max 266,400); Mirai 178,713 (max 89,400); Recon 93,125 (max 11,750); Spoofing 72,480 (max 16,100); Web 3,768 (max 750); BruteForce 1,453 (max 250). Block/Quarantine FPR columns are identical across all folds (copied balanced-stream constants, not per-fold). Web/BruteForce recall comes from "window-level probability averaging" (e.g. 9.83% of 15 flows), not flow counts.
+WHERE: Table 8d; 4.3.6; 5.3; 6.11; Abstract; Conclusion (all "higher net OCU on 6 of 7 / 5 of 7 folds" claims).
+FIX: Check what stream the OCU was computed over. Either relabel the column honestly (whole-fold OCU, not family-only) or drop it from the table and keep recall only. Delete the "wins X of 7 folds on OCU" claims unless the numbers are valid. Remove FPR columns unless they are per-fold. Report Web/BruteForce as integer flows detected or drop those rows. Also state that held-out DoS/DDoS/Mirai families have sibling classes in training, so "novel" is partial.
+
+4. TABLE 6b IS STALE AND MISDESCRIBED
+ISSUE: "observed_round_robin" row shows L0=13,400, L1=4,600, L2=8,500, L3=15,400, L4=17,700, L5=400, P_opt OCU 986,315, monotonicity 1.0. Table 6 shows 7,700/10,300/5,500/18,500/18,000/0 and L5 = 0. The value 985,534 (what Table 6 counts give for P_opt) appears as a permutation CI bound, so the table mixes drafts. The text says "observed monotonicity rate is 0.945, p = 1.000"; 0.945 is the permutation MEAN, observed is 1.0. Every row says "ROBUST", including p = 0.062. The caption says shuffling "node assignment and batch order"; 4.2.3 says "shuffling attack labels and batch arrival orders"; the Introduction says "arrival order".
+WHERE: Table 6b; 4.2.3; 1.3; Abstract; Conclusion; 6.5.
+FIX: Regenerate Table 6b from the existing permutation CSV so "observed" equals Table 6. State exactly what is permuted and what the test statistic and null are. Fix 0.945 -> "permutation mean 0.945; observed 1.0". Delete the "robust_status" column and the "invariants" wording. Say plainly: p = 1.000 means the test gives no evidence either way; ordering is descriptive only.
+
+5. LEVEL L5: CONTRADICTION AND WRONG EXPLANATION
+ISSUE: Table 6 says L5 = 0 on this stream; 4.2.3 says "observed 400 flows in the round-robin run on that stream". Explanation "dormant because mean R ~ 0.42" is wrong: R is per batch (n(b) = b mod 120), so batches 0, 4, 120, 124, ... (10 of 600) land on hubs Node 0/4 (R >= 0.75). 3.3 says L4 and L5 capture "99.43% attack density on attack-heavy streams", but Table 5 gives L4 = 97.60%; 99.43% is L5 in permutation runs. "95.7% of runs populate L5" is not in Table 6b.
+WHERE: 1.3; 3.3 (L5 notes); 4.2.2; 4.2.3; 5.2; 6.5; Conclusion; Appendix B (Table 12 missing).
+FIX: Read the code and print, for the evaluated stream: which batches map to nodes 0 and 4, and whether any of them has S>=3 and T<=20. Then state the TRUE reason L5 = 0 (e.g., "hub batches never meet the S/T conditions in this stream" or "hub nodes excluded by construction"). Reword to: L5 is absent on the evaluated stream; its logic was only exercised on synthetic hub-only streams (E8/E17) and in permutation runs; its actions (BGP diversion etc.) are untested. Remove "to prevent edge disconnection" and the 99.43% claim from 3.3.
+
+6. MISSING TABLES
+ISSUE: Literal placeholders <<<TABLE_12>>>, <<<TABLE_13>>>, <<<TABLE_14>>>.
+WHERE: Appendix B, C, D.
+FIX: Fill from existing CSVs (E8/E17 for L5 population, E19 for weights, E20 for thresholds) or delete the sentences that depend on them.
+
+7. EXPERIMENT IDs / TRACEABILITY MATRIX DISAGREE WITH THE BODY
+ISSUE: Table A1 vs body: E3 (FPR audit vs topology), E4 (ADTM weight sweep vs topology permutation in 4.2.3/6.8), E5 (threshold sweep vs XGB/hybrid baselines), E6 (cost scaling vs LOFO and regime-shift), E8 (L5 population vs cost-matrix in Appendix E), E9 (regime switcher vs latency), E10 (BA calibration mu 0.42/sigma 0.08 vs math audit vs text mu 0.4189/sigma 0.0721). Body experiments absent from A1: Table 3 controlled IF runs, dose-response, ECOD/Mahalanobis, 10-seed XGB/hybrid, LOFO, latency, 50-run enumeration. A1 "key findings" carry superseded numbers (E2 +2,863,600; E21 Block FPR 0.23%, Quarantine 30.72%, +959,843 vs text 0.00% / 29.90%).
+WHERE: Table A1; 4.2.3; 4.3.5-4.3.8; 6.7-6.8; Appendices B-F; Data Availability ("56 CSV tables", two different manifest paths).
+FIX: Rebuild A1 from the real file manifest: one row per experiment with exact output file, the paper section/table it supports, and the number exactly as printed in the paper. Make body IDs match. Remove "every reported metric is traceable" unless true after rebuild.
+
+========== P1: CLAIMS THAT GO BEYOND WHAT IS IMPLEMENTED ==========
+
+8. "ACTION PRECISION INVERSION" IS NOT REPRODUCED
+ISSUE: Table 7 shows the reconstructed P0 on the standardized stream: Alert 0.00% attack, Quarantine 100% (monotone, NOT inverted). The 100% vs 70.5% inversion comes from [1] and is stated as "not re-verified". Yet Table 7 caption, 4.3, 4.3.1, Fig 6, Table 1 and 1.1(2) present inversion as a diagnosed failure that we repaired.
+FIX: Say we could not reproduce the inversion; in our reconstruction P0 is already monotone; P2-tier's five tiers are monotone but L2/L3 sit near base rate. Remove "resolves inversion" framing; relabel Fig 6 as "reported in [1]" vs ours.
+
+9. BASELINE "REPLICATION" CONTRADICTS ITSELF
+ISSUE: 1.4 says replication confirmed Alert 90.92% / Quarantine 9.08% / others 0% (these are [1]'s Table 19A numbers, 54,553/5,447). 6.1 says the archived code gave Alert 51,076, Quarantine 7,027, Restrict 1,882, Allow 15 (Restrict/Allow NOT zero). Table 7 P0 = 1,440 / 58,560. Trust-band trap: 94.26% (1.4) vs 99.97% High (Table 1, Table 4 "C0* Published Baseline"). Table 1 lists base-paper trust AUC as 0.0441, but text says [1] reported 0.7843 (0.0441 is OUR re-run without leakage). Same for IF AUC 0.0084 (our re-run, not published).
+FIX: Add one small table: for each phenomenon, "reported in [1] / archived code / our standardized-stream reconstruction". Downgrade "confirmed" to what is true. Fix Table 1 and Table 4 column labels. Rename "three systemic failure modes" to "three failure modes reported in [1], of which we reproduced N".
+
+10. TOPOLOGY AND c_topo
+ISSUE: R is calibrated to a target N(0.42, 0.08) and clipped to [0.10, 0.90] (Node 0 = 0.9000 = the clip), so Z-scores and p-values (2.18e-6, 1.85e-5, 4.37e-6) are properties of the generator, not statistical evidence. c_topo depends only on b mod 120, not on traffic, so ~half of batches get +1 to S regardless of attack status. The L0/L1 split (77 vs 103 batches, both 0% attack) is driven by node assignment. "L1 functions as an exclusionary filter on benign flows" is spin. Table 2d lists 8 critical nodes for m=3 but 1.4 says reconciliation "confirms consistent hub identification" (2 vs 8). No ablation of any S component exists.
+WHERE: 1.3; 1.4; 2.5; 3.1(5); Table 2d; Appendix B; 4.2.2; 4.2.3.
+FIX: Delete p-values; keep Z only as a descriptive generator property. State that c_topo carries no traffic information in this evaluation and that L0 vs L1 is not a detection result. Delete "exclusionary filter". Add limitation: "no ablation of c_topo, c_trust, c_anom, c_conf was run". Fix "consistent hub identification".
+
+11. TRUST CLAIMS TOO STRONG / STREAM UNNAMED
+ISSUE: Abstract says closed-world stream AUC 0.986; Conclusion says 0.9858 attack-heavy and 0.9990 balanced and "genuine behavioral separation ... robust"; A1 E15 says 0.9855; Appendix C gives 0.9991 for the same weights that give 0.9964 (C2*) in Table 4; Table 4 never names its stream (Table 3's 58,542/1,458 split implies attack-heavy, so benign AUC rests on ~1,458 flows). C4* benign mean trust is 32.96 (below the 60 threshold), so the final model degrades benign trust; C2* beats C4* (disclosed in 4.1.2 but not in Conclusion). EWMA memory + block-structured streams mean trust AUC partly measures block membership.
+FIX: Name the stream next to every trust AUC. Replace "genuine/robust" with "separation on this closed-world stream; hard reset consumes classifier predictions". Add the 32.96 availability caveat and the autocorrelation caveat to Conclusion. Reconcile 0.9858 vs 0.9855.
+
+12. ISOLATION FOREST SECTION
+ISSUE: (a) "inverted model ... generalizes unpredictably to novel attacks" (4.1.1) has no experiment. (b) Dose-response (10% -> 0.579; 20% -> 0.246) appears only in 5.1 and Conclusion with no table or experiment ID. (c) Mahalanobis 0.963, ECOD 0.977, inverted 0.9916 appear in the Abstract with no table. (d) Contamination % is 97.64 (correct: 5,362,433/5,491,971), 97.5 (Table 3), 97.76 (Fig 2 caption). (e) Headline AUC 0.9523 is one seed; 5-seed mean is 0.9380 +/- 0.0087. (f) D_calib (20k benign "carved from D_train") may overlap the 129,538 flows the IF was trained on; D_val/D_test disjointness from each other and from training is not stated.
+FIX: Delete (a) or mark as untested hypothesis. For (b)(c) add a table from existing CSVs or remove. Use 97.64 everywhere. Report 0.938 +/- 0.009 alongside 0.9523. For (f): read the split code; state the true relationship; if D_calib overlaps IF training, disclose it as a limitation (quantiles biased toward "normal").
+
+13. POLICY-SEARCH SELECTION STATEMENTS CONFLICT
+ISSUE: 3.1(d) says D_test "verifies rankings generalize out-of-sample without overfitting"; Abstract/Conclusion say selected and scored on the same split; Algorithm 3 optimizes 0.5 x D_bal + 0.5 x D_atk; Table 8 ranks by 50-run mean (an unweighted regime average inflated by flood). Three different objectives.
+FIX: State the one objective actually used. Delete "without overfitting". Say "enumeration under an assumed cost matrix", not "optimization", in title/abstract/headings where applicable.
+
+14. HYBRID ATTRIBUTION
+ISSUE: In the flood stream (0 benign flows) the benign veto can only LOSE OCU (it would Allow attack flows the classifier mislabels benign). So the +14,071 OCU over XGB (+0.47%) cannot come from the veto; it comes from batch-level Block. 3.4.1 says hybrid "bounds false-blocking collateral" but its Block FPR on attack-heavy (the only stream with benign flows inside L4) is not reported. Table 8b labels hybrid "Zero-Day Generalization" though LOFO shows posture policies, not hybrid-specific gains. Abstract says "no significance test reported" but 4.3.5/5.3 report Wilcoxon p = 0.002.
+FIX: Reattribute the flood gain to batch-level Block. Add hybrid attack-heavy Block FPR if it exists in the CSVs, else state it wasn't measured. Remove "Zero-Day Generalization" label. Make Abstract match 4.3.5 and add: seeds are resamples from one finite dataset, so p = 0.002 overstates independence.
+
+15. "FORMAL PROOF" AND APPENDIX F
+ISSUE: 3.4.4 "Formal Proof of Zero Ground-Truth Label Access" is a function-signature observation, not a proof. Appendix F claims "exact alignment between pseudocode and code", which is contradicted by item 16.
+FIX: Rename to "Implementation note: veto takes only x_t and f_XGB; verified by code inspection; no independent leakage audit." Delete Appendix F (LaTeX/AST audit is repo hygiene, not a result) and E25.
+
+========== P2: SPEC CONSISTENCY AND WORDING ==========
+
+16. Table 2b vs 3.3 text vs Algorithm 1 disagree (L0 R<0.75; L1 "R>=0.42"; L2 "20<=T<60" appear only in the table). Hysteresis: 3.2.2 says one-level step-down, 300-flow cooldown AND T>=80/60 recovery; Algorithm 1 only checks cooldown and returns L_target directly. Table 2c says the Multi-State Phase Transition regime "validates hysteresis", but no hysteresis result is reported. FIX: read the code; make text, table and algorithm describe what the code does; if hysteresis wasn't used in reported results, say so; delete "validates hysteresis" if no result exists.
+
+17. Section numbering: two "3.3", 3.2.5 and 3.2.2 sit under 3.3; Table 2b cited as "Section 3.2"; 6.2 cites nonexistent "Section 3.6". Fig 1 caption and 5.2 say "sliding windows" but windows are non-overlapping. "Strictly monotonic" is used with >= signs (1.3, 4.2.2). Fix all.
+
+18. Deployment/latency claims: 3.1(3) says the gateway "operates inline ... flow-table packet drop" and "line-rate forwarding is realized". Nothing is implemented inline; evaluation is offline replay. Single-flow GPU latency is 13.8 ms (3.1, 4.3.8) vs 2.5 ms (5.4, 6.10). 5.4 says hysteresis "guarantees" no controller exhaustion (untested). Fix: describe inline operation as an assumed deployment context; call E9 "throughput of separately timed components on a laptop GPU"; reconcile latency; delete "guarantee".
+
+19. Table 9: caption says Block 54-100% and Quarantine 0-40%, rows show 54-75% and 25-40%; Web is 16 flows here but 15 in LOFO. Text frames 40-46% of attacks getting only Restrict/Quarantine as success; state it as a limitation. Table 10: P1 (rank 44-50 of 70) is a weak comparator, and the block-penalty sweep only touches 1,440 benign flows; say so, or compare against P_opt / P_XGB using existing per-level counts.
+
+20. Scrub promotional wording: "forensic autopsy", "cleanly separates", "highest standards of scientific rigor", "immutable", "rigorous audit suite", "verified partitions", "genuine", "rounding to 0.008" (repeated). The same caveat block is repeated in Abstract, 1.3, 1.5, 5.3, 6 and 7: keep the full list in 6, a short list in 1.5, an Abstract <=250 words with the 4 key caveats, and a Conclusion with no new numbers. RQ1 cites [11] (the dataset) for "topology metrics". Reference [1] names the authors in-text (1.1, 1.4, Table 1, 7) while the title page says Anonymous: fix if the venue is double-blind. Verify the anonymous.4open.science URL and Zenodo DOI 10.5281/zenodo.14889214 actually exist; remove if not.
+
+========== FINAL CHECKS ==========
+A. Every number in Abstract, 1.3 and 7 appears in a table, with the same value and the same stream.
+B. Every claim in Abstract and 7 is also in 6 (limitations).
+C. No sentence says "validated / verified / proves / robust / genuine" without a cited table.
+D. Output the change log.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-11-22T14:49:26+05:30.
+</ADDITIONAL_METADATA>

@@ -1,0 +1,16 @@
+Window,Policy,Action,Total Flows,Attack Flows,Benign Flows,Attack Precision
+Attack-Heavy 60k,P1 (Default),Allow,0,0,0,N/A (empty)
+Attack-Heavy 60k,P1 (Default),Alert,0,0,0,N/A (empty)
+Attack-Heavy 60k,P1 (Default),Restrict,0,0,0,N/A (empty)
+Attack-Heavy 60k,P1 (Default),Quarantine,"60,000","58,560","1,440",97.60%
+Attack-Heavy 60k,P1 (Default),Block,0,0,0,N/A (empty)
+Balanced Stratified 60k,P1 (Default),Allow,"7,700",0,"7,700",0.00%
+Balanced Stratified 60k,P1 (Default),Alert,"10,300",0,"10,300",0.00%
+Balanced Stratified 60k,P1 (Default),Restrict,"5,500","2,552","2,948",46.40%
+Balanced Stratified 60k,P1 (Default),Quarantine,"36,500","27,566","8,934",75.52%
+Balanced Stratified 60k,P1 (Default),Block,0,0,0,N/A (empty)
+Balanced Stratified 60k,P2-tier,Allow,"7,700",0,"7,700",0.00%
+Balanced Stratified 60k,P2-tier,Alert,"10,300",0,"10,300",0.00%
+Balanced Stratified 60k,P2-tier,Restrict,"5,500","2,552","2,948",46.40%
+Balanced Stratified 60k,P2-tier,Quarantine,"18,500","9,566","8,934",51.71%
+Balanced Stratified 60k,P2-tier,Block,"18,000","18,000",0,100.00%

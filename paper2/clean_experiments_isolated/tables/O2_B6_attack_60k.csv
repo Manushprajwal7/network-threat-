@@ -1,0 +1,7 @@
+window,level,entities,share%,mean_trust,attack%,monotonicity_status
+Attack-heavy 60k,L0,0,0.00,0.00,0.00,N/A (empty)
+Attack-heavy 60k,L1,0,0.00,0.00,0.00,N/A (empty)
+Attack-heavy 60k,L2,0,0.00,0.00,0.00,N/A (empty)
+Attack-heavy 60k,L3,18,3.00,25.49,96.00,Baseline
+Attack-heavy 60k,L4,543,90.50,16.35,97.56,Monotonic (Non-decreasing)
+Attack-heavy 60k,L5,39,6.50,15.22,97.77,Monotonic (Non-decreasing)

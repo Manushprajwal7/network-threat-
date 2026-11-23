@@ -1,0 +1,7 @@
+Level,Label,Policy,N_Samples,N_Attack,N_Benign,Attack_Purity_Pct,Benign_Purity_Pct,Mean_Anomaly,Mean_Trust
+L0,High Trust (Baseline),Allow,56553,55071,1482,97.38,2.62,0.8763,83.57
+L1,Moderate Trust,Alert,3447,3447,0,100.0,0.0,0.9534,76.45
+L2,Low Trust / Restrict,Restrict,0,0,0,N/A,N/A,N/A,N/A
+L3,Anomalous Quarantine,Quarantine,0,0,0,N/A,N/A,N/A,N/A
+L4,Very Low Trust,Quarantine (Severe),0,0,0,N/A,N/A,N/A,N/A
+L5,Critical Trust / Block,Block,0,0,0,N/A,N/A,N/A,N/A

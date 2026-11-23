@@ -1,0 +1,17 @@
+Parameter,Value,Monotonic Attack Density,L4 Flows Bal,P2-tier Net (OCU)
+tau_anom,0.4,YES,18000,1907183
+tau_anom,0.5,YES,18000,1909733
+tau_anom,0.6,YES,18000,1910308
+tau_anom,0.7,YES,18000,1910500
+tau_T,40.0,YES,18000,1909733
+tau_T,50.0,YES,18000,1909733
+tau_T,60.0,YES,18000,1909733
+tau_T,70.0,YES,18000,1909733
+tau_T,80.0,NO (L1/L2 Inversion),23500,1854200
+tau_conf,0.8,YES,18000,1909733
+tau_conf,0.9,YES,18000,1909733
+tau_conf,0.95,YES,18000,1901101
+tau_topo,0.3,YES,18000,1901065
+tau_topo,0.42,YES,18000,1909733
+tau_topo,0.5,YES,18000,1919800
+tau_topo,0.75,NO (Premature L5),0,1780000

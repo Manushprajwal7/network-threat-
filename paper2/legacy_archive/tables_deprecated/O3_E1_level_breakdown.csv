@@ -1,0 +1,7 @@
+level,entities,action,total_flows,total_cost,net_benefit,attack%,mean_trust
+L0,142,Allow,14200,0,0,0.00,88.91
+L1,202,Alert,20200,-27854,27854,39.65,52.32
+L2,78,Restrict,7800,-34827,34827,57.42,40.25
+L3,7,Quarantine,700,-3605,3605,57.57,29.55
+L4,156,Quarantine,15600,-312000,312000,100.00,15.44
+L5,15,Block,1500,-75000,75000,100.00,14.53

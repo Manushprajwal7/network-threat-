@@ -1,0 +1,7 @@
+Level,Name,Evidence Score S,Trust Condition,Centrality R,Operational Meaning,Action P2-tier,Action P_opt
+L0,Nominal Surveillance,S = 0,T_mean >= 60.0,R_mean < 0.75,Zero threat evidence; healthy behavioral trust; nominal egress forwarding,Allow,Allow
+L1,Topology-Prior Monitoring,S = 1 (or S = 0),T_mean >= 60.0 (or T < 60),R_mean >= 0.42,Single isolated signal (often c_topo) or mild trust decay; enhanced logging,Alert,Allow
+L2,Elevated Monitoring,S = 2,20.0 <= T_mean < 60.0,R_mean < 0.75,Two concurrent signals (e.g. anomaly + trust decay); rate limiting / deep inspection,Restrict,Restrict
+L3,Active Containment,S >= 3,T_mean > 20.0,R_mean < 0.75,Three or more concurrent signals with moderate trust remaining; isolated sandboxing,Quarantine,Restrict
+L4,Severe Containment - Edge,S >= 3,T_mean <= 20.0,R_mean < 0.75,Acute threat saturation with depleted trust on peripheral edge gateways; port isolation,Block,Block
+L5,Critical Hub Containment,S >= 3,T_mean <= 20.0,R_mean >= 0.75,Acute threat saturation on high-centrality core SDN transit hubs; immediate BGP/flow shutdown,Block,Block

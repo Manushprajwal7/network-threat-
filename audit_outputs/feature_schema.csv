@@ -1,0 +1,47 @@
+feature_index,feature_name,category
+1,flow_duration,Flow Duration / Rate
+2,Header_Length,Protocol / Application
+3,Protocol Type,Protocol / Application
+4,Duration,Flow Duration / Rate
+5,Rate,Flow Duration / Rate
+6,Srate,Flow Duration / Rate
+7,Drate,Flow Duration / Rate
+8,fin_flag_number,Flags / Counts
+9,syn_flag_number,Flags / Counts
+10,rst_flag_number,Flags / Counts
+11,psh_flag_number,Flags / Counts
+12,ack_flag_number,Flags / Counts
+13,ece_flag_number,Flags / Counts
+14,cwr_flag_number,Flags / Counts
+15,ack_count,Flags / Counts
+16,syn_count,Flags / Counts
+17,fin_count,Flags / Counts
+18,urg_count,Flags / Counts
+19,rst_count,Flags / Counts
+20,HTTP,Protocol / Application
+21,HTTPS,Protocol / Application
+22,DNS,Protocol / Application
+23,Telnet,Protocol / Application
+24,SMTP,Protocol / Application
+25,SSH,Protocol / Application
+26,IRC,Protocol / Application
+27,TCP,Protocol / Application
+28,UDP,Protocol / Application
+29,DHCP,Protocol / Application
+30,ARP,Protocol / Application
+31,ICMP,Protocol / Application
+32,IPv,Protocol / Application
+33,LLC,Protocol / Application
+34,Tot sum,Statistical Aggregations
+35,Min,Statistical Aggregations
+36,Max,Statistical Aggregations
+37,AVG,Statistical Aggregations
+38,Std,Statistical Aggregations
+39,Tot size,Statistical Aggregations
+40,IAT,Flow Duration / Rate
+41,Number,Statistical Aggregations
+42,Magnitue,Statistical Aggregations
+43,Radius,Statistical Aggregations
+44,Covariance,Statistical Aggregations
+45,Variance,Statistical Aggregations
+46,Weight,Statistical Aggregations

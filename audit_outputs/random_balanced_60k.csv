@@ -1,0 +1,3 @@
+stream_type,policy,total_flows,benign_flows,attack_flows,block_fpr_pct,block_fpr_ci_lower,block_fpr_ci_upper,quarantine_fpr_pct,quarantine_fpr_ci_lower,quarantine_fpr_ci_upper,disruptive_fpr_pct,balanced_net_benefit_ocu,combined_net_benefit_ocu,is_monotonic
+Random Unstratified Balanced,P1 (Default),60000,29880,30120,0.0,0.0,0.013,75.425,74.934,75.91,75.425,179746,664673.0,True
+Random Unstratified Balanced,P2-tier (Recommended),60000,29880,30120,0.241,0.191,0.303,75.184,74.691,75.671,75.425,181066,1518533.0,True

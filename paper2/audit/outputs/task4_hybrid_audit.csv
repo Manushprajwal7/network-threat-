@@ -1,0 +1,10 @@
+stream,policy,net_benefit_ocu,block_fpr_pct,quarantine_fpr_pct,total_disruptive_fpr_pct,false_negatives_count,vetoed_benign_flows,vetoed_attack_false_negatives,per_flow_latency_us
+balanced,P_XGB,1479900,0.4719,0.0,0.4719,379,0,0,55.97
+balanced,P2_tier,963782,0.0,30.0047,30.0047,0,0,0,55.97
+balanced,P_hybrid,963282,0.0,30.0047,30.0047,10,0,10,55.97
+attack-heavy,P_XGB,2887550,0.4167,0.0,0.4167,803,0,0,13.52
+attack-heavy,P2_tier,2856000,100.0,0.0,100.0,0,0,0,13.52
+attack-heavy,P_hybrid,2902250,34.0278,0.0,34.0278,25,950,25,13.52
+unstratified,P_XGB,1479900,0.4719,0.0,0.4719,379,0,0,17.63
+unstratified,P2_tier,184267,0.5053,71.6652,72.1705,0,0,0,17.63
+unstratified,P_hybrid,188767,0.2041,71.6652,71.8694,0,90,0,17.63

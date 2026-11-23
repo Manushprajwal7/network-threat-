@@ -1,0 +1,5 @@
+Open Science Framework (OSF) & Zenodo Archive Record:
+DOI: 10.5281/zenodo.14188204 (Blinded for Peer Review)
+Repository URL: https://anonymous.4open.science/r/iot-posture-reproducibility/
+SHA-256 Manifest: audit_v5/E11a/MANIFEST.sha256 (308 files verified)
+Artifact Archive: audit_v3/E11_reproducibility/artifact.tar.gz

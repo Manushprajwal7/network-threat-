@@ -1,0 +1,9 @@
+Threat Family,Flows,Share (%),Mean Trust,Mean TARP,Dominant Action (P1),Quarantine (%),Block (%)
+Benign,"30,009",50.02%,77.96,0.411,Allow,0.99%,0.00%
+DDoS,"22,329",37.22%,19.28,0.429,Quarantine,53.30%,4.96%
+DoS,"5,322",8.87%,20.71,0.426,Quarantine,53.72%,4.90%
+Mirai,"1,726",2.88%,10.13,0.432,Quarantine,52.43%,5.33%
+Recon,262,0.44%,27.80,0.440,Quarantine,56.11%,5.73%
+Spoofing,320,0.53%,33.48,0.435,Quarantine,53.44%,7.19%
+Web,21,0.03%,35.84,0.437,Quarantine,52.38%,9.52%
+BruteForce,11,0.02%,26.06,0.359,Quarantine,72.73%,0.00%

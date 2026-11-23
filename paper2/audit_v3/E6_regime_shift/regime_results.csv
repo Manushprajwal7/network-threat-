@@ -1,0 +1,11 @@
+regime,batch_homogeneity,policy,ocu_mean,ocu_std,ocu_95_ci,block_fpr_pct,quarantine_fpr_pct,alert_fpr_pct,attack_recall_pct
+balanced,"Moderate (50% Attack, 50% Benign stratified blocks)",P_XGB,1472830.0,4194.0,"[1469829.8, 1475830.2]",0.45,,,98.64
+balanced,"Moderate (50% Attack, 50% Benign stratified blocks)",P_hybrid,1391654.0,7983.5,"[1385942.9, 1397365.1]",0.72,9.37,40.16,99.08
+attack-heavy,"High (97.6% Attack, 2.4% Benign)",P_XGB,2891120.0,3088.3,"[2888910.7, 2893329.3]",0.34,,,98.67
+attack-heavy,"High (97.6% Attack, 2.4% Benign)",P_hybrid,2896960.6,3096.2,"[2894745.7, 2899175.5]",1.47,21.09,27.83,99.12
+multi-state,Moderate-Low (Alternating state blocks),P_XGB,1472830.0,4194.0,"[1469829.8, 1475830.2]",0.45,,,98.64
+multi-state,Moderate-Low (Alternating state blocks),P_hybrid,1391352.6,9234.2,"[1384746.8, 1397958.4]",0.71,9.35,40.56,99.09
+unstratified,Degraded / Lowest (Uniform random shuffle across flows),P_XGB,1472830.0,4194.0,"[1469829.8, 1475830.2]",0.45,,,98.64
+unstratified,Degraded / Lowest (Uniform random shuffle across flows),P_hybrid,1326419.4,11070.4,"[1318500.1, 1334338.7]",1.1,20.29,28.46,99.05
+flood,"Maximum (100% Attack flood, zero benign)",P_XGB,2960105.0,1833.6,"[2958793.4, 2961416.6]",N/A (0 benign),,,98.67
+flood,"Maximum (100% Attack flood, zero benign)",P_hybrid,2974176.0,1290.7,"[2973252.7, 2975099.3]",N/A (0 benign),,,99.12

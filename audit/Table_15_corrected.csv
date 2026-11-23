@@ -1,0 +1,8 @@
+Model,Accuracy (%),Macro-F1 (%),ADR/Macro-Recall (%),FPR (%),Weighted-F1 (%),correction_type
+XGBoost,98.99,71.51,70.98,0.31,98.97,No change — Table 15 correct
+Random Forest,98.51,63.95,63.01,1.02,98.3,No change — Table 15 correct
+Decision Tree,97.56,66.23,68.67,0.2,97.94,No change — Table 15 correct
+Naive Bayes,17.47,17.13,22.75,0.65,11.24,No change — Table 15 correct
+Logistic Regression,0.15,0.5,3.56,0.0,0.11,MAJOR — paper value 81.61% / 47.70% does not match this codebase; real value 0.15% / 0.50%
+KNN,0.75,0.2,2.98,1.43,0.13,MAJOR — paper value 17.47% / 17.13% is a duplicate of Naive Bayes row (copy-paste error); real value 0.75% / 0.20%
+SVM,2.35,0.14,2.94,100.2,0.11,MAJOR — paper value 0.15% / 0.50% is the real Logistic Regression output mislabeled; real SVM value 2.35% / 0.14%

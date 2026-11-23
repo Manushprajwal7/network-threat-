@@ -1,0 +1,6 @@
+Configuration,Trust AUC,Trust Gap,Benign Trust Mean,Attack Trust Mean,Critical (<20) %,Very Low (20-40) %,Low (40-60) %,Moderate (60-80) %,High (>=80) %
+C0* (Published Baseline),0.0441,-7.35,86.01,93.36,0.0,0.0,0.0,0.03,99.97
+C1* (+ Clean IF),0.9492,7.23,87.96,80.74,0.0,0.0,0.0,35.18,64.82
+C2* (+ Clean IF + Dynamic Weights),0.9964,54.13,76.68,22.55,28.68,68.0,0.81,1.37,1.14
+C3* (+ Clean IF + Hard Reset),0.9682,50.55,87.96,37.42,60.55,0.0,0.0,1.19,38.27
+C4* (Full Neutral ADTM),0.9858,19.98,32.96,12.98,91.34,7.89,0.24,0.49,0.04

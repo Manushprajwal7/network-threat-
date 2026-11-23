@@ -1,0 +1,5 @@
+Policy,Balanced NB,Attack-heavy NB,Combined NB,Balanced Block FPR (%),Balanced Quarantine FPR (%),Attack-heavy Block FPR (%),Attack-heavy Quarantine FPR (%)
+Static P1 (Default Safe),423466,1149600,786533,0.0,29.9,0.0,100.0
+Static P2-tier (Recommended),963686,2856000,1909843,0.0,29.9,100.0,0.0
+Static P2 (Aggressive Baseline),907520,2856000,1881760,29.9,9.9,100.0,0.0
+Dynamic Adaptive Switcher (E9),963466,2856000,1909733,0.0,29.9,100.0,0.0
